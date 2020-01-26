@@ -3,21 +3,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL_image.h>
+
 #define WIN32_LEAN_AND_MEAN
-//#undef APIENTRY
+#undef APIENTRY
 #include <Windows.h>
 
 
-void GLAPIENTRY OnDebugMessage(GLenum source,
-    GLenum type,
-    GLuint id,
-    GLenum severity,
-    GLsizei length,
-    const GLchar* message,
-    const void* userParam)
-{
-    LOG("GL callback: type = " << type << ", severity = " << severity << ", message = " << message);
-}
+// --- General types ---------------------------------------------------------------------------------------------------
 
 
 #define VERTICES_PER_QUAD 4
@@ -122,6 +116,68 @@ typedef struct {
 } EmQuad;
 
 
+// --- Textures --------------------------------------------------------------------------------------------------------
+
+
+GLuint emCreateTextureFromPixels(GLvoid* pixels, GLsizei width, GLsizei height)
+{
+    GLuint textureId;
+
+    // Generate a texture object.
+    glGenTextures(1, &textureId);
+
+    // Bind the texture object.
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    // Use tightly packed data.
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    // Set the filtering mode.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // Load the texture into OpenGL.
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    return textureId;
+}
+
+
+SDL_Surface* emLoadImage(const char* filename)
+{
+    SDL_Surface* image = IMG_Load(filename);
+    if (!image)
+    {
+        LOG("Failed to load surface");
+        return nullptr;
+    }
+
+    return image;
+}
+
+
+EmTexture emLoadTextureFromMemory(GLvoid* pixels, GLsizei width, GLsizei height)
+{
+    GLuint texture1 = emCreateTextureFromPixels(pixels, width, height);
+    return EmTexture{ texture1, width, height };
+}
+
+
+EmTexture emLoadTextureFromFile(const char* filename)
+{
+    LOG("Loading texture from " << filename);
+    SDL_Surface* image = emLoadImage(filename);
+    EmTexture texture = emLoadTextureFromMemory(image->pixels, image->w, image->h);
+    SDL_FreeSurface(image);
+    return texture;
+}
+
+
+// --- Batch -----------------------------------------------------------------------------------------------------------
+
+
 // A batch for drawing quads.
 typedef struct {
     GLuint program;             // The shader program to apply for this batch.
@@ -145,8 +201,7 @@ void emAddQuadToBatch(EmBatch* batch, const EmQuad* quad, const EmPosition* posi
 void emAddQuadToBatchEx(EmBatch* batch, const EmQuad* quad, const EmPosition* position, EmRgba4b colour);
 
 
-
-static EmBatch emBatch = { 0 }; // The batch.
+EmBatch emBatch = { 0 }; // The batch.
 
 
 void emMakeQuad(const EmTexture* texture, EmRect2v srcRect, EmVec2f dstSize, bool hflip, bool vflip, EmQuad* quad)
@@ -261,7 +316,7 @@ void emBeginBatch(EmBatch* batch, GLsizei width, GLsizei height)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-static void emDrawBatch(EmBatch* batch)
+void emDrawBatch(EmBatch* batch)
 {
     if (batch->count == 0)
     {
@@ -278,7 +333,7 @@ static void emDrawBatch(EmBatch* batch)
     glDrawElements(GL_TRIANGLES, batch->count * INDICES_PER_QUAD, GL_UNSIGNED_SHORT, 0);
 }
 
-static void emFlushBatch(EmBatch* batch)
+void emFlushBatch(EmBatch* batch)
 {
     emDrawBatch(batch);
     batch->count = 0;
@@ -294,7 +349,7 @@ void emEndBatch(EmBatch* batch)
     glUseProgram(0);
 }
 
-static void emFlushBatchAsNeeded(EmBatch* batch, GLuint textureId)
+void emFlushBatchAsNeeded(EmBatch* batch, GLuint textureId)
 {
     // If the texture has changed then flush the batch and activate the new texture.
     if (textureId != batch->textureId)
@@ -370,7 +425,10 @@ void emAddQuadToBatch(EmBatch* batch, const EmQuad* quad, const EmPosition* posi
 
 
 
-static GLuint program;
+// --- Shaders ---------------------------------------------------------------------------------------------------------
+
+
+GLuint program;
 
 
 GLuint InitializeShaders()
@@ -479,14 +537,17 @@ void TearDownShaders()
 }
 
 
+// --- Main program ----------------------------------------------------------------------------------------------------
+
+
 // Window information.
-const GLuint WIDTH = 640;
-const GLuint HEIGHT = 480;
+const GLuint WIDTH = 512;
+const GLuint HEIGHT = 512;
 const char* const TITLE = "GLFW Skeleton App";
 
-// Viewport information.
-const GLsizei VIEWPORT_WIDTH = WIDTH / 2;
-const GLsizei VIEWPORT_HEIGHT = HEIGHT / 2;
+// Virtual screen information.
+const GLsizei VIRTUAL_WIDTH = WIDTH / 2;
+const GLsizei VIRTUAL_HEIGHT = HEIGHT / 2;
 
 
 // Show / hide the Windows console.
@@ -505,6 +566,18 @@ void ToggleConsole()
         ShowWindow(GetConsoleWindow(), 0);
     }
     isConsoleHidden = !isConsoleHidden;
+}
+
+
+void GLAPIENTRY OnDebugMessage(GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam)
+{
+    LOG("GL callback: type = " << type << ", severity = " << severity << ", message = " << message);
 }
 
 
@@ -595,6 +668,9 @@ int main()
         }
     }
 
+    // Load a texture.
+    EmTexture texture = emLoadTextureFromFile("../assets/sprite_tiles.png");
+
     EmBatch* batch = emInitializeBatch(shaderProgram);
 
     // Loop.
@@ -607,8 +683,31 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Set the viewport size.
-        glViewport(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+        // Set the viewport position and size.
+        glViewport(0, 0, WIDTH, HEIGHT);
+
+        // Draw the batch.
+        emBeginBatch(batch, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+        // Fill the screen with the texture that we loaded previously.
+        EmQuad quad;
+        EmRect2v srcRect;
+        srcRect.position = { 0, 0 };
+        srcRect.size = { (GLfloat) texture.w, (GLfloat) texture.h };
+        EmVec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
+        emMakeQuad(&texture, srcRect, dstSize, false, false, &quad);
+        EmPosition position;
+        position.position.x = VIRTUAL_WIDTH / 2;
+        position.position.y = VIRTUAL_WIDTH / 2;
+        position.centre.x = 0.0f;
+        position.centre.y = 0.0f;
+        position.rotation.cos = 1.0f;
+        position.rotation.sin = 0.0f;
+        position.scale.x = 1.0f;
+        position.scale.y = 1.0f;
+        emAddQuadToBatch(batch, &quad, &position);
+
+        emEndBatch(batch);
 
         // Swap buffers.
         glfwSwapBuffers(window);
