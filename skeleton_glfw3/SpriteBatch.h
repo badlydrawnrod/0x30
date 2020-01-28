@@ -6,24 +6,27 @@
 #include <GLFW/glfw3.h>
 
 
-// A batch for drawing quads.
-typedef struct {
-    GLuint program;             // The shader program to apply for this batch.
-    GLuint textureId;           // The texture id.
-    GLuint vao;                 // Vertex array object.
-    GLuint vertexPosObject;     // Vertex position object.
-    GLuint indexObject;         // Vertex index object.
-    EmVertexPosTexColour vertices[BATCH_SIZE * VERTICES_PER_QUAD];
-    GLushort indices[BATCH_SIZE * INDICES_PER_QUAD];
-    GLushort count;             // How many quads are in the batch.
-} EmBatch;
+namespace je
+{
+    // A batch for drawing quads.
+    typedef struct {
+        GLuint program;             // The shader program to apply for this batch.
+        GLuint textureId;           // The texture id.
+        GLuint vao;                 // Vertex array object.
+        GLuint vertexPosObject;     // Vertex position object.
+        GLuint indexObject;         // Vertex index object.
+        VertexPosTexColour vertices[BATCH_SIZE * VERTICES_PER_QUAD];
+        GLushort indices[BATCH_SIZE * INDICES_PER_QUAD];
+        GLushort count;             // How many quads are in the batch.
+    } Batch;
 
-void emMakeQuad(const EmTexture* texture, EmRect2v srcRect, EmVec2f dstSize, bool hflip, bool vflip, EmQuad* quad);
+    void MakeQuad(const Texture* texture, Rect2v srcRect, Vec2f dstSize, bool hflip, bool vflip, Quad* quad);
 
-EmBatch* emInitializeBatch(GLuint program);
-void emTearDownBatch(void);
+    Batch* InitializeBatch(GLuint program);
+    void TearDownBatch(void);
 
-void emBeginBatch(EmBatch* batch, GLsizei width, GLsizei height);
-void emEndBatch(EmBatch* batch);
-void emAddQuadToBatch(EmBatch* batch, const EmQuad* quad, const EmPosition* position);
-void emAddQuadToBatchEx(EmBatch* batch, const EmQuad* quad, const EmPosition* position, EmRgba4b colour);
+    void BeginBatch(Batch* batch, GLsizei width, GLsizei height);
+    void EndBatch(Batch* batch);
+    void AddQuadToBatch(Batch* batch, const Quad* quad, const Position* position);
+    void AddQuadToBatchEx(Batch* batch, const Quad* quad, const Position* position, Rgba4b colour);
+}

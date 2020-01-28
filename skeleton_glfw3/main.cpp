@@ -124,7 +124,7 @@ int main()
     }
 
     // Create a shader program.
-    auto shaderProgram = InitializeShaders();
+    auto shaderProgram = je::InitializeShaders();
     LOG("Shader program " << shaderProgram);
 
     // Wire up some GLFW callbacks.
@@ -141,9 +141,9 @@ int main()
     }
 
     // Load a texture.
-    EmTexture texture = emLoadTextureFromFile("../assets/sprite_tiles.png");
+    je::Texture texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
 
-    EmBatch* batch = emInitializeBatch(shaderProgram);
+    je::Batch* batch = je::InitializeBatch(shaderProgram);
 
     // Loop.
     while (!glfwWindowShouldClose(window))
@@ -159,16 +159,16 @@ int main()
         glViewport(0, 0, WIDTH, HEIGHT);
 
         // Draw the batch.
-        emBeginBatch(batch, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        je::BeginBatch(batch, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Fill the screen with the texture that we loaded previously.
-        EmQuad quad;
-        EmRect2v srcRect;
+        je::Quad quad;
+        je::Rect2v srcRect;
         srcRect.position = { 0, 0 };
         srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
-        EmVec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
-        emMakeQuad(&texture, srcRect, dstSize, false, false, &quad);
-        EmPosition position;
+        je::Vec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
+        je::MakeQuad(&texture, srcRect, dstSize, false, false, &quad);
+        je::Position position;
         position.position.x = VIRTUAL_WIDTH / 2;
         position.position.y = VIRTUAL_WIDTH / 2;
         position.centre.x = 0.0f;
@@ -177,16 +177,16 @@ int main()
         position.rotation.sin = 0.0f;
         position.scale.x = 1.0f;
         position.scale.y = 1.0f;
-        emAddQuadToBatch(batch, &quad, &position);
+        je::AddQuadToBatch(batch, &quad, &position);
 
-        emEndBatch(batch);
+        je::EndBatch(batch);
 
         // Swap buffers.
         glfwSwapBuffers(window);
     }
 
-    emTearDownBatch();
-    TearDownShaders();
+    je::TearDownBatch();
+    je::TearDownShaders();
 
     // Terminate GLFW, clearing its resources.
     glfwTerminate();

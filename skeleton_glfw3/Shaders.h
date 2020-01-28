@@ -3,5 +3,8 @@
 #include <GLFW/glfw3.h>
 
 
-GLuint InitializeShaders();
-void TearDownShaders();
+namespace je
+{
+    GLuint InitializeShaders();
+    void TearDownShaders();
+}
