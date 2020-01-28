@@ -143,9 +143,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Shaders.cpp" />
+    <ClCompile Include="SpriteBatch.cpp" />
+    <ClCompile Include="Textures.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SpriteBatch.h" />
+    <ClInclude Include="Textures.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Shaders.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
