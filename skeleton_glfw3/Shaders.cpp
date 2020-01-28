@@ -8,7 +8,7 @@
 
 namespace
 {
-    GLuint program;
+    GLuint program_;
 }
 
 
@@ -91,31 +91,31 @@ namespace je
         }
 
         // Create the program, attach the shaders to it, and link it
-        program = glCreateProgram();
-        if (!glIsProgram(program))
+        program_ = glCreateProgram();
+        if (!glIsProgram(program_))
         {
             LOG("Failed to create shader program");
-            return program;
+            return program_;
         }
 
-        glAttachShader(program, vertexShader);
-        glAttachShader(program, fragmentShader);
-        glLinkProgram(program);
+        glAttachShader(program_, vertexShader);
+        glAttachShader(program_, fragmentShader);
+        glLinkProgram(program_);
 
         // Delete the shaders as the program owns them now.
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
-        return program;
+        return program_;
     }
 
 
     void TearDownShaders()
     {
-        if (glIsProgram(program))
+        if (glIsProgram(program_))
         {
-            glDeleteProgram(program);
-            program = 0;
+            glDeleteProgram(program_);
+            program_ = 0;
         }
     }
 }

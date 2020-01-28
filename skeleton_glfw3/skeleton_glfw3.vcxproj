@@ -144,11 +144,11 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shaders.cpp" />
-    <ClCompile Include="SpriteBatch.cpp" />
+    <ClCompile Include="Batch.cpp" />
     <ClCompile Include="Textures.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SpriteBatch.h" />
+    <ClInclude Include="Batch.h" />
     <ClInclude Include="Textures.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Logger.h" />

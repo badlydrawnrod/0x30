@@ -1,6 +1,6 @@
+#include "Batch.h"
 #include "Logger.h"
 #include "Shaders.h"
-#include "SpriteBatch.h"
 #include "Textures.h"
 #include "Types.h"
 
@@ -87,40 +87,61 @@ void OnJoystickEvent(int joystickId, int event)
 }
 
 
+namespace je
+{
+    GLFWwindow* InitializeContext()
+    {
+        // Initialize GLFW.
+        glfwInit();
+
+        // Set the options for GLFW.
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+        // Create a GLFWwindow and make its context current.
+        GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
+        glfwMakeContextCurrent(window);
+        if (window == nullptr)
+        {
+            LOG("Failed to create GLFW window");
+            glfwTerminate();
+            return nullptr;
+        }
+
+        // Load modern OpenGL mappings.
+        if (!gladLoadGL())
+        {
+            LOG("Failed to initialize OpenGL context");
+            glfwTerminate();
+            return nullptr;
+        }
+        LOG("Using OpenGL " << GLVersion.major << "." << GLVersion.minor);
+
+        // Enable OpenGL debugging. Requires OpenGL 4.3 or greater.
+        if (glDebugMessageCallback)
+        {
+            glEnable(GL_DEBUG_OUTPUT);
+            glDebugMessageCallback(OnDebugMessage, nullptr);
+        }
+
+        return window;
+    }
+
+    void TearDownContext()
+    {
+        glfwTerminate();
+    }
+}
+
+
 int main()
 {
-    // Initialize GLFW.
-    glfwInit();
-
-    // Set the options for GLFW.
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-    // Create a GLFWwindow and make its context current.
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
-    glfwMakeContextCurrent(window);
-    if (window == nullptr)
+    GLFWwindow* window = je::InitializeContext();
+    if (!window)
     {
-        LOG("Failed to create GLFW window");
-        glfwTerminate();
         return -1;
-    }
-
-    // Load modern OpenGL mappings.
-    if (!gladLoadGL())
-    {
-        LOG("Failed to initialize OpenGL context");
-        return -1;
-    }
-    LOG("Using OpenGL " << GLVersion.major << "." << GLVersion.minor);
-
-    // Enable OpenGL debugging. Requires OpenGL 4.3 or greater.
-    if (glDebugMessageCallback)
-    {
-        glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(OnDebugMessage, nullptr);
     }
 
     // Create a shader program.
@@ -143,53 +164,52 @@ int main()
     // Load a texture.
     je::Texture texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
 
-    je::Batch* batch = je::InitializeBatch(shaderProgram);
-
-    // Loop.
-    while (!glfwWindowShouldClose(window))
     {
-        // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
-        glfwPollEvents();
+        je::Batch batch(shaderProgram);
 
-        // Clear the colour buffer.
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // Loop.
+        while (!glfwWindowShouldClose(window))
+        {
+            // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
+            glfwPollEvents();
 
-        // Set the viewport position and size.
-        glViewport(0, 0, WIDTH, HEIGHT);
+            // Clear the colour buffer.
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-        // Draw the batch.
-        je::BeginBatch(batch, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+            // Set the viewport position and size.
+            glViewport(0, 0, WIDTH, HEIGHT);
 
-        // Fill the screen with the texture that we loaded previously.
-        je::Quad quad;
-        je::Rect2v srcRect;
-        srcRect.position = { 0, 0 };
-        srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
-        je::Vec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
-        je::MakeQuad(&texture, srcRect, dstSize, false, false, &quad);
-        je::Position position;
-        position.position.x = VIRTUAL_WIDTH / 2;
-        position.position.y = VIRTUAL_WIDTH / 2;
-        position.centre.x = 0.0f;
-        position.centre.y = 0.0f;
-        position.rotation.cos = 1.0f;
-        position.rotation.sin = 0.0f;
-        position.scale.x = 1.0f;
-        position.scale.y = 1.0f;
-        je::AddQuadToBatch(batch, &quad, &position);
+            // Draw the batch.
+            batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-        je::EndBatch(batch);
+            // Fill the screen with the texture that we loaded previously.
+            je::Quad quad;
+            je::Rect2v srcRect;
+            srcRect.position = { 0, 0 };
+            srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
+            je::Vec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
+            je::MakeQuad(&texture, srcRect, dstSize, false, false, &quad);
+            je::Position position;
+            position.position.x = VIRTUAL_WIDTH / 2;
+            position.position.y = VIRTUAL_WIDTH / 2;
+            position.centre.x = 0.0f;
+            position.centre.y = 0.0f;
+            position.rotation.cos = 1.0f;
+            position.rotation.sin = 0.0f;
+            position.scale.x = 1.0f;
+            position.scale.y = 1.0f;
+            batch.AddQuad(&quad, &position);
 
-        // Swap buffers.
-        glfwSwapBuffers(window);
+            batch.End();
+
+            // Swap buffers.
+            glfwSwapBuffers(window);
+        }
     }
 
-    je::TearDownBatch();
     je::TearDownShaders();
-
-    // Terminate GLFW, clearing its resources.
-    glfwTerminate();
+    je::TearDownContext();
 
     return 0;
 }
