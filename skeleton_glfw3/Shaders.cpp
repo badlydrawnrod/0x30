@@ -1,4 +1,4 @@
-// --- Shaders-------------------------------------------------------------------------------------------------------- -
+#include "Shaders.h"
 
 #include "Logger.h"
 
@@ -6,15 +6,9 @@
 #include <GLFW/glfw3.h>
 
 
-namespace
-{
-    GLuint program_;
-}
-
-
 namespace je
 {
-    GLuint InitializeShaders()
+    Shader::Shader()
     {
         // Vertex shader. It knows about 2D positions and texture coordinates, but knows nothing of rotation or scaling as
         // that is assumed to have been done already, e.g., by a sprite batch.
@@ -57,7 +51,7 @@ namespace je
         if (!glIsShader(vertexShader))
         {
             LOG("Failed to create vertex shader");
-            return 0;
+            return;
         }
         glShaderSource(vertexShader, 1, &vertexShaderCode, nullptr);
         glCompileShader(vertexShader);
@@ -67,7 +61,7 @@ namespace je
             if (params != GL_TRUE)
             {
                 LOG("Failed to compile vertex shader");
-                return 0;
+                return;
             }
         }
 
@@ -76,7 +70,7 @@ namespace je
         if (!glIsShader(fragmentShader))
         {
             LOG("Failed to create fragment shader");
-            return 0;
+            return;
         }
         glShaderSource(fragmentShader, 1, &fragmentShaderCode, nullptr);
         glCompileShader(fragmentShader);
@@ -86,7 +80,7 @@ namespace je
             if (params != GL_TRUE)
             {
                 LOG("Failed to compile fragment shader");
-                return 0;
+                return;
             }
         }
 
@@ -95,7 +89,6 @@ namespace je
         if (!glIsProgram(program_))
         {
             LOG("Failed to create shader program");
-            return program_;
         }
 
         glAttachShader(program_, vertexShader);
@@ -105,12 +98,9 @@ namespace je
         // Delete the shaders as the program owns them now.
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
-
-        return program_;
     }
 
-
-    void TearDownShaders()
+    Shader::~Shader()
     {
         if (glIsProgram(program_))
         {

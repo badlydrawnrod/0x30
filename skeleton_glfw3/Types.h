@@ -4,10 +4,6 @@
 #include <GLFW/glfw3.h>
 
 
-#define VERTICES_PER_QUAD 4
-#define INDICES_PER_QUAD 6
-#define BATCH_SIZE 256
-
 namespace je
 {
     // Packed RGBA colour.

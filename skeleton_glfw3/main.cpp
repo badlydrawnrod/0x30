@@ -1,4 +1,5 @@
 #include "Batch.h"
+#include "Context.h"
 #include "Logger.h"
 #include "Shaders.h"
 #include "Textures.h"
@@ -87,69 +88,27 @@ void OnJoystickEvent(int joystickId, int event)
 }
 
 
-namespace je
-{
-    GLFWwindow* InitializeContext()
-    {
-        // Initialize GLFW.
-        glfwInit();
-
-        // Set the options for GLFW.
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-        // Create a GLFWwindow and make its context current.
-        GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
-        glfwMakeContextCurrent(window);
-        if (window == nullptr)
-        {
-            LOG("Failed to create GLFW window");
-            glfwTerminate();
-            return nullptr;
-        }
-
-        // Load modern OpenGL mappings.
-        if (!gladLoadGL())
-        {
-            LOG("Failed to initialize OpenGL context");
-            glfwTerminate();
-            return nullptr;
-        }
-        LOG("Using OpenGL " << GLVersion.major << "." << GLVersion.minor);
-
-        // Enable OpenGL debugging. Requires OpenGL 4.3 or greater.
-        if (glDebugMessageCallback)
-        {
-            glEnable(GL_DEBUG_OUTPUT);
-            glDebugMessageCallback(OnDebugMessage, nullptr);
-        }
-
-        return window;
-    }
-
-    void TearDownContext()
-    {
-        glfwTerminate();
-    }
-}
-
-
 int main()
 {
-    GLFWwindow* window = je::InitializeContext();
-    if (!window)
+    je::Context context(WIDTH, HEIGHT, TITLE);
+    if (!context.Window())
     {
         return -1;
     }
 
+    // Enable OpenGL debugging. Requires OpenGL 4.3 or greater.
+    if (glDebugMessageCallback)
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(OnDebugMessage, nullptr);
+    }
+
     // Create a shader program.
-    auto shaderProgram = je::InitializeShaders();
-    LOG("Shader program " << shaderProgram);
+    je::Shader shader;
+    LOG("Shader program " << shader.Program());
 
     // Wire up some GLFW callbacks.
-    glfwSetKeyCallback(window, OnKeyEvent);
+    glfwSetKeyCallback(context.Window(), OnKeyEvent);
     glfwSetJoystickCallback(OnJoystickEvent);
 
     // Enumerate the gamepads.
@@ -164,52 +123,47 @@ int main()
     // Load a texture.
     je::Texture texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
 
+    je::Batch batch(shader.Program());
+
+    // Loop.
+    while (!glfwWindowShouldClose(context.Window()))
     {
-        je::Batch batch(shaderProgram);
+        // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
+        glfwPollEvents();
 
-        // Loop.
-        while (!glfwWindowShouldClose(window))
-        {
-            // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
-            glfwPollEvents();
+        // Clear the colour buffer.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-            // Clear the colour buffer.
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+        // Set the viewport position and size.
+        glViewport(0, 0, WIDTH, HEIGHT);
 
-            // Set the viewport position and size.
-            glViewport(0, 0, WIDTH, HEIGHT);
+        // Draw the batch.
+        batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-            // Draw the batch.
-            batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        // Fill the screen with the texture that we loaded previously.
+        je::Quad quad;
+        je::Rect2v srcRect;
+        srcRect.position = { 0, 0 };
+        srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
+        je::Vec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
+        je::MakeQuad(&texture, srcRect, dstSize, false, false, &quad);
+        je::Position position;
+        position.position.x = VIRTUAL_WIDTH / 2;
+        position.position.y = VIRTUAL_WIDTH / 2;
+        position.centre.x = 0.0f;
+        position.centre.y = 0.0f;
+        position.rotation.cos = 1.0f;
+        position.rotation.sin = 0.0f;
+        position.scale.x = 1.0f;
+        position.scale.y = 1.0f;
+        batch.AddQuad(&quad, &position);
 
-            // Fill the screen with the texture that we loaded previously.
-            je::Quad quad;
-            je::Rect2v srcRect;
-            srcRect.position = { 0, 0 };
-            srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
-            je::Vec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
-            je::MakeQuad(&texture, srcRect, dstSize, false, false, &quad);
-            je::Position position;
-            position.position.x = VIRTUAL_WIDTH / 2;
-            position.position.y = VIRTUAL_WIDTH / 2;
-            position.centre.x = 0.0f;
-            position.centre.y = 0.0f;
-            position.rotation.cos = 1.0f;
-            position.rotation.sin = 0.0f;
-            position.scale.x = 1.0f;
-            position.scale.y = 1.0f;
-            batch.AddQuad(&quad, &position);
+        batch.End();
 
-            batch.End();
-
-            // Swap buffers.
-            glfwSwapBuffers(window);
-        }
+        // Swap buffers.
+        glfwSwapBuffers(context.Window());
     }
-
-    je::TearDownShaders();
-    je::TearDownContext();
 
     return 0;
 }

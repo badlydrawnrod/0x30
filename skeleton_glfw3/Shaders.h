@@ -5,6 +5,15 @@
 
 namespace je
 {
-    GLuint InitializeShaders();
-    void TearDownShaders();
+    class Shader
+    {
+    private:
+        GLuint program_{ 0 };
+
+    public:
+        Shader();
+        ~Shader();
+
+        const GLuint Program() const { return program_; }
+    };
 }
