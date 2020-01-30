@@ -5,10 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
-#define VERTICES_PER_QUAD 4
-#define INDICES_PER_QUAD 6
-#define BATCH_SIZE 256
+#include <vector>
 
 
 namespace je
@@ -23,11 +20,13 @@ namespace je
         GLuint vertexPosObject_{ 0 };     // Vertex position object.
         GLuint indexObject_{ 0 };         // Vertex index object.
         GLushort count_{ 0 };             // How many quads are in the batch.
-        VertexPosTexColour vertices_[BATCH_SIZE * VERTICES_PER_QUAD];
-        GLushort indices_[BATCH_SIZE * INDICES_PER_QUAD];
+        size_t batchSize_;                // The maximum number of quads in the batch.
+        std::vector <VertexPosTexColour> vertices_;
+        std::vector <GLushort> indices_;
 
     public:
-        Batch(GLuint program_);
+        Batch(GLuint program);
+        Batch(GLuint program_, size_t size);
         ~Batch();
 
         void Begin(GLsizei width, GLsizei height);

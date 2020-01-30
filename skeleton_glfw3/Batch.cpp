@@ -48,7 +48,19 @@ namespace je
         quad->tl.uv = { u0, v1 };
     }
 
-    Batch::Batch(GLuint program_) : program_(program_)
+    static constexpr size_t DEFAULT_BATCH_SIZE = 256;
+    static constexpr size_t VERTICES_PER_QUAD = 4;
+    static constexpr size_t INDICES_PER_QUAD = 6;
+
+    Batch::Batch(GLuint program) : Batch(program, DEFAULT_BATCH_SIZE)
+    {
+    }
+
+    Batch::Batch(GLuint program, size_t size) :
+        program_(program),
+        batchSize_(size),
+        vertices_(size* VERTICES_PER_QUAD),
+        indices_(size* INDICES_PER_QUAD)
     {
     }
 
@@ -124,9 +136,9 @@ namespace je
         }
 
         // Send the vertices and indices.
-        glBufferData(GL_ARRAY_BUFFER, VERTICES_PER_QUAD * sizeof(VertexPosTexColour) * count_, vertices_,
+        glBufferData(GL_ARRAY_BUFFER, VERTICES_PER_QUAD * sizeof(VertexPosTexColour) * count_, vertices_.data(),
             GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES_PER_QUAD * sizeof(indices_[0]) * count_, indices_,
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES_PER_QUAD * sizeof(indices_[0]) * count_, indices_.data(),
             GL_STATIC_DRAW);
 
         // Draw a lovely bunch of triangles.
@@ -165,7 +177,7 @@ namespace je
         }
 
         // If the batch is full then flush it.
-        if (count_ == BATCH_SIZE)
+        if (count_ == batchSize_)
         {
             Flush();
         }
@@ -177,7 +189,7 @@ namespace je
 
         // Append the quad's vertices to the batch, rotating, scaling and translating as we go.
         const VertexPosTex* src = quad->data;
-        VertexPosTexColour* dst = vertices_ + count_ * VERTICES_PER_QUAD;
+        VertexPosTexColour* dst = &vertices_[count_ * VERTICES_PER_QUAD];
         for (int i = 0; i < 4; i++)
         {
             // Load from src, adjust for the centre of rotation, then scale. Here we assume that a quad is drawn around
@@ -205,8 +217,8 @@ namespace je
         }
 
         // Add the indices of the quad to the batch.
-        const GLushort ofs = count_ * (GLushort)VERTICES_PER_QUAD;
-        GLushort* p = indices_ + count_ * INDICES_PER_QUAD;
+        const GLushort ofs = count_ * VERTICES_PER_QUAD;
+        GLushort* p = &indices_[count_ * INDICES_PER_QUAD];
         *p++ = ofs + (GLushort)0;
         *p++ = ofs + (GLushort)1;
         *p++ = ofs + (GLushort)2;
