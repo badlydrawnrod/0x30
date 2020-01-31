@@ -39,6 +39,4 @@ namespace je
         void AddQuad(const Quad* quad, const Position* position);
         void AddTintedQuad(const Quad* quad, const Position* position, Rgba4b colour);
     };
-
-    void MakeQuad(const Texture* texture, Rect2v srcRect, Vec2f dstSize, bool hflip, bool vflip, Quad* quad);
 }

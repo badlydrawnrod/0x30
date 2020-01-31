@@ -142,12 +142,11 @@ int main()
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Fill the screen with the texture that we loaded previously.
-        je::Quad quad;
         je::Rect2v srcRect;
         srcRect.position = { 0, 0 };
         srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
         je::Vec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
-        je::MakeQuad(&texture, srcRect, dstSize, false, false, &quad);
+        je::Quad quad = je::Quad::MakeQuad(&texture, srcRect, dstSize, false, false);
         je::Position position;
         position.position.x = VIRTUAL_WIDTH / 2;
         position.position.y = VIRTUAL_WIDTH / 2;
