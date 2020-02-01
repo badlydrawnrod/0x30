@@ -156,35 +156,49 @@ namespace je
     inline void Batch::AddIndices()
     {
         const GLushort ofs = count_ * VERTICES_PER_QUAD;
-        GLushort* p = &indices_[count_ * INDICES_PER_QUAD];
-        *p++ = ofs + (GLushort)0;
-        *p++ = ofs + (GLushort)1;
-        *p++ = ofs + (GLushort)2;
-        *p++ = ofs + (GLushort)2;
-        *p++ = ofs + (GLushort)3;
-        *p = ofs + (GLushort)0;
+        GLushort* index = &indices_[count_ * INDICES_PER_QUAD];
+        *index++ = ofs + (GLushort)0;
+        *index++ = ofs + (GLushort)1;
+        *index++ = ofs + (GLushort)2;
+        *index++ = ofs + (GLushort)2;
+        *index++ = ofs + (GLushort)3;
+        *index = ofs + (GLushort)0;
     }
 
-    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour)
+    void Batch::AddQ(const Texture* texture, const QuadPosTexColour& vertices)
     {
         FlushAsNeeded(texture->textureId);
 
-        // The vertices.
-        const VertexPosTex bottomLeft{ { x, y + texture->h }, { 0.0f, 1.0f } };
-        const VertexPosTex bottomRight{ { x + texture->w, y + texture->h }, { 1.0f, 1.0f } };
-        const VertexPosTex topRight{ { x + texture->w, y }, { 1.0f, 0.0f } };
-        const VertexPosTex topLeft{ { x, y }, { 0.0f, 0.0f } };
-
         // Add the vertices to the batch.
-        VertexPosTexColour* dst = &vertices_[count_ * VERTICES_PER_QUAD];
-        AddVertex(dst++, bottomLeft.position, bottomLeft.uv, colour);
-        AddVertex(dst++, bottomRight.position, bottomRight.uv, colour);
-        AddVertex(dst++, topRight.position, topRight.uv, colour);
-        AddVertex(dst++, topLeft.position, topLeft.uv, colour);
+        VertexPosTexColour* vertex = &vertices_[count_ * VERTICES_PER_QUAD];
+        *vertex++ = vertices[0];
+        *vertex++ = vertices[1];
+        *vertex++ = vertices[2];
+        *vertex++ = vertices[3];
 
         AddIndices();
 
         count_++;
+    }
+
+    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
+    {
+        FlushAsNeeded(texture->textureId);
+
+        // Wrap the vertices in a quad.
+        QuadPosTexColour quad{
+            VertexPosTexColour{ { x, y + height }, { 0.0f, 1.0f }, colour },
+            VertexPosTexColour{ { x + width, y + height }, { 1.0f, 1.0f }, colour },
+            VertexPosTexColour{ { x + width, y }, { 1.0f, 0.0f }, colour },
+            VertexPosTexColour{ { x, y }, { 0.0f, 0.0f }, colour }
+        };
+
+        AddQ(texture, quad);
+    }
+
+    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour)
+    {
+        AddTexture(texture, x, y, (GLfloat)texture->w, (GLfloat)texture->h, colour);
     }
 
     void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y)

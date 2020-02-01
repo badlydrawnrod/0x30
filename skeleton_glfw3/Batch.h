@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <array>
 #include <vector>
 
 
@@ -25,6 +26,9 @@ namespace je
         std::vector <GLushort> indices_;
 
     public:
+        using QuadPosTexColour = std::array<VertexPosTexColour, 4>;
+
+    public:
         Batch(GLuint program);
         Batch(GLuint program_, size_t size);
         ~Batch();
@@ -36,6 +40,8 @@ namespace je
         void Flush();
         void FlushAsNeeded(GLuint textureId);
 
+        void AddQ(const Texture* texture, const QuadPosTexColour& vertices);
+        void AddTexture(const Texture* texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour);
         void AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour);
         void AddTexture(const Texture* texture, GLfloat x, GLfloat y);
         void AddTexture(const Texture* texture, Vec2f position, Rgba4b colour);

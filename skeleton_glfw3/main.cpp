@@ -128,8 +128,8 @@ int main()
     je::Batch batch(shader.Program());
 
     // Loop.
-    float angle = 3.14159265358f / 2.0f;
-    float dAngle = 0.0f;
+    float angle = 3.14159265358f / 4.0f;
+    float dAngle = 0.02f;
     while (!glfwWindowShouldClose(context.Window()))
     {
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
