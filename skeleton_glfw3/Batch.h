@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Transforms.h"
 #include "Types.h"
 
 #include <glad/glad.h>
@@ -26,7 +27,7 @@ namespace je
         std::vector <GLushort> indices_;
 
     public:
-        using QuadPosTexColour = std::array<VertexPosTexColour, 4>;
+        using Quad = std::array<VertexPosTexColour, 4>;
 
     public:
         Batch(GLuint program);
@@ -40,16 +41,6 @@ namespace je
         void Flush();
         void FlushAsNeeded(GLuint textureId);
 
-        void AddVertices(GLuint textureId, const QuadPosTexColour& vertices);
-        void AddVertices(const Texture& texture, const QuadPosTexColour& vertices);
-
-        void AddTexture(const Texture& texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour);
-        void AddTexture(const Texture& texture, GLfloat x, GLfloat y, Rgba4b colour);
-        void AddTexture(const Texture& texture, GLfloat x, GLfloat y);
-        void AddTexture(const Texture& texture, Vec2f position, Rgba4b colour);
-        void AddTexture(const Texture& texture, Vec2f position);
-
-        void AddTexturedQuad(const TexturedQuad& quad, const Position& position, Rgba4b colour);
-        void AddTexturedQuad(const TexturedQuad& quad, const Position& position);
+        void AddVertices(GLuint textureId, const Quad& vertices);
     };
 }

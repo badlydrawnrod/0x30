@@ -1,7 +1,5 @@
 #include "Batch.h"
 
-#include "Logger.h"
-#include "Transforms.h"
 #include "Types.h"
 
 #include <glad/glad.h>
@@ -140,7 +138,7 @@ namespace je
         }
     }
 
-    void Batch::AddVertices(GLuint textureId, const QuadPosTexColour& vertices)
+    void Batch::AddVertices(GLuint textureId, const Quad& vertices)
     {
         FlushAsNeeded(textureId);
 
@@ -154,75 +152,13 @@ namespace je
         // Add the indices to the batch.
         const GLushort ofs = count_ * VERTICES_PER_QUAD;
         GLushort* index = &indices_[count_ * INDICES_PER_QUAD];
-        *index++ = ofs + (GLushort)0;
-        *index++ = ofs + (GLushort)1;
-        *index++ = ofs + (GLushort)2;
-        *index++ = ofs + (GLushort)2;
-        *index++ = ofs + (GLushort)3;
-        *index = ofs + (GLushort)0;
+        *index++ = ofs + static_cast<GLushort>(0);
+        *index++ = ofs + static_cast<GLushort>(1);
+        *index++ = ofs + static_cast<GLushort>(2);
+        *index++ = ofs + static_cast<GLushort>(2);
+        *index++ = ofs + static_cast<GLushort>(3);
+        *index = ofs + static_cast<GLushort>(0);
 
         count_++;
-    }
-
-    void Batch::AddVertices(const Texture& texture, const QuadPosTexColour& vertices)
-    {
-        AddVertices(texture.textureId, vertices);
-    }
-
-    void Batch::AddTexture(const Texture& texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
-    {
-        FlushAsNeeded(texture.textureId);
-
-        // Wrap the vertices in a quad.
-        QuadPosTexColour quad{
-            VertexPosTexColour{ { x, y + height }, { 0.0f, 1.0f }, colour },
-            VertexPosTexColour{ { x + width, y + height }, { 1.0f, 1.0f }, colour },
-            VertexPosTexColour{ { x + width, y }, { 1.0f, 0.0f }, colour },
-            VertexPosTexColour{ { x, y }, { 0.0f, 0.0f }, colour }
-        };
-
-        AddVertices(texture, quad);
-    }
-
-    void Batch::AddTexture(const Texture& texture, GLfloat x, GLfloat y, Rgba4b colour)
-    {
-        AddTexture(texture, x, y, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h), colour);
-    }
-
-    void Batch::AddTexture(const Texture& texture, GLfloat x, GLfloat y)
-    {
-        Rgba4b white = { 255, 255, 255, 255 };
-        AddTexture(texture, x, y, white);
-    }
-
-    void Batch::AddTexture(const Texture& texture, Vec2f position, Rgba4b colour)
-    {
-        AddTexture(texture, position.x, position.y, colour);
-    }
-
-    void Batch::AddTexture(const Texture& texture, Vec2f position)
-    {
-        Rgba4b white = { 255, 255, 255, 255 };
-        AddTexture(texture, position.x, position.y, white);
-    }
-
-    void Batch::AddTexturedQuad(const TexturedQuad& quad, const Position& position, Rgba4b colour)
-    {
-        // Append the quad's vertices to the batch, rotating, scaling and translating as we go.
-        QuadPosTexColour transformed;
-        size_t i = 0;
-        for (const VertexPosTex* src = quad.data; src < quad.data + 4; src++, i++)
-        {
-            Vec2f vertexPos = vec::Transform(src->position, position.centre, position.scale, position.rotation, position.position);
-            transformed[i] = VertexPosTexColour{ vertexPos, src->uv, colour };
-        }
-
-        AddVertices(quad.textureId, transformed);
-    }
-
-    void Batch::AddTexturedQuad(const TexturedQuad& quad, const Position& position)
-    {
-        Rgba4b white = { 255, 255, 255, 255 };
-        AddTexturedQuad(quad, position, white);
     }
 }

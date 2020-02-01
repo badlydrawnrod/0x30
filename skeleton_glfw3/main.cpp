@@ -1,6 +1,7 @@
 #include "Batch.h"
 #include "Context.h"
 #include "Logger.h"
+#include "QuadHelpers.h"
 #include "Shaders.h"
 #include "Textures.h"
 #include "Types.h"
@@ -162,8 +163,8 @@ int main()
         position.rotation.sin = std::sinf(angle);
         position.scale.x = 1.0f;
         position.scale.y = 1.0f;
-        batch.AddTexturedQuad(quad, position);
-        batch.AddTexture(texture, je::Vec2f{ 0.0f, 0.0f });
+        batch.AddVertices(quad.textureId, je::quads::Create(quad, position));
+        batch.AddVertices(texture.textureId, je::quads::Create(texture, je::Vec2f{ 0.0f, 0.0f }));
         
         batch.End();
 
