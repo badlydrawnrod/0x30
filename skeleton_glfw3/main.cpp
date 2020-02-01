@@ -18,7 +18,7 @@
 // Window information.
 const GLuint WIDTH = 512;
 const GLuint HEIGHT = 512;
-const char* const TITLE = "GLFW Skeleton App";
+const char* const TITLE = "The Mysterious 0x30";
 
 // Virtual screen information.
 const GLsizei VIRTUAL_WIDTH = WIDTH / 2;

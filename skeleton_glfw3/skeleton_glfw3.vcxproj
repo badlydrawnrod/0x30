@@ -153,6 +153,7 @@
     <ClInclude Include="Batch.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="Textures.h" />
+    <ClInclude Include="Transforms.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Shaders.h" />

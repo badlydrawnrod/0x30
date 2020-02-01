@@ -1,6 +1,7 @@
 #include "Batch.h"
 
 #include "Logger.h"
+#include "Transforms.h"
 #include "Types.h"
 
 #include <glad/glad.h>
@@ -67,12 +68,9 @@ namespace je
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
             glEnableVertexAttribArray(2);
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTexColour),
-                &((VertexPosTexColour*)0)->position);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTexColour),
-                &((VertexPosTexColour*)0)->uv);
-            glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexPosTexColour),
-                &((VertexPosTexColour*)0)->colour);
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTexColour), &((VertexPosTexColour*)0)->position);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTexColour), &((VertexPosTexColour*)0)->uv);
+            glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexPosTexColour), &((VertexPosTexColour*)0)->colour);
 
             glBindVertexArray(0);
         }
@@ -97,10 +95,8 @@ namespace je
         }
 
         // Send the vertices and indices.
-        glBufferData(GL_ARRAY_BUFFER, VERTICES_PER_QUAD * sizeof(VertexPosTexColour) * count_, vertices_.data(),
-            GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES_PER_QUAD * sizeof(indices_[0]) * count_, indices_.data(),
-            GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, VERTICES_PER_QUAD * sizeof(VertexPosTexColour) * count_, vertices_.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES_PER_QUAD * sizeof(indices_[0]) * count_, indices_.data(), GL_STATIC_DRAW);
 
         // Draw a lovely bunch of triangles.
         glDrawElements(GL_TRIANGLES, count_ * INDICES_PER_QUAD, GL_UNSIGNED_SHORT, 0);
@@ -213,25 +209,15 @@ namespace je
     void Batch::AddTexturedQuad(const TexturedQuad& quad, const Position& position, Rgba4b colour)
     {
         // Append the quad's vertices to the batch, rotating, scaling and translating as we go.
-        QuadPosTexColour out;
+        QuadPosTexColour transformed;
         size_t i = 0;
         for (const VertexPosTex* src = quad.data; src < quad.data + 4; src++, i++)
         {
-            // Load from src, adjust for the centre of rotation, then scale.
-            const GLfloat x = (src->position.x - position.centre.x) * position.scale.x;
-            const GLfloat y = (src->position.y - position.centre.y) * position.scale.y;
-
-            // Rotate around the centre of rotation.
-            const GLfloat rotX = x * position.rotation.cos - y * position.rotation.sin;
-            const GLfloat rotY = x * position.rotation.sin + y * position.rotation.cos;
-
-            // Translate into position.
-            Vec2f vertexPos{ rotX + position.position.x, rotY + position.position.y };
-
-            out[i] = VertexPosTexColour{ vertexPos, src->uv, colour };
+            Vec2f vertexPos = vec::Transform(src->position, position.centre, position.scale, position.rotation, position.position);
+            transformed[i] = VertexPosTexColour{ vertexPos, src->uv, colour };
         }
 
-        AddVertices(quad.textureId, out);
+        AddVertices(quad.textureId, transformed);
     }
 
     void Batch::AddTexturedQuad(const TexturedQuad& quad, const Position& position)
