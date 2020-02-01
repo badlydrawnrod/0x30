@@ -1,5 +1,6 @@
 #include "Batch.h"
 
+#include "Logger.h"
 #include "Types.h"
 
 #include <glad/glad.h>
@@ -143,40 +144,17 @@ namespace je
         }
     }
 
-    void Batch::AddTintedQuad(const Quad* quad, const Position* position, Rgba4b colour)
+    // Adds a single vertex to the batch.
+    inline void Batch::AddVertex(VertexPosTexColour* dst, Vec2f position, Vec2f uv, Rgba4b colour)
     {
-        FlushAsNeeded(quad->textureId);
+        dst->position = position;
+        dst->uv = uv;
+        dst->colour = colour;
+    }
 
-        // Append the quad's vertices to the batch, rotating, scaling and translating as we go.
-        const VertexPosTex* src = quad->data;
-        VertexPosTexColour* dst = &vertices_[count_ * VERTICES_PER_QUAD];
-        for (int i = 0; i < 4; i++)
-        {
-            // Load from src, adjust for the centre of rotation, then scale. Here we assume that a quad is drawn around
-            // its origin by default, and that internal quad coordinates are x right, y up.
-            const GLfloat x = (src->position.x - position->centre.x) * position->scale.x;
-            const GLfloat y = (src->position.y - position->centre.y) * position->scale.y;
-
-            // Rotate it around its centre.
-            const GLfloat rotX = x * position->rotation.cos - y * position->rotation.sin;
-            const GLfloat rotY = x * position->rotation.sin + y * position->rotation.cos;
-
-            // Translate it into position and store to dst.
-            dst->position.x = rotX + position->position.x;
-            dst->position.y = rotY + position->position.y;
-
-            // Texture coords.
-            dst->uv = src->uv;
-
-            // Colour.
-            dst->colour = colour;
-
-            // Next vertex.
-            dst++;
-            src++;
-        }
-
-        // Add the indices of the quad to the batch.
+    // Adds a quad's indices to the batch.
+    inline void Batch::AddIndices()
+    {
         const GLushort ofs = count_ * VERTICES_PER_QUAD;
         GLushort* p = &indices_[count_ * INDICES_PER_QUAD];
         *p++ = ofs + (GLushort)0;
@@ -185,6 +163,66 @@ namespace je
         *p++ = ofs + (GLushort)2;
         *p++ = ofs + (GLushort)3;
         *p = ofs + (GLushort)0;
+    }
+
+    void Batch::AddTintedTexture(const Texture* texture, Vec2f position, Rgba4b colour)
+    {
+        FlushAsNeeded(texture->textureId);
+
+        // Calculate normalised texture coordinates.
+        const GLfloat u0 = 0.0f;
+        const GLfloat u1 = 1.0f;
+        const GLfloat v0 = 0.0f;
+        const GLfloat v1 = 1.0f;
+
+        // The vertices.
+        VertexPosTex bottomLeft = { { position.x, position.y + texture->h }, { u0, v1 } };
+        VertexPosTex bottomRight = { { position.x + texture->w, position.y + texture->h }, { u1, v1 } };
+        VertexPosTex topRight = { { position.x + texture->w, position.y }, { u1, v0 } };
+        VertexPosTex topLeft = { { position.x, position.y }, { u0, v0 } };
+
+        // Add the vertices to the batch.
+        VertexPosTexColour* dst = &vertices_[count_ * VERTICES_PER_QUAD];
+        AddVertex(dst++, bottomLeft.position, bottomLeft.uv, colour);
+        AddVertex(dst++, bottomRight.position, bottomRight.uv, colour);
+        AddVertex(dst++, topRight.position, topRight.uv, colour);
+        AddVertex(dst++, topLeft.position, topLeft.uv, colour);
+
+        AddIndices();
+
+        count_++;
+    }
+
+    void Batch::AddTexture(const Texture* texture, Vec2f position)
+    {
+        Rgba4b white = { 255, 255, 255, 255 };
+        AddTintedTexture(texture, position, white);
+    }
+
+    void Batch::AddTintedQuad(const Quad* quad, const Position* position, Rgba4b colour)
+    {
+        FlushAsNeeded(quad->textureId);
+
+        // Append the quad's vertices to the batch, rotating, scaling and translating as we go.
+        VertexPosTexColour* dst = &vertices_[count_ * VERTICES_PER_QUAD];
+        for (const VertexPosTex* src = quad->data; src < quad->data + 4; src++, dst++)
+        {
+            // Load from src, adjust for the centre of rotation, then scale.
+            const GLfloat x = (src->position.x - position->centre.x) * position->scale.x;
+            const GLfloat y = (src->position.y - position->centre.y) * position->scale.y;
+
+            // Rotate around the centre of rotation.
+            const GLfloat rotX = x * position->rotation.cos - y * position->rotation.sin;
+            const GLfloat rotY = x * position->rotation.sin + y * position->rotation.cos;
+
+            // Translate into position.
+            Vec2f vertexPos{ rotX + position->position.x, rotY + position->position.y };
+
+            // Add it to the batch.
+            AddVertex(dst, vertexPos, src->uv, colour);
+        }
+
+        AddIndices();
 
         count_++;
     }

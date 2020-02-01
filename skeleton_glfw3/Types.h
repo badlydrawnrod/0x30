@@ -45,13 +45,16 @@ namespace je
         GLfloat data[2];
     };
 
-    struct Rect4f {
+    // A rectangle.
+    struct Rect4f
+    {
         GLfloat x;
         GLfloat y;
         GLfloat w;
         GLfloat h;
     };
 
+    // A rectangle based on position and size.
     struct Rect2v
     {
         Vec2f position;             // Position.
@@ -66,7 +69,7 @@ namespace je
     };
 
     // Positional information.
-    struct  Position
+    struct Position
     {
         Vec2f position;             // World position.
         Vec2f centre;               // Centre of rotation relative to world position.
@@ -101,12 +104,12 @@ namespace je
 
     // A textured quad. These consist of a texture id, then 4 vertices giving the positions and normalized texture
     // coordinates of the quad's corners.
-    struct Quad 
+    struct Quad
     {
         GLuint textureId;           // The OpenGL texture id.
         union
         {
-            struct 
+            struct
             {
                 VertexPosTex bl;    // Bottom left.
                 VertexPosTex br;    // Bottom right.

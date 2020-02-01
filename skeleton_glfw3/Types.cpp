@@ -31,20 +31,20 @@ namespace je
         const GLfloat halfHeight = dstSize.h * 0.5f;
 
         // Bottom left vertex.
-        quad.bl.position = { -halfWidth, -halfHeight };
-        quad.bl.uv = { u0, v0 };
+        quad.bl.position = { -halfWidth, halfHeight };
+        quad.bl.uv = { u0, v1 };
 
         // Bottom right vertex.
-        quad.br.position = { halfWidth, -halfHeight };
-        quad.br.uv = { u1, v0 };
+        quad.br.position = { halfWidth, halfHeight };
+        quad.br.uv = { u1, v1 };
 
         // Top right vertex.
-        quad.tr.position = { halfWidth, halfHeight };
-        quad.tr.uv = { u1, v1 };
+        quad.tr.position = { halfWidth, -halfHeight };
+        quad.tr.uv = { u1, v0 };
 
         // Top left vertex.
-        quad.tl.position = { -halfWidth, halfHeight };
-        quad.tl.uv = { u0, v1 };
+        quad.tl.position = { -halfWidth, -halfHeight };
+        quad.tl.uv = { u0, v0 };
 
         return quad;
     }

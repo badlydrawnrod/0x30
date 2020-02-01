@@ -12,6 +12,8 @@
 #undef APIENTRY
 #include <Windows.h>
 
+#include <cmath>
+
 
 // Window information.
 const GLuint WIDTH = 512;
@@ -126,6 +128,8 @@ int main()
     je::Batch batch(shader.Program());
 
     // Loop.
+    float angle = 3.14159265358f / 2.0f;
+    float dAngle = 0.0f;
     while (!glfwWindowShouldClose(context.Window()))
     {
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
@@ -138,26 +142,29 @@ int main()
         // Set the viewport position and size.
         glViewport(0, 0, WIDTH, HEIGHT);
 
+        angle += dAngle;
+
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-        // Fill the screen with the texture that we loaded previously.
+        // Draw the texture that we loaded previously as a centred quad.
         je::Rect2v srcRect;
         srcRect.position = { 0, 0 };
         srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
-        je::Vec2f dstSize = { VIRTUAL_WIDTH, VIRTUAL_HEIGHT };
+        je::Vec2f dstSize = srcRect.size;
         je::Quad quad = je::Quad::MakeQuad(&texture, srcRect, dstSize, false, false);
         je::Position position;
         position.position.x = VIRTUAL_WIDTH / 2;
-        position.position.y = VIRTUAL_WIDTH / 2;
+        position.position.y = VIRTUAL_HEIGHT / 2;
         position.centre.x = 0.0f;
         position.centre.y = 0.0f;
-        position.rotation.cos = 1.0f;
-        position.rotation.sin = 0.0f;
+        position.rotation.cos = std::cosf(angle);
+        position.rotation.sin = std::sinf(angle);
         position.scale.x = 1.0f;
         position.scale.y = 1.0f;
         batch.AddQuad(&quad, &position);
-
+        batch.AddTexture(&texture, je::Vec2f{ 0.0f, 0.0f });
+        
         batch.End();
 
         // Swap buffers.
