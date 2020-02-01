@@ -36,10 +36,12 @@ namespace je
         void Flush();
         void FlushAsNeeded(GLuint textureId);
 
-        void AddTintedTexture(const Texture* texture, Vec2f position, Rgba4b colour);
+        void AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour);
+        void AddTexture(const Texture* texture, GLfloat x, GLfloat y);
+        void AddTexture(const Texture* texture, Vec2f position, Rgba4b colour);
         void AddTexture(const Texture* texture, Vec2f position);
 
-        void AddTintedQuad(const Quad* quad, const Position* position, Rgba4b colour);
+        void AddQuad(const Quad* quad, const Position* position, Rgba4b colour);
         void AddQuad(const Quad* quad, const Position* position);
 
     private:

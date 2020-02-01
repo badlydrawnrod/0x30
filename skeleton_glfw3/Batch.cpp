@@ -165,21 +165,15 @@ namespace je
         *p = ofs + (GLushort)0;
     }
 
-    void Batch::AddTintedTexture(const Texture* texture, Vec2f position, Rgba4b colour)
+    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour)
     {
         FlushAsNeeded(texture->textureId);
 
-        // Calculate normalised texture coordinates.
-        const GLfloat u0 = 0.0f;
-        const GLfloat u1 = 1.0f;
-        const GLfloat v0 = 0.0f;
-        const GLfloat v1 = 1.0f;
-
         // The vertices.
-        VertexPosTex bottomLeft = { { position.x, position.y + texture->h }, { u0, v1 } };
-        VertexPosTex bottomRight = { { position.x + texture->w, position.y + texture->h }, { u1, v1 } };
-        VertexPosTex topRight = { { position.x + texture->w, position.y }, { u1, v0 } };
-        VertexPosTex topLeft = { { position.x, position.y }, { u0, v0 } };
+        const VertexPosTex bottomLeft{ { x, y + texture->h }, { 0.0f, 1.0f } };
+        const VertexPosTex bottomRight{ { x + texture->w, y + texture->h }, { 1.0f, 1.0f } };
+        const VertexPosTex topRight{ { x + texture->w, y }, { 1.0f, 0.0f } };
+        const VertexPosTex topLeft{ { x, y }, { 0.0f, 0.0f } };
 
         // Add the vertices to the batch.
         VertexPosTexColour* dst = &vertices_[count_ * VERTICES_PER_QUAD];
@@ -193,13 +187,24 @@ namespace je
         count_++;
     }
 
+    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y)
+    {
+        Rgba4b white = { 255, 255, 255, 255 };
+        AddTexture(texture, x, y, white);
+    }
+
+    void Batch::AddTexture(const Texture* texture, Vec2f position, Rgba4b colour)
+    {
+        AddTexture(texture, position.x, position.y, colour);
+    }
+
     void Batch::AddTexture(const Texture* texture, Vec2f position)
     {
         Rgba4b white = { 255, 255, 255, 255 };
-        AddTintedTexture(texture, position, white);
+        AddTexture(texture, position.x, position.y, white);
     }
 
-    void Batch::AddTintedQuad(const Quad* quad, const Position* position, Rgba4b colour)
+    void Batch::AddQuad(const Quad* quad, const Position* position, Rgba4b colour)
     {
         FlushAsNeeded(quad->textureId);
 
@@ -230,6 +235,6 @@ namespace je
     void Batch::AddQuad(const Quad* quad, const Position* position)
     {
         Rgba4b white = { 255, 255, 255, 255 };
-        AddTintedQuad(quad, position, white);
+        AddQuad(quad, position, white);
     }
 }
