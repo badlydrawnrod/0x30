@@ -104,7 +104,7 @@ namespace je
 
     // A textured quad. These consist of a texture id, then 4 vertices giving the positions and normalized texture
     // coordinates of the quad's corners.
-    struct Quad
+    struct TexturedQuad
     {
         GLuint textureId;           // The OpenGL texture id.
         union
@@ -119,6 +119,6 @@ namespace je
             VertexPosTex data[4];   // Vertex positions and texture region offsets (in order BL, BR, TR, TL).
         };
 
-        static Quad MakeQuad(const Texture* texture, Rect2v srcRect, Vec2f dstSize, bool hflip = false, bool vflip = false);
+        static TexturedQuad Create(const Texture* texture, Rect2v srcRect, Vec2f dstSize, bool hflip = false, bool vflip = false);
     };
 }

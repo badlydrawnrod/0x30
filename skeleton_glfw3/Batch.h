@@ -12,7 +12,7 @@
 namespace je
 {
     // A batch for drawing quads.
-    class Batch 
+    class Batch
     {
     private:
         GLuint program_{ 0 };             // The shader program to apply for this batch.
@@ -40,18 +40,16 @@ namespace je
         void Flush();
         void FlushAsNeeded(GLuint textureId);
 
-        void AddQ(const Texture* texture, const QuadPosTexColour& vertices);
+        void AddVertices(GLuint textureId, const QuadPosTexColour& vertices);
+        void AddVertices(const Texture* texture, const QuadPosTexColour& vertices);
+
         void AddTexture(const Texture* texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour);
         void AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour);
         void AddTexture(const Texture* texture, GLfloat x, GLfloat y);
         void AddTexture(const Texture* texture, Vec2f position, Rgba4b colour);
         void AddTexture(const Texture* texture, Vec2f position);
 
-        void AddQuad(const Quad* quad, const Position* position, Rgba4b colour);
-        void AddQuad(const Quad* quad, const Position* position);
-
-    private:
-        void AddVertex(VertexPosTexColour* dst, Vec2f position, Vec2f uv, Rgba4b colour);
-        void AddIndices();
+        void AddTexturedQuad(const TexturedQuad* quad, const Position* position, Rgba4b colour);
+        void AddTexturedQuad(const TexturedQuad* quad, const Position* position);
     };
 }

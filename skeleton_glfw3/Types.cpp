@@ -5,9 +5,9 @@
 
 namespace je
 {
-    Quad Quad::MakeQuad(const Texture* texture, Rect2v srcRect, Vec2f dstSize, bool hflip, bool vflip)
+    TexturedQuad TexturedQuad::Create(const Texture* texture, Rect2v srcRect, Vec2f dstSize, bool hflip, bool vflip)
     {
-        Quad quad;
+        TexturedQuad quad;
 
         // Texture.
         quad.textureId = texture->textureId;

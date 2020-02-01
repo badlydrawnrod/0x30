@@ -152,7 +152,7 @@ int main()
         srcRect.position = { 0, 0 };
         srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
         je::Vec2f dstSize = srcRect.size;
-        je::Quad quad = je::Quad::MakeQuad(&texture, srcRect, dstSize, false, false);
+        je::TexturedQuad quad = je::TexturedQuad::Create(&texture, srcRect, dstSize, false, false);
         je::Position position;
         position.position.x = VIRTUAL_WIDTH / 2;
         position.position.y = VIRTUAL_HEIGHT / 2;
@@ -162,7 +162,7 @@ int main()
         position.rotation.sin = std::sinf(angle);
         position.scale.x = 1.0f;
         position.scale.y = 1.0f;
-        batch.AddQuad(&quad, &position);
+        batch.AddTexturedQuad(&quad, &position);
         batch.AddTexture(&texture, je::Vec2f{ 0.0f, 0.0f });
         
         batch.End();

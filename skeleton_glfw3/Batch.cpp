@@ -144,30 +144,9 @@ namespace je
         }
     }
 
-    // Adds a single vertex to the batch.
-    inline void Batch::AddVertex(VertexPosTexColour* dst, Vec2f position, Vec2f uv, Rgba4b colour)
+    void Batch::AddVertices(GLuint textureId, const QuadPosTexColour& vertices)
     {
-        dst->position = position;
-        dst->uv = uv;
-        dst->colour = colour;
-    }
-
-    // Adds a quad's indices to the batch.
-    inline void Batch::AddIndices()
-    {
-        const GLushort ofs = count_ * VERTICES_PER_QUAD;
-        GLushort* index = &indices_[count_ * INDICES_PER_QUAD];
-        *index++ = ofs + (GLushort)0;
-        *index++ = ofs + (GLushort)1;
-        *index++ = ofs + (GLushort)2;
-        *index++ = ofs + (GLushort)2;
-        *index++ = ofs + (GLushort)3;
-        *index = ofs + (GLushort)0;
-    }
-
-    void Batch::AddQ(const Texture* texture, const QuadPosTexColour& vertices)
-    {
-        FlushAsNeeded(texture->textureId);
+        FlushAsNeeded(textureId);
 
         // Add the vertices to the batch.
         VertexPosTexColour* vertex = &vertices_[count_ * VERTICES_PER_QUAD];
@@ -176,9 +155,22 @@ namespace je
         *vertex++ = vertices[2];
         *vertex++ = vertices[3];
 
-        AddIndices();
+        // Add the indices to the batch.
+        const GLushort ofs = count_ * VERTICES_PER_QUAD;
+        GLushort* index = &indices_[count_ * INDICES_PER_QUAD];
+        *index++ = ofs + (GLushort)0;
+        *index++ = ofs + (GLushort)1;
+        *index++ = ofs + (GLushort)2;
+        *index++ = ofs + (GLushort)2;
+        *index++ = ofs + (GLushort)3;
+        *index = ofs + (GLushort)0;
 
         count_++;
+    }
+
+    void Batch::AddVertices(const Texture* texture, const QuadPosTexColour& vertices)
+    {
+        AddVertices(texture->textureId, vertices);
     }
 
     void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
@@ -193,7 +185,7 @@ namespace je
             VertexPosTexColour{ { x, y }, { 0.0f, 0.0f }, colour }
         };
 
-        AddQ(texture, quad);
+        AddVertices(texture, quad);
     }
 
     void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour)
@@ -218,13 +210,12 @@ namespace je
         AddTexture(texture, position.x, position.y, white);
     }
 
-    void Batch::AddQuad(const Quad* quad, const Position* position, Rgba4b colour)
+    void Batch::AddTexturedQuad(const TexturedQuad* quad, const Position* position, Rgba4b colour)
     {
-        FlushAsNeeded(quad->textureId);
-
         // Append the quad's vertices to the batch, rotating, scaling and translating as we go.
-        VertexPosTexColour* dst = &vertices_[count_ * VERTICES_PER_QUAD];
-        for (const VertexPosTex* src = quad->data; src < quad->data + 4; src++, dst++)
+        QuadPosTexColour out;
+        size_t i = 0;
+        for (const VertexPosTex* src = quad->data; src < quad->data + 4; src++, i++)
         {
             // Load from src, adjust for the centre of rotation, then scale.
             const GLfloat x = (src->position.x - position->centre.x) * position->scale.x;
@@ -237,18 +228,15 @@ namespace je
             // Translate into position.
             Vec2f vertexPos{ rotX + position->position.x, rotY + position->position.y };
 
-            // Add it to the batch.
-            AddVertex(dst, vertexPos, src->uv, colour);
+            out[i] = VertexPosTexColour{ vertexPos, src->uv, colour };
         }
 
-        AddIndices();
-
-        count_++;
+        AddVertices(quad->textureId, out);
     }
 
-    void Batch::AddQuad(const Quad* quad, const Position* position)
+    void Batch::AddTexturedQuad(const TexturedQuad* quad, const Position* position)
     {
         Rgba4b white = { 255, 255, 255, 255 };
-        AddQuad(quad, position, white);
+        AddTexturedQuad(quad, position, white);
     }
 }
