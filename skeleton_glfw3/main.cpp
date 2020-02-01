@@ -162,8 +162,8 @@ int main()
         position.rotation.sin = std::sinf(angle);
         position.scale.x = 1.0f;
         position.scale.y = 1.0f;
-        batch.AddTexturedQuad(&quad, &position);
-        batch.AddTexture(&texture, je::Vec2f{ 0.0f, 0.0f });
+        batch.AddTexturedQuad(quad, position);
+        batch.AddTexture(texture, je::Vec2f{ 0.0f, 0.0f });
         
         batch.End();
 

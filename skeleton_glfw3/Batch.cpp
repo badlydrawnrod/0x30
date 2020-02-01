@@ -168,14 +168,14 @@ namespace je
         count_++;
     }
 
-    void Batch::AddVertices(const Texture* texture, const QuadPosTexColour& vertices)
+    void Batch::AddVertices(const Texture& texture, const QuadPosTexColour& vertices)
     {
-        AddVertices(texture->textureId, vertices);
+        AddVertices(texture.textureId, vertices);
     }
 
-    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
+    void Batch::AddTexture(const Texture& texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
     {
-        FlushAsNeeded(texture->textureId);
+        FlushAsNeeded(texture.textureId);
 
         // Wrap the vertices in a quad.
         QuadPosTexColour quad{
@@ -188,53 +188,53 @@ namespace je
         AddVertices(texture, quad);
     }
 
-    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour)
+    void Batch::AddTexture(const Texture& texture, GLfloat x, GLfloat y, Rgba4b colour)
     {
-        AddTexture(texture, x, y, (GLfloat)texture->w, (GLfloat)texture->h, colour);
+        AddTexture(texture, x, y, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h), colour);
     }
 
-    void Batch::AddTexture(const Texture* texture, GLfloat x, GLfloat y)
+    void Batch::AddTexture(const Texture& texture, GLfloat x, GLfloat y)
     {
         Rgba4b white = { 255, 255, 255, 255 };
         AddTexture(texture, x, y, white);
     }
 
-    void Batch::AddTexture(const Texture* texture, Vec2f position, Rgba4b colour)
+    void Batch::AddTexture(const Texture& texture, Vec2f position, Rgba4b colour)
     {
         AddTexture(texture, position.x, position.y, colour);
     }
 
-    void Batch::AddTexture(const Texture* texture, Vec2f position)
+    void Batch::AddTexture(const Texture& texture, Vec2f position)
     {
         Rgba4b white = { 255, 255, 255, 255 };
         AddTexture(texture, position.x, position.y, white);
     }
 
-    void Batch::AddTexturedQuad(const TexturedQuad* quad, const Position* position, Rgba4b colour)
+    void Batch::AddTexturedQuad(const TexturedQuad& quad, const Position& position, Rgba4b colour)
     {
         // Append the quad's vertices to the batch, rotating, scaling and translating as we go.
         QuadPosTexColour out;
         size_t i = 0;
-        for (const VertexPosTex* src = quad->data; src < quad->data + 4; src++, i++)
+        for (const VertexPosTex* src = quad.data; src < quad.data + 4; src++, i++)
         {
             // Load from src, adjust for the centre of rotation, then scale.
-            const GLfloat x = (src->position.x - position->centre.x) * position->scale.x;
-            const GLfloat y = (src->position.y - position->centre.y) * position->scale.y;
+            const GLfloat x = (src->position.x - position.centre.x) * position.scale.x;
+            const GLfloat y = (src->position.y - position.centre.y) * position.scale.y;
 
             // Rotate around the centre of rotation.
-            const GLfloat rotX = x * position->rotation.cos - y * position->rotation.sin;
-            const GLfloat rotY = x * position->rotation.sin + y * position->rotation.cos;
+            const GLfloat rotX = x * position.rotation.cos - y * position.rotation.sin;
+            const GLfloat rotY = x * position.rotation.sin + y * position.rotation.cos;
 
             // Translate into position.
-            Vec2f vertexPos{ rotX + position->position.x, rotY + position->position.y };
+            Vec2f vertexPos{ rotX + position.position.x, rotY + position.position.y };
 
             out[i] = VertexPosTexColour{ vertexPos, src->uv, colour };
         }
 
-        AddVertices(quad->textureId, out);
+        AddVertices(quad.textureId, out);
     }
 
-    void Batch::AddTexturedQuad(const TexturedQuad* quad, const Position* position)
+    void Batch::AddTexturedQuad(const TexturedQuad& quad, const Position& position)
     {
         Rgba4b white = { 255, 255, 255, 255 };
         AddTexturedQuad(quad, position, white);

@@ -41,15 +41,15 @@ namespace je
         void FlushAsNeeded(GLuint textureId);
 
         void AddVertices(GLuint textureId, const QuadPosTexColour& vertices);
-        void AddVertices(const Texture* texture, const QuadPosTexColour& vertices);
+        void AddVertices(const Texture& texture, const QuadPosTexColour& vertices);
 
-        void AddTexture(const Texture* texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour);
-        void AddTexture(const Texture* texture, GLfloat x, GLfloat y, Rgba4b colour);
-        void AddTexture(const Texture* texture, GLfloat x, GLfloat y);
-        void AddTexture(const Texture* texture, Vec2f position, Rgba4b colour);
-        void AddTexture(const Texture* texture, Vec2f position);
+        void AddTexture(const Texture& texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour);
+        void AddTexture(const Texture& texture, GLfloat x, GLfloat y, Rgba4b colour);
+        void AddTexture(const Texture& texture, GLfloat x, GLfloat y);
+        void AddTexture(const Texture& texture, Vec2f position, Rgba4b colour);
+        void AddTexture(const Texture& texture, Vec2f position);
 
-        void AddTexturedQuad(const TexturedQuad* quad, const Position* position, Rgba4b colour);
-        void AddTexturedQuad(const TexturedQuad* quad, const Position* position);
+        void AddTexturedQuad(const TexturedQuad& quad, const Position& position, Rgba4b colour);
+        void AddTexturedQuad(const TexturedQuad& quad, const Position& position);
     };
 }
