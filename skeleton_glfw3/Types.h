@@ -92,6 +92,16 @@ namespace je
         GLsizei h;                  // The height in texels.
     };
 
+    // A rectangular region of a texture.
+    struct TextureRegion
+    {
+        Texture texture;            // The texture associated with the region.
+        GLfloat x;                  // The x coordinate of the top left of the region, in texels.
+        GLfloat y;                  // The y coordinate of the top left of the region, in texels.
+        GLfloat w;                  // The width in texels.
+        GLfloat h;                  // The height in texels.
+    };
+
     // A tileset, i.e., a texture with some tile dimensions.
     struct Tileset
     {

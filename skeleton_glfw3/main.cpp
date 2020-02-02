@@ -129,11 +129,12 @@ int main()
     je::Batch batch(shader.Program());
 
     // Extract some interesting regions from the texture.
-    auto redTile = je::quads::Create(texture, 64.0f, 224.0f, 0.0f, 48.0f, 16.0f, 16.0f);
-    auto greenTile = je::quads::Create(texture, 80.0f, 224.0f, 16.0f, 48.0f, 16.0f, 16.0f);
-    auto yellowTile = je::quads::Create(texture, 96.0f, 224.0f, 32.0f, 48.0f, 16.0f, 16.0f);
-    auto cyanTile = je::quads::Create(texture, 112.0f, 224.0f, 48.0f, 48.0f, 16.0f, 16.0f);
-    auto wallTile = je::quads::Create(texture, 128.0f, 224.0f, 64.0f, 48.0f, 16.0f, 16.0f);
+    auto redRegion = je::TextureRegion{ texture, 0.0f, 48.0f, 16.0f, 16.0f };
+    auto greenRegion = je::TextureRegion{ texture, 16.0f, 48.0f, 16.0f, 16.0f };
+    auto yellowRegion = je::TextureRegion{ texture, 32.0f, 48.0f, 16.0f, 16.0f };
+    auto magentaRegion = je::TextureRegion{ texture, 48.0f, 48.0f, 16.0f, 16.0f };
+    auto cyanRegion = je::TextureRegion{ texture, 64.0f, 48.0f, 16.0f, 16.0f };
+    auto wallRegion = je::TextureRegion{ texture, 80.0f, 48.0f, 16.0f, 16.0f };
 
     // Loop.
     float angle = 3.14159265358f / 4.0f;
@@ -173,11 +174,16 @@ int main()
         batch.AddVertices(quad.textureId, je::quads::Create(quad, position));
         batch.AddVertices(texture.textureId, je::quads::Create(texture, je::Vec2f{ 0.0f, 0.0f }));
 
-        batch.AddVertices(texture.textureId, redTile);
-        batch.AddVertices(texture.textureId, greenTile);
-        batch.AddVertices(texture.textureId, yellowTile);
-        batch.AddVertices(texture.textureId, cyanTile);
-        batch.AddVertices(texture.textureId, wallTile);
+        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(redRegion, 128.0f, 192.0f));
+        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(greenRegion, 144.0f, 192.0f));
+        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(yellowRegion, 160.0f, 192.0f));
+        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(cyanRegion, 176.0f, 192.0f));
+        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(wallRegion, 192.0f, 192.0f));
+
+        for (int y = 0; y < 13; y++)
+        {
+            batch.AddVertices(redRegion.texture.textureId, je::quads::Create(wallRegion, 128.0f, 32.0f + 16.0f * y));
+        }
         
         batch.End();
 
