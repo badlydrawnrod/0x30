@@ -128,6 +128,13 @@ int main()
 
     je::Batch batch(shader.Program());
 
+    // Extract some interesting regions from the texture.
+    auto redTile = je::quads::Create(texture, 64.0f, 224.0f, 0.0f, 48.0f, 16.0f, 16.0f);
+    auto greenTile = je::quads::Create(texture, 80.0f, 224.0f, 16.0f, 48.0f, 16.0f, 16.0f);
+    auto yellowTile = je::quads::Create(texture, 96.0f, 224.0f, 32.0f, 48.0f, 16.0f, 16.0f);
+    auto cyanTile = je::quads::Create(texture, 112.0f, 224.0f, 48.0f, 48.0f, 16.0f, 16.0f);
+    auto wallTile = je::quads::Create(texture, 128.0f, 224.0f, 64.0f, 48.0f, 16.0f, 16.0f);
+
     // Loop.
     float angle = 3.14159265358f / 4.0f;
     float dAngle = 0.02f;
@@ -148,7 +155,7 @@ int main()
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-        // Draw the texture that we loaded previously as a centred quad.
+        // Draw the texture that we loaded previously as a centred, scaled, rotated, translated texture quad.
         je::Rect2v srcRect;
         srcRect.position = { 0, 0 };
         srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
@@ -165,6 +172,12 @@ int main()
         position.scale.y = 1.0f;
         batch.AddVertices(quad.textureId, je::quads::Create(quad, position));
         batch.AddVertices(texture.textureId, je::quads::Create(texture, je::Vec2f{ 0.0f, 0.0f }));
+
+        batch.AddVertices(texture.textureId, redTile);
+        batch.AddVertices(texture.textureId, greenTile);
+        batch.AddVertices(texture.textureId, yellowTile);
+        batch.AddVertices(texture.textureId, cyanTile);
+        batch.AddVertices(texture.textureId, wallTile);
         
         batch.End();
 
