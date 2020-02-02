@@ -17,8 +17,8 @@
 
 
 // Window information.
-const GLuint WIDTH = 512;
-const GLuint HEIGHT = 512;
+const GLuint WIDTH = 720;
+const GLuint HEIGHT = 480;
 const char* const TITLE = "The Mysterious 0x30";
 
 // Virtual screen information.
@@ -129,16 +129,14 @@ int main()
     je::Batch batch(shader.Program());
 
     // Extract some interesting regions from the texture.
-    auto redRegion = je::TextureRegion{ texture, 0.0f, 48.0f, 16.0f, 16.0f };
-    auto greenRegion = je::TextureRegion{ texture, 16.0f, 48.0f, 16.0f, 16.0f };
-    auto yellowRegion = je::TextureRegion{ texture, 32.0f, 48.0f, 16.0f, 16.0f };
-    auto magentaRegion = je::TextureRegion{ texture, 48.0f, 48.0f, 16.0f, 16.0f };
-    auto cyanRegion = je::TextureRegion{ texture, 64.0f, 48.0f, 16.0f, 16.0f };
-    auto wallRegion = je::TextureRegion{ texture, 80.0f, 48.0f, 16.0f, 16.0f };
+    auto redTile = je::TextureRegion{ texture, 0.0f, 48.0f, 16.0f, 16.0f };
+    auto greenTile = je::TextureRegion{ texture, 16.0f, 48.0f, 16.0f, 16.0f };
+    auto yellowTile = je::TextureRegion{ texture, 32.0f, 48.0f, 16.0f, 16.0f };
+    auto magentTile = je::TextureRegion{ texture, 48.0f, 48.0f, 16.0f, 16.0f };
+    auto cyanTile = je::TextureRegion{ texture, 64.0f, 48.0f, 16.0f, 16.0f };
+    auto wallTile = je::TextureRegion{ texture, 80.0f, 48.0f, 16.0f, 16.0f };
 
     // Loop.
-    float angle = 3.14159265358f / 4.0f;
-    float dAngle = 0.02f;
     while (!glfwWindowShouldClose(context.Window()))
     {
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
@@ -151,38 +149,18 @@ int main()
         // Set the viewport position and size.
         glViewport(0, 0, WIDTH, HEIGHT);
 
-        angle += dAngle;
-
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-        // Draw the texture that we loaded previously as a centred, scaled, rotated, translated texture quad.
-        je::Rect2v srcRect;
-        srcRect.position = { 0, 0 };
-        srcRect.size = { (GLfloat)texture.w, (GLfloat)texture.h };
-        je::Vec2f dstSize = srcRect.size;
-        je::TexturedQuad quad = je::TexturedQuad::Create(&texture, srcRect, dstSize, false, false);
-        je::Position position;
-        position.position.x = VIRTUAL_WIDTH / 2;
-        position.position.y = VIRTUAL_HEIGHT / 2;
-        position.centre.x = 0.0f;
-        position.centre.y = 0.0f;
-        position.rotation.cos = std::cosf(angle);
-        position.rotation.sin = std::sinf(angle);
-        position.scale.x = 1.0f;
-        position.scale.y = 1.0f;
-        batch.AddVertices(quad.textureId, je::quads::Create(quad, position));
-        batch.AddVertices(texture.textureId, je::quads::Create(texture, je::Vec2f{ 0.0f, 0.0f }));
-
-        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(redRegion, 128.0f, 192.0f));
-        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(greenRegion, 144.0f, 192.0f));
-        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(yellowRegion, 160.0f, 192.0f));
-        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(cyanRegion, 176.0f, 192.0f));
-        batch.AddVertices(redRegion.texture.textureId, je::quads::Create(wallRegion, 192.0f, 192.0f));
-
+        // Draw a rather rudimentary looking outline of a pit.
         for (int y = 0; y < 13; y++)
         {
-            batch.AddVertices(redRegion.texture.textureId, je::quads::Create(wallRegion, 128.0f, 32.0f + 16.0f * y));
+            batch.AddVertices(wallTile.texture.textureId, je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f, 32.0f + 16.0f * y));
+            batch.AddVertices(wallTile.texture.textureId, je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f + 3.0f * 16.0f, 32.0f + 16.0f * y));
+        }
+        for (int x = 1; x < 7; x++)
+        {
+            batch.AddVertices(wallTile.texture.textureId, je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 32.0f + 16.0f * 12));
         }
         
         batch.End();
