@@ -47,11 +47,26 @@ namespace je
             };
         }
 
+        inline Batch::TQuad CreateTQ(const TextureRegion& region, GLfloat x, GLfloat y, Rgba4b colour)
+        {
+            return Batch::TQuad{
+                region.texture.textureId,
+                Create(region, x, y, colour)
+            };
+        }
+
         // Creates a quad that represents a texture region with top left at (x, y).
         inline Batch::Quad Create(const TextureRegion& region, GLfloat x, GLfloat y)
         {
             const Rgba4b white = { 255, 255, 255, 255 };
             return Create(region, x, y, white);
+        }
+
+        // Creates a textured quad for a texture region with top left at (x, y).
+        inline Batch::TQuad CreateTQ(const TextureRegion& region, GLfloat x, GLfloat y)
+        {
+            const Rgba4b white = { 255, 255, 255, 255 };
+            return CreateTQ(region, x, y, white);
         }
 
         // Creates a quad that represents a source region of a texture.

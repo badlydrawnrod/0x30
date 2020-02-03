@@ -28,6 +28,11 @@ namespace je
 
     public:
         using Quad = std::array<VertexPosTexColour, 4>;
+        struct TQuad
+        {
+            GLuint textureId_;
+            Quad quad_;
+        };
 
     public:
         Batch(GLuint program);
@@ -42,5 +47,11 @@ namespace je
         void FlushAsNeeded(GLuint textureId);
 
         void AddVertices(GLuint textureId, const Quad& vertices);
+        void AddVertices(const TQuad& vertices);
     };
+
+    inline void Batch::AddVertices(const TQuad& vertices)
+    {
+        AddVertices(vertices.textureId_, vertices.quad_);
+    }
 }
