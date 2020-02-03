@@ -27,11 +27,11 @@ namespace je
         std::vector <GLushort> indices_;
 
     public:
-        using Quad = std::array<VertexPosTexColour, 4>;
-        struct TQuad
+        using Vertices = std::array<VertexPosTexColour, 4>;
+        struct Quad
         {
-            GLuint textureId_;
-            Quad quad_;
+            GLuint textureId;
+            Vertices vertices;
         };
 
     public:
@@ -46,12 +46,12 @@ namespace je
         void Flush();
         void FlushAsNeeded(GLuint textureId);
 
-        void AddVertices(GLuint textureId, const Quad& vertices);
-        void AddVertices(const TQuad& vertices);
+        void AddVertices(GLuint textureId, const Vertices& vertices);
+        void AddVertices(const Quad& vertices);
     };
 
-    inline void Batch::AddVertices(const TQuad& vertices)
+    inline void Batch::AddVertices(const Quad& vertices)
     {
-        AddVertices(vertices.textureId_, vertices.quad_);
+        AddVertices(vertices.textureId, vertices.vertices);
     }
 }

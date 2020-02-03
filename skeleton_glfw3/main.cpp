@@ -155,12 +155,12 @@ int main()
         // Draw a rather rudimentary looking outline of a pit.
         for (int y = 0; y < 13; y++)
         {
-            batch.AddVertices(je::quads::CreateTQ(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f, 32.0f + 16.0f * y));
-            batch.AddVertices(je::quads::CreateTQ(wallTile, VIRTUAL_WIDTH / 2.0f + 3.0f * 16.0f, 32.0f + 16.0f * y));
+            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f, 32.0f + 16.0f * y));
+            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f + 3.0f * 16.0f, 32.0f + 16.0f * y));
         }
         for (int x = 1; x < 7; x++)
         {
-            batch.AddVertices(je::quads::CreateTQ(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 32.0f + 16.0f * 12));
+            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 32.0f + 16.0f * 12));
         }
 
         batch.End();

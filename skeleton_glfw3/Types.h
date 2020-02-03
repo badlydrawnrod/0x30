@@ -111,24 +111,4 @@ namespace je
         int widthInTiles;           // The texture's width in tiles.
         int heightInTiles;          // The texture's height in tiles.
     };
-
-    // A textured quad. These consist of a texture id, then 4 vertices giving the positions and normalized texture
-    // coordinates of the quad's corners.
-    struct TexturedQuad
-    {
-        GLuint textureId;           // The OpenGL texture id.
-        union
-        {
-            struct
-            {
-                VertexPosTex bl;    // Bottom left.
-                VertexPosTex br;    // Bottom right.
-                VertexPosTex tr;    // Top right.
-                VertexPosTex tl;    // Top left.
-            };
-            VertexPosTex data[4];   // Vertex positions and texture region offsets (in order BL, BR, TR, TL).
-        };
-
-        static TexturedQuad Create(const Texture* texture, Rect2v srcRect, Vec2f dstSize, bool hflip = false, bool vflip = false);
-    };
 }

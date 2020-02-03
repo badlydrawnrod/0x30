@@ -12,21 +12,30 @@ namespace je
     namespace quads
     {
         // Creates a quad that represents an entire texture with top left at (x, y), size (width, height) and colour "colour".
-        inline Batch::Quad Create(GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
+        inline Batch::Quad Create(const Texture& texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
         {
             return Batch::Quad{
+                texture.textureId,
+                Batch::Vertices {
                 VertexPosTexColour{ { x, y + height }, { 0.0f, 1.0f }, colour },
                 VertexPosTexColour{ { x + width, y + height }, { 1.0f, 1.0f }, colour },
                 VertexPosTexColour{ { x + width, y }, { 1.0f, 0.0f }, colour },
                 VertexPosTexColour{ { x, y }, { 0.0f, 0.0f }, colour }
+                }
             };
         }
 
         // Creates a quad that represents an entire texture with top left at (x, y), and size (width, height).
-        inline Batch::Quad Create(GLfloat x, GLfloat y, GLfloat width, GLfloat height)
+        inline Batch::Quad Create(const Texture& texture, GLfloat x, GLfloat y, GLfloat width, GLfloat height)
         {
             const Rgba4b white = { 255, 255, 255, 255 };
-            return Create(x, y, width, height, white);
+            return Create(texture, x, y, width, height, white);
+        }
+
+        // Creates a quad that represents the entire texture with top left at "position".
+        inline Batch::Quad Create(const Texture& texture, Vec2f position)
+        {
+            return Create(texture, position.x, position.y, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h));
         }
 
         // Creates a quad that represents a texture region with top left at (x, y).
@@ -40,18 +49,13 @@ namespace je
             const GLfloat v1 = (region.y + region.h) / textureHeight;
 
             return Batch::Quad{
+                region.texture.textureId,
+                Batch::Vertices{
                 VertexPosTexColour{ { x, y + region.h}, { u0, v1 }, colour },
                 VertexPosTexColour{ { x + region.w, y + region.h}, { u1, v1}, colour },
                 VertexPosTexColour{ { x + region.w, y }, { u1, v0 }, colour },
                 VertexPosTexColour{ { x, y }, { u0, v0 }, colour }
-            };
-        }
-
-        inline Batch::TQuad CreateTQ(const TextureRegion& region, GLfloat x, GLfloat y, Rgba4b colour)
-        {
-            return Batch::TQuad{
-                region.texture.textureId,
-                Create(region, x, y, colour)
+                }
             };
         }
 
@@ -60,13 +64,6 @@ namespace je
         {
             const Rgba4b white = { 255, 255, 255, 255 };
             return Create(region, x, y, white);
-        }
-
-        // Creates a textured quad for a texture region with top left at (x, y).
-        inline Batch::TQuad CreateTQ(const TextureRegion& region, GLfloat x, GLfloat y)
-        {
-            const Rgba4b white = { 255, 255, 255, 255 };
-            return CreateTQ(region, x, y, white);
         }
 
         // Creates a quad that represents a source region of a texture.
@@ -80,11 +77,13 @@ namespace je
             const GLfloat v1 = (srcY + srcHeight) / textureHeight;
 
             return Batch::Quad{
+                texture.textureId,
+                Batch::Vertices {
                 VertexPosTexColour{ { x, y + srcHeight}, { u0, v1 }, colour },
                 VertexPosTexColour{ { x + srcWidth, y + srcHeight}, { u1, v1}, colour },
                 VertexPosTexColour{ { x + srcWidth, y }, { u1, v0 }, colour },
                 VertexPosTexColour{ { x, y }, { u0, v0 }, colour }
-
+                }
             };
         }
 
@@ -92,33 +91,6 @@ namespace je
         {
             const Rgba4b white = { 255, 255, 255, 255 };
             return Create(texture, x, y, srcX, srcY, srcWidth, srcHeight, white);
-        }
-
-        // Creates a quad that represents the entire texture with top left at "position".
-        inline Batch::Quad Create(const Texture& texture, Vec2f position)
-        {
-            return Create(position.x, position.y, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h));
-        }
-
-        // Creates a tinted quad from a textured quad.
-        inline Batch::Quad Create(const TexturedQuad& quad, const Position& position, Rgba4b colour)
-        {
-            // Create the transformed vertices for a textured quad.
-            Batch::Quad transformed;
-            size_t i = 0;
-            for (const VertexPosTex* src = quad.data; src < quad.data + 4; src++, i++)
-            {
-                Vec2f vertexPos = vec::Transform(src->position, position.centre, position.scale, position.rotation, position.position);
-                transformed[i] = VertexPosTexColour{ vertexPos, src->uv, colour };
-            }
-            return transformed;
-        }
-
-        // Creates a quad from a textured quad.
-        inline Batch::Quad Create(const TexturedQuad& quad, const Position& position)
-        {
-            const Rgba4b white = { 255, 255, 255, 255 };
-            return Create(quad, position, white);
         }
     }
 }

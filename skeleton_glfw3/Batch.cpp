@@ -138,7 +138,7 @@ namespace je
         }
     }
 
-    void Batch::AddVertices(GLuint textureId, const Quad& vertices)
+    void Batch::AddVertices(GLuint textureId, const Vertices& vertices)
     {
         FlushAsNeeded(textureId);
 

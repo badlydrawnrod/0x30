@@ -147,7 +147,6 @@
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="Batch.cpp" />
     <ClCompile Include="Textures.cpp" />
-    <ClCompile Include="Types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Batch.h" />
