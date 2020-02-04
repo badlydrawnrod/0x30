@@ -13,6 +13,7 @@
 #undef APIENTRY
 #include <Windows.h>
 
+#include <algorithm>
 #include <cmath>
 
 
@@ -91,6 +92,28 @@ void OnJoystickEvent(int joystickId, int event)
 }
 
 
+// TODO: the size has to account for things thrown in on top of what's there, and, top be honest, a better mental
+// model is a circular buffer of rows. There can only ever be "1 + rows" rows visible, and a blank row that scrolls
+// off the top will go off the bottom and get filled in.
+struct Pit
+{
+    Pit();
+
+    static constexpr size_t cols = 6;
+    static constexpr size_t rows = 12;
+    enum class Tile { None, Red, Green, Yellow, Cyan, Wall };
+
+    std::array<Tile, cols * rows> tiles_;
+};
+
+
+Pit::Pit()
+{
+    std::fill(tiles_.begin() + cols * 3, tiles_.begin() + cols * 4, Tile::Wall);
+    std::fill(tiles_.begin() + cols * rows / 2, tiles_.end(), Tile::Red);
+}
+
+
 int main()
 {
     je::Context context(WIDTH, HEIGHT, TITLE);
@@ -132,9 +155,15 @@ int main()
     auto redTile = je::TextureRegion{ texture, 0.0f, 48.0f, 16.0f, 16.0f };
     auto greenTile = je::TextureRegion{ texture, 16.0f, 48.0f, 16.0f, 16.0f };
     auto yellowTile = je::TextureRegion{ texture, 32.0f, 48.0f, 16.0f, 16.0f };
-    auto magentTile = je::TextureRegion{ texture, 48.0f, 48.0f, 16.0f, 16.0f };
+    auto magentaTile = je::TextureRegion{ texture, 48.0f, 48.0f, 16.0f, 16.0f };
     auto cyanTile = je::TextureRegion{ texture, 64.0f, 48.0f, 16.0f, 16.0f };
     auto wallTile = je::TextureRegion{ texture, 80.0f, 48.0f, 16.0f, 16.0f };
+
+    Pit pit;
+    je::Vec2f topLeft{ VIRTUAL_WIDTH / 2.0f - 3.0f * 16.0f, 32.0f + 16.0f * 8.0f };
+    
+    const float bottomRow = 32.0f + 16.0f * 12;
+    const float lastRow = bottomRow - 16.0f;
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
@@ -152,6 +181,56 @@ int main()
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
+        // Draw the pit itself.
+        for (auto row = 0; row < pit.rows; row++)
+        {
+            for (auto col = 0; col < pit.cols; col++)
+            {
+                je::TextureRegion* drawTile = nullptr;
+
+                switch (pit.tiles_[col + row * pit.cols])
+                {
+                case Pit::Tile::Red:
+                    drawTile = &redTile;
+                    break;
+
+                case Pit::Tile::Yellow:
+                    drawTile = &yellowTile;
+                    break;
+
+                case Pit::Tile::Green:
+                    drawTile = &greenTile;
+                    break;
+
+                case Pit::Tile::Cyan:
+                    drawTile = &cyanTile;
+                    break;
+
+                case Pit::Tile::Wall:
+                    drawTile = &wallTile;
+                    break;
+
+                case Pit::Tile::None:
+                default:
+                    break;
+                }
+
+                if (drawTile)
+                {
+                    float y = topLeft.y + row * 16.0f;
+                    if (y < lastRow)
+                    {
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f));
+                    }
+                    else if (y < bottomRow)
+                    {
+                        je::Rgba4b grey{ 0x6f, 0x6f, 0x6f, 0xff };
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f, grey));
+                    }
+                }
+            }
+        }
+
         // Draw a rather rudimentary looking outline of a pit.
         for (int y = 0; y < 13; y++)
         {
@@ -162,6 +241,8 @@ int main()
         {
             batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 32.0f + 16.0f * 12));
         }
+
+        topLeft.y -= 0.1f;
 
         batch.End();
 
