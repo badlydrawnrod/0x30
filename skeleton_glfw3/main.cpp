@@ -92,25 +92,27 @@ void OnJoystickEvent(int joystickId, int event)
 }
 
 
-// TODO: the size has to account for things thrown in on top of what's there, and, top be honest, a better mental
-// model is a circular buffer of rows. There can only ever be "1 + rows" rows visible, and a blank row that scrolls
-// off the top will go off the bottom and get filled in.
 struct Pit
 {
     Pit();
 
     static constexpr size_t cols = 6;
-    static constexpr size_t rows = 12;
-    enum class Tile { None, Red, Green, Yellow, Cyan, Wall };
+    static constexpr size_t rows = 13;  // Note, one more than the pit because of the wraparound.
+    enum class Tile { None, Red, Green, Yellow, Cyan, Magenta, Wall };
 
     std::array<Tile, cols * rows> tiles_;
+    size_t firstRow_ = 0;
 };
 
 
 Pit::Pit()
 {
-    std::fill(tiles_.begin() + cols * 3, tiles_.begin() + cols * 4, Tile::Wall);
-    std::fill(tiles_.begin() + cols * rows / 2, tiles_.end(), Tile::Red);
+    std::fill(tiles_.begin(), tiles_.begin() + cols * 1, Tile::Wall);
+    std::fill(tiles_.begin() + cols * 1, tiles_.begin() + cols * 4, Tile::Red);
+    std::fill(tiles_.begin() + cols * 4, tiles_.begin() + cols * 6, Tile::Green);
+    std::fill(tiles_.begin() + cols * 6, tiles_.begin() + cols * 8, Tile::Yellow);
+    std::fill(tiles_.begin() + cols * 8, tiles_.begin() + cols * 10, Tile::Cyan);
+    std::fill(tiles_.begin() + cols * 10, tiles_.begin() + cols * 13, Tile::Magenta);
 }
 
 
@@ -160,10 +162,11 @@ int main()
     auto wallTile = je::TextureRegion{ texture, 80.0f, 48.0f, 16.0f, 16.0f };
 
     Pit pit;
-    je::Vec2f topLeft{ VIRTUAL_WIDTH / 2.0f - 3.0f * 16.0f, 32.0f + 16.0f * 8.0f };
-    
+    je::Vec2f topLeft{ VIRTUAL_WIDTH / 2.0f - 3.0f * 16.0f, 32.0f };
+
     const float bottomRow = 32.0f + 16.0f * 12;
     const float lastRow = bottomRow - 16.0f;
+    float ofs = 0.0f;
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
@@ -182,8 +185,9 @@ int main()
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Draw the pit itself.
-        for (auto row = 0; row < pit.rows; row++)
+        for (auto crow = 0; crow < pit.rows; crow++)
         {
+            size_t row = (crow + pit.firstRow_) % pit.rows;
             for (auto col = 0; col < pit.cols; col++)
             {
                 je::TextureRegion* drawTile = nullptr;
@@ -206,6 +210,10 @@ int main()
                     drawTile = &cyanTile;
                     break;
 
+                case Pit::Tile::Magenta:
+                    drawTile = &magentaTile;
+                    break;
+
                 case Pit::Tile::Wall:
                     drawTile = &wallTile;
                     break;
@@ -217,18 +225,64 @@ int main()
 
                 if (drawTile)
                 {
-                    float y = topLeft.y + row * 16.0f;
+                    float y = topLeft.y + crow * 16.0f - ofs;
                     if (y < lastRow)
                     {
-                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f));
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + crow * 16.0f - ofs));
                     }
                     else if (y < bottomRow)
                     {
-                        je::Rgba4b grey{ 0x6f, 0x6f, 0x6f, 0xff };
-                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f, grey));
+                        // Fade in the last row.
+                        GLubyte c = (GLubyte)0x3f;
+                        switch (int(ofs))
+                        {
+                        case 15:
+                        case 14:
+                            c = (GLubyte)0xef;
+                            break;
+                        case 13:
+                        case 12:
+                            c = (GLubyte)0xdf;
+                            break;
+                        case 11:
+                        case 10:
+                            c = (GLubyte)0xcf;
+                            break;
+                        case 9:
+                        case 8:
+                            c = (GLubyte)0xbf;
+                            break;
+                        case 7:
+                        case 6:
+                            c = (GLubyte)0xaf;
+                            break;
+                        case 5:
+                        case 4:
+                            c = (GLubyte)0x9f;
+                            break;
+                        case 3:
+                        case 2:
+                            c = (GLubyte)0x8f;
+                            break;
+                        case 1:
+                            c = (GLubyte)0x7f;
+                            break;
+                        default:
+                            c = (GLubyte)0xff;
+                            break;
+                        }
+                        je::Rgba4b grey{ c, c, c, 0xff };
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + crow * 16.0f - ofs, grey));
                     }
                 }
             }
+        }
+
+        ofs += 0.25f;
+        if (ofs >= 16.0f)
+        {
+            pit.firstRow_ = (pit.firstRow_ + 1) % pit.rows;
+            ofs = 0.0f;
         }
 
         // Draw a rather rudimentary looking outline of a pit.
@@ -237,12 +291,12 @@ int main()
             batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f, 32.0f + 16.0f * y));
             batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f + 3.0f * 16.0f, 32.0f + 16.0f * y));
         }
-        for (int x = 1; x < 7; x++)
+        for (int x = 0; x < 8; x++)
         {
+            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 16.0f));
             batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 32.0f + 16.0f * 12));
         }
 
-        topLeft.y -= 0.1f;
 
         batch.End();
 
