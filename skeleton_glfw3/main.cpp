@@ -18,13 +18,13 @@
 
 
 // Window information.
-const GLuint WIDTH = 720;
-const GLuint HEIGHT = 480;
+const GLuint WIDTH = 1280;
+const GLuint HEIGHT = 720;
 const char* const TITLE = "The Mysterious 0x30";
 
 // Virtual screen information.
-const GLsizei VIRTUAL_WIDTH = WIDTH / 2;
-const GLsizei VIRTUAL_HEIGHT = HEIGHT / 2;
+const GLsizei VIRTUAL_WIDTH = WIDTH / 3;
+const GLsizei VIRTUAL_HEIGHT = HEIGHT / 3;
 
 
 // Show / hide the Windows console.
@@ -160,6 +160,7 @@ int main()
     auto magentaTile = je::TextureRegion{ texture, 48.0f, 48.0f, 16.0f, 16.0f };
     auto cyanTile = je::TextureRegion{ texture, 64.0f, 48.0f, 16.0f, 16.0f };
     auto wallTile = je::TextureRegion{ texture, 80.0f, 48.0f, 16.0f, 16.0f };
+    auto cursorTile = je::TextureRegion{ texture, 103.0f, 47.0f, 17.0f, 17.0f };
 
     Pit pit;
     je::Vec2f topLeft{ VIRTUAL_WIDTH / 2.0f - 3.0f * 16.0f, 32.0f };
@@ -167,6 +168,9 @@ int main()
     const float bottomRow = 32.0f + 16.0f * 12;
     const float lastRow = bottomRow - 16.0f;
     float ofs = 0.0f;
+
+    int cursorTileX = (pit.cols / 2) - 1;
+    int cursorTileY = pit.rows / 2;
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
@@ -278,13 +282,6 @@ int main()
             }
         }
 
-        ofs += 0.25f;
-        if (ofs >= 16.0f)
-        {
-            pit.firstRow_ = (pit.firstRow_ + 1) % pit.rows;
-            ofs = 0.0f;
-        }
-
         // Draw a rather rudimentary looking outline of a pit.
         for (int y = 0; y < 13; y++)
         {
@@ -297,8 +294,26 @@ int main()
             batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 32.0f + 16.0f * 12));
         }
 
+        // Draw the cursor.
+        float cursorX = topLeft.x + cursorTileX * 16.0f - 1.0f;
+        float cursorY = topLeft.y + cursorTileY * 16.0f - 1.0f - ofs;
+        batch.AddVertices(je::quads::Create(cursorTile, cursorX, cursorY));
+        batch.AddVertices(je::quads::Create(cursorTile, cursorX + 16.0f, cursorY));
+
 
         batch.End();
+
+        // Scroll.
+        ofs += 0.1;
+        if (ofs >= 16.0f)
+        {
+            pit.firstRow_ = (pit.firstRow_ + 1) % pit.rows;
+            if (cursorTileY > 1)
+            {
+                cursorTileY--;
+            }
+            ofs = 0.0f;
+        }
 
         // Swap buffers.
         glfwSwapBuffers(context.Window());
