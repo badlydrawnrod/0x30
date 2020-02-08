@@ -58,6 +58,15 @@ void GLAPIENTRY OnDebugMessage(GLenum source,
 }
 
 
+bool leftPressed = false;
+bool rightPressed = false;
+bool upPressed = false;
+bool downPressed = false;
+bool wasLeftPressed = false;
+bool wasRightPressed = false;
+bool wasUpPressed = false;
+bool wasDownPressed = false;
+
 // Called by GLFW whenever a key is pressed or released.
 void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -69,6 +78,11 @@ void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
     {
         ToggleConsole();
     }
+
+    leftPressed = action == GLFW_PRESS && (key == GLFW_KEY_A || key == GLFW_KEY_LEFT);
+    rightPressed = action == GLFW_PRESS && (key == GLFW_KEY_D || key == GLFW_KEY_RIGHT);
+    upPressed = action == GLFW_PRESS && (key == GLFW_KEY_W || key == GLFW_KEY_UP);
+    downPressed = action == GLFW_PRESS && (key == GLFW_KEY_S || key == GLFW_KEY_DOWN);
 }
 
 
@@ -167,7 +181,9 @@ int main()
 
     const float bottomRow = 32.0f + 16.0f * 12;
     const float lastRow = bottomRow - 16.0f;
+
     float ofs = 0.0f;
+    float scrollRate = 0.025f;
 
     int cursorTileX = (pit.cols / 2) - 1;
     int cursorTileY = pit.rows / 2;
@@ -175,8 +191,43 @@ int main()
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
+        wasLeftPressed = leftPressed;
+        wasRightPressed = rightPressed;
+        wasDownPressed = downPressed;
+        wasUpPressed = upPressed;
+
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
         glfwPollEvents();
+
+        // Scroll.
+        ofs += scrollRate;
+        if (ofs >= 16.0f)
+        {
+            pit.firstRow_ = (pit.firstRow_ + 1) % pit.rows;
+            if (cursorTileY > 1)
+            {
+                cursorTileY--;
+            }
+            ofs = 0.0f;
+        }
+
+        // Move the player.
+        if (leftPressed && !wasLeftPressed && cursorTileX > 0)
+        {
+            --cursorTileX;
+        }
+        if (rightPressed && !wasRightPressed && cursorTileX < pit.cols - 2)
+        {
+            ++cursorTileX;
+        }
+        if (upPressed && !wasUpPressed && cursorTileY > 1)
+        {
+            --cursorTileY;
+        }
+        if (downPressed && !wasDownPressed && cursorTileY < pit.rows - 2)
+        {
+            ++cursorTileY;
+        }
 
         // Clear the colour buffer.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -188,7 +239,7 @@ int main()
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-        // Draw the pit itself.
+        // Draw the contents of the pit.
         for (auto crow = 0; crow < pit.rows; crow++)
         {
             size_t row = (crow + pit.firstRow_) % pit.rows;
@@ -300,20 +351,7 @@ int main()
         batch.AddVertices(je::quads::Create(cursorTile, cursorX, cursorY));
         batch.AddVertices(je::quads::Create(cursorTile, cursorX + 16.0f, cursorY));
 
-
         batch.End();
-
-        // Scroll.
-        ofs += 0.1;
-        if (ofs >= 16.0f)
-        {
-            pit.firstRow_ = (pit.firstRow_ + 1) % pit.rows;
-            if (cursorTileY > 1)
-            {
-                cursorTileY--;
-            }
-            ofs = 0.0f;
-        }
 
         // Swap buffers.
         glfwSwapBuffers(context.Window());
