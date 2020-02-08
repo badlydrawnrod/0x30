@@ -193,11 +193,25 @@ int main()
     {
         wasLeftPressed = leftPressed;
         wasRightPressed = rightPressed;
-        wasDownPressed = downPressed;
         wasUpPressed = upPressed;
+        wasDownPressed = downPressed;
+
+        leftPressed = false;
+        rightPressed = false;
+        upPressed = false;
+        downPressed = false;
 
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
         glfwPollEvents();
+
+        GLFWgamepadstate state;
+        if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
+        {
+            leftPressed = leftPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT];
+            rightPressed = rightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
+            upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
+            downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
+        }
 
         // Scroll.
         ofs += scrollRate;
