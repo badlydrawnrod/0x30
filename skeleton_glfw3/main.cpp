@@ -30,10 +30,12 @@ bool leftPressed = false;
 bool rightPressed = false;
 bool upPressed = false;
 bool downPressed = false;
+bool swapPressed = false;
 bool wasLeftPressed = false;
 bool wasRightPressed = false;
 bool wasUpPressed = false;
 bool wasDownPressed = false;
+bool wasSwapPressed = false;
 
 bool leftActivated = false;
 bool rightActivated = false;
@@ -47,6 +49,7 @@ float joystickX = 0.0f;
 float joystickY = 0.0f;
 float oldJoystickX = 0.0f;
 float oldJoystickY = 0.0f;
+
 
 
 // Show / hide the Windows console.
@@ -87,7 +90,7 @@ void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
     {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
-    if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    if (key == GLFW_KEY_F12 && action == GLFW_PRESS)
     {
         ToggleConsole();
     }
@@ -96,6 +99,7 @@ void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
     rightPressed = action == GLFW_PRESS && (key == GLFW_KEY_D || key == GLFW_KEY_RIGHT);
     upPressed = action == GLFW_PRESS && (key == GLFW_KEY_W || key == GLFW_KEY_UP);
     downPressed = action == GLFW_PRESS && (key == GLFW_KEY_S || key == GLFW_KEY_DOWN);
+    swapPressed = action == GLFW_PRESS && (key == GLFW_KEY_SPACE || key == GLFW_KEY_ENTER || key == GLFW_KEY_Z || key == GLFW_KEY_X || key == GLFW_KEY_C);
 }
 
 
@@ -124,6 +128,7 @@ void UpdateInputState()
     wasRightPressed = rightPressed;
     wasUpPressed = upPressed;
     wasDownPressed = downPressed;
+    wasSwapPressed = swapPressed;
     oldJoystickX = joystickX;
     oldJoystickY = joystickY;
     wasLeftActivated = leftActivated;
@@ -136,6 +141,7 @@ void UpdateInputState()
     rightPressed = false;
     upPressed = false;
     downPressed = false;
+    swapPressed = false;
     joystickX = 0.0f;
     joystickY = 0.0f;
     leftActivated = false;
@@ -154,6 +160,7 @@ void UpdateInputState()
         rightPressed = rightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
         upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
         downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
+        swapPressed = swapPressed || state.buttons[GLFW_GAMEPAD_BUTTON_A];
 
         joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
         joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
@@ -193,6 +200,24 @@ Pit::Pit()
     std::fill(tiles_.begin() + cols * 6, tiles_.begin() + cols * 8, Tile::Yellow);
     std::fill(tiles_.begin() + cols * 8, tiles_.begin() + cols * 10, Tile::Cyan);
     std::fill(tiles_.begin() + cols * 10, tiles_.begin() + cols * 13, Tile::Magenta);
+    for (size_t y = 0; y < rows; y++)
+    {
+        tiles_[y * cols + 3] = Tile::None;
+        for (size_t x = 2; x < 5; x += 2)
+        {
+            switch (tiles_[y * cols + x])
+            {
+            case Tile::Wall:
+                break;
+            case Tile::Cyan:
+                tiles_[y * cols + x] = Tile::Magenta;
+                break;
+            default:
+                tiles_[y * cols + x] = Tile::Cyan;
+                break;
+            }
+        }
+    }
 }
 
 
@@ -287,6 +312,20 @@ int main()
         if (downPressed && !wasDownPressed && cursorTileY < pit.rows - 2)
         {
             ++cursorTileY;
+        }
+
+        // Swap tiles.
+        if (swapPressed && !wasSwapPressed)
+        {
+            size_t x1 = cursorTileX;
+            size_t x2 = x1 + 1;
+            size_t y = (cursorTileY + pit.firstRow_) % pit.rows;
+            auto& tile1 = pit.tiles_[x1 + y * pit.cols];
+            auto& tile2 = pit.tiles_[x2 + y * pit.cols];
+            if (tile1 != Pit::Tile::Wall && tile2 != Pit::Tile::Wall)
+            {
+                std::swap(tile1, tile2);
+            }
         }
 
         // Clear the colour buffer.
