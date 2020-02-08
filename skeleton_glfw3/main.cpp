@@ -102,19 +102,72 @@ void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
 // Called by GLFW whenever a joystick / gamepad is connected or disconnected.
 void OnJoystickEvent(int joystickId, int event)
 {
-    if (event == GLFW_CONNECTED)
+    // We only care if the joystick in question is a gamepad.
+    if (glfwJoystickIsGamepad(joystickId))
     {
-        if (glfwJoystickIsGamepad(joystickId))
+        if (event == GLFW_CONNECTED)
         {
             LOG("Gamepad " << joystickId << " - " << glfwGetGamepadName(joystickId) << " - connected");
         }
-    }
-    else if (event == GLFW_DISCONNECTED)
-    {
-        if (glfwJoystickIsGamepad(joystickId))
+        else if (event == GLFW_DISCONNECTED)
         {
             LOG("Gamepad " << joystickId << " - " << glfwGetGamepadName(joystickId) << " - disconnected");
         }
+    }
+}
+
+
+void UpdateInputState()
+{
+    // Copy the current state.
+    wasLeftPressed = leftPressed;
+    wasRightPressed = rightPressed;
+    wasUpPressed = upPressed;
+    wasDownPressed = downPressed;
+    oldJoystickX = joystickX;
+    oldJoystickY = joystickY;
+    wasLeftActivated = leftActivated;
+    wasRightActivated = rightActivated;
+    wasUpActivated = upActivated;
+    wasDownActivated = downActivated;
+
+    // Reset the current stat before polling it.
+    leftPressed = false;
+    rightPressed = false;
+    upPressed = false;
+    downPressed = false;
+    joystickX = 0.0f;
+    joystickY = 0.0f;
+    leftActivated = false;
+    rightActivated = false;
+    upActivated = false;
+    downActivated = false;
+
+    // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
+    glfwPollEvents();
+
+    // Poll the first gamepad.
+    GLFWgamepadstate state;
+    if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
+    {
+        leftPressed = leftPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT];
+        rightPressed = rightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
+        upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
+        downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
+
+        joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+        joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+
+        const float threshold = 0.5f;
+        leftActivated = joystickX < -threshold;
+        rightActivated = joystickX > threshold;
+        upActivated = joystickY < -threshold;
+        downActivated = joystickY > threshold;
+
+        leftPressed = leftPressed || (leftActivated && !wasLeftActivated);
+        rightPressed = rightPressed || (rightActivated && !wasRightActivated);
+        upPressed = upPressed || (upActivated && !wasUpActivated);
+        downPressed = downPressed || (downActivated && !wasDownActivated);
     }
 }
 
@@ -204,49 +257,7 @@ int main()
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
-        wasLeftPressed = leftPressed;
-        wasRightPressed = rightPressed;
-        wasUpPressed = upPressed;
-        wasDownPressed = downPressed;
-
-        oldJoystickX = joystickX;
-        oldJoystickY = joystickY;
-
-        leftPressed = false;
-        rightPressed = false;
-        upPressed = false;
-        downPressed = false;
-
-        wasLeftActivated = leftActivated;
-        wasRightActivated = rightActivated;
-        wasUpActivated = upActivated;
-        wasDownActivated = downActivated;
-
-        // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
-        glfwPollEvents();
-
-        GLFWgamepadstate state;
-        if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
-        {
-            leftPressed = leftPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT];
-            rightPressed = rightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
-            upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
-            downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
-
-            joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
-            joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
-
-            const float threshold = 0.5f;
-            leftActivated = joystickX < -threshold;
-            rightActivated = joystickX > threshold;
-            upActivated = joystickY < -threshold;
-            downActivated = joystickY > threshold;
-            
-            leftPressed = leftPressed || (leftActivated && !wasLeftActivated);
-            rightPressed = rightPressed || (rightActivated && !wasRightActivated);
-            upPressed = upPressed || (upActivated && !wasUpActivated);
-            downPressed = downPressed || (downActivated && !wasDownActivated);
-        }
+        UpdateInputState();
 
         // Scroll.
         ofs += scrollRate;
