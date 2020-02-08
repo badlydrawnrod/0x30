@@ -202,7 +202,14 @@ Pit::Pit()
     std::fill(tiles_.begin() + cols * 10, tiles_.begin() + cols * 13, Tile::Magenta);
     for (size_t y = 0; y < rows; y++)
     {
-        tiles_[y * cols + 3] = Tile::None;
+        if (tiles_[y * cols + 3] != Tile::Wall)
+        {
+            tiles_[y * cols + 3] = Tile::None;
+        }
+        if (tiles_[y * cols + 1] != Tile::Wall)
+        {
+            tiles_[y * cols + 1] = Tile::None;
+        }
         for (size_t x = 2; x < 5; x += 2)
         {
             switch (tiles_[y * cols + x])
@@ -325,6 +332,24 @@ int main()
             if (tile1 != Pit::Tile::Wall && tile2 != Pit::Tile::Wall)
             {
                 std::swap(tile1, tile2);
+            }
+        }
+
+        // Apply gravity.
+        //for (size_t y = 1; y < pit.rows - 1; y++)
+        for (size_t y = pit.rows - 2; y != 0; y--)
+        {
+            size_t rowAbove = (y + pit.rows - 1 + pit.firstRow_) % pit.rows;
+            size_t row = (y + pit.firstRow_) % pit.rows;
+            for (size_t x = 0; x < pit.cols; x++)
+            {
+                if (pit.tiles_[x + row * pit.cols] == Pit::Tile::None)
+                {
+                    if (pit.tiles_[x + rowAbove * pit.cols] != Pit::Tile::None && pit.tiles_[x + rowAbove * pit.cols] != Pit::Tile::Wall)
+                    {
+                        std::swap(pit.tiles_[x + rowAbove * pit.cols], pit.tiles_[x + row * pit.cols]);
+                    }
+                }
             }
         }
 
