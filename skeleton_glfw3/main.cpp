@@ -26,6 +26,28 @@ const char* const TITLE = "The Mysterious 0x30";
 const GLsizei VIRTUAL_WIDTH = WIDTH / 3;
 const GLsizei VIRTUAL_HEIGHT = HEIGHT / 3;
 
+bool leftPressed = false;
+bool rightPressed = false;
+bool upPressed = false;
+bool downPressed = false;
+bool wasLeftPressed = false;
+bool wasRightPressed = false;
+bool wasUpPressed = false;
+bool wasDownPressed = false;
+
+bool leftActivated = false;
+bool rightActivated = false;
+bool upActivated = false;
+bool downActivated = false;
+bool wasLeftActivated = false;
+bool wasRightActivated = false;
+bool wasUpActivated = false;
+bool wasDownActivated = false;
+float joystickX = 0.0f;
+float joystickY = 0.0f;
+float oldJoystickX = 0.0f;
+float oldJoystickY = 0.0f;
+
 
 // Show / hide the Windows console.
 void ToggleConsole()
@@ -57,15 +79,6 @@ void GLAPIENTRY OnDebugMessage(GLenum source,
     LOG("GL callback: type = " << type << ", severity = " << severity << ", message = " << message);
 }
 
-
-bool leftPressed = false;
-bool rightPressed = false;
-bool upPressed = false;
-bool downPressed = false;
-bool wasLeftPressed = false;
-bool wasRightPressed = false;
-bool wasUpPressed = false;
-bool wasDownPressed = false;
 
 // Called by GLFW whenever a key is pressed or released.
 void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -196,10 +209,18 @@ int main()
         wasUpPressed = upPressed;
         wasDownPressed = downPressed;
 
+        oldJoystickX = joystickX;
+        oldJoystickY = joystickY;
+
         leftPressed = false;
         rightPressed = false;
         upPressed = false;
         downPressed = false;
+
+        wasLeftActivated = leftActivated;
+        wasRightActivated = rightActivated;
+        wasUpActivated = upActivated;
+        wasDownActivated = downActivated;
 
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
         glfwPollEvents();
@@ -211,6 +232,20 @@ int main()
             rightPressed = rightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
             upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
             downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
+
+            joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+            joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+
+            const float threshold = 0.5f;
+            leftActivated = joystickX < -threshold;
+            rightActivated = joystickX > threshold;
+            upActivated = joystickY < -threshold;
+            downActivated = joystickY > threshold;
+            
+            leftPressed = leftPressed || (leftActivated && !wasLeftActivated);
+            rightPressed = rightPressed || (rightActivated && !wasRightActivated);
+            upPressed = upPressed || (upActivated && !wasUpActivated);
+            downPressed = downPressed || (downActivated && !wasDownActivated);
         }
 
         // Scroll.
