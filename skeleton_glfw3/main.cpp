@@ -188,6 +188,7 @@ struct Pit
     enum class Tile { None, Red, Green, Yellow, Cyan, Magenta, Wall };
 
     std::array<Tile, cols * rows> tiles_;
+    std::array<bool, cols * rows> runs_;
     size_t firstRow_ = 0;
 };
 
@@ -225,6 +226,7 @@ Pit::Pit()
             }
         }
     }
+    std::fill(tiles_.begin() + cols * 11, tiles_.begin() + cols * 12, Tile::Red);
 }
 
 
@@ -336,7 +338,6 @@ int main()
         }
 
         // Apply gravity.
-        //for (size_t y = 1; y < pit.rows - 1; y++)
         for (size_t y = pit.rows - 2; y != 0; y--)
         {
             size_t rowAbove = (y + pit.rows - 1 + pit.firstRow_) % pit.rows;
@@ -349,6 +350,122 @@ int main()
                     {
                         std::swap(pit.tiles_[x + rowAbove * pit.cols], pit.tiles_[x + row * pit.cols]);
                     }
+                }
+            }
+        }
+
+        // Look for runs of tiles of the same colour that are at least 3 tiles horizontally or vertically. Don't include
+        // falling tiles, i.e., those that have a blank square below them.
+
+        std::fill(pit.runs_.begin(), pit.runs_.end(), false);
+
+        bool foundRun = false;
+
+        // Check for 3 adacent tiles vertically.
+        for (size_t y = 0; y < pit.rows - 3; y++)
+        {
+            size_t row0 = (y + pit.firstRow_) % pit.rows;
+            size_t row1 = (row0 + 1) % pit.rows;
+            size_t row2 = (row0 + 2) % pit.rows;
+            for (size_t x = 0; x < pit.cols; x++)
+            {
+                auto tile0 = pit.tiles_[x + row0 * pit.cols];
+                auto tile1 = pit.tiles_[x + row1 * pit.cols];
+                auto tile2 = pit.tiles_[x + row2 * pit.cols];
+                if (tile0 == tile1 && tile1 == tile2)
+                {
+                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                    {
+                        foundRun = true;
+                        pit.runs_[x + row0 * pit.cols] = true;
+                        pit.runs_[x + row1 * pit.cols] = true;
+                        pit.runs_[x + row2 * pit.cols] = true;
+                    }
+                }
+            }
+        }
+
+        // Check for 3 adjacent tiles horizontally.
+        for (size_t x = 0; x < pit.cols - 2; x++)
+        {
+            for (size_t y = 0; y < pit.rows; y++)
+            {
+                size_t row = (y + pit.firstRow_) % pit.rows;
+                auto tile0 = pit.tiles_[(x + 0) + row * pit.cols];
+                auto tile1 = pit.tiles_[(x + 1) + row * pit.cols];
+                auto tile2 = pit.tiles_[(x + 2) + row * pit.cols];
+                if (tile0 == tile1 && tile1 == tile2)
+                {
+                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                    {
+                        foundRun = true;
+                        pit.runs_[(x + 0) + row * pit.cols] = true;
+                        pit.runs_[(x + 1) + row * pit.cols] = true;
+                        pit.runs_[(x + 2) + row * pit.cols] = true;
+                    }
+                }
+            }
+        }
+
+        while (foundRun)
+        {
+            foundRun = false;
+
+            // Look for tiles vertically adjacent to an existing run.
+            for (size_t y = 0; y < pit.rows - 2; y++)
+            {
+                size_t row0 = (y + pit.firstRow_) % pit.rows;
+                size_t row1 = (row0 + 1) % pit.rows;
+                for (size_t x = 0; x < pit.cols; x++)
+                {
+                    auto tile0 = pit.tiles_[x + row0 * pit.cols];
+                    auto tile1 = pit.tiles_[x + row1 * pit.cols];
+                    auto run0 = pit.runs_[x + row0 * pit.cols];
+                    auto run1 = pit.runs_[x + row1 * pit.cols];
+                    if (run0 != run1 && tile0 == tile1)
+                    {
+                        if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                        {
+                            foundRun = true;
+                            pit.runs_[x + row0 * pit.cols] = true;
+                            pit.runs_[x + row1 * pit.cols] = true;
+                        }
+                    }
+                }
+            }
+
+            // Look for tiles horizontally adjacent to an existing run.
+            for (size_t x = 0; x < pit.cols - 1; x++)
+            {
+                for (size_t y = 0; y < pit.rows; y++)
+                {
+                    size_t row = (y + pit.firstRow_) % pit.rows;
+                    auto tile0 = pit.tiles_[(x + 0) + row * pit.cols];
+                    auto tile1 = pit.tiles_[(x + 1) + row * pit.cols];
+                    auto run0 = pit.runs_[(x + 0) + row * pit.cols];
+                    auto run1 = pit.runs_[(x + 1) + row * pit.cols];
+                    if (run0 != run1 && tile0 == tile1)
+                    {
+                        if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                        {
+                            foundRun = true;
+                            pit.runs_[(x + 0) + row * pit.cols] = true;
+                            pit.runs_[(x + 1) + row * pit.cols] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Clear up runs.
+        for (size_t y = 0; y < pit.rows; y++)
+        {
+            size_t row = (y + pit.firstRow_) % pit.rows;
+            for (size_t x = 0; x < pit.cols; x++)
+            {
+                if (pit.runs_[x + row * pit.cols])
+                {
+                    pit.tiles_[x + row * pit.cols] = Pit::Tile::None;
                 }
             }
         }
