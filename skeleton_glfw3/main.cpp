@@ -199,7 +199,36 @@ public:
     void FindAdjacentHorizontalRuns(bool& foundRun);
     void CheckForRuns();
     void RemoveRuns();
+
+    void Swap(size_t x, size_t y);
+    Tile TileAt(size_t x, size_t y);
+    size_t PitIndex(size_t x, size_t y);
 };
+
+
+void Pit::Swap(size_t x, size_t y)
+{
+    auto& tile1 = tiles_[PitIndex(x, y)];
+    auto& tile2 = tiles_[PitIndex(x + 1, y)];
+    if (tile1 != Pit::Tile::Wall && tile2 != Pit::Tile::Wall)
+    {
+        std::swap(tile1, tile2);
+    }
+}
+
+
+Pit::Tile Pit::TileAt(size_t x, size_t y)
+{
+    return tiles_[PitIndex(x, y)];
+}
+
+
+size_t Pit::PitIndex(size_t x, size_t y)
+{
+    size_t col = x % cols;
+    size_t row = (y + firstRow_) % rows;
+    return col + row * cols;
+}
 
 
 Pit::Pit()
@@ -435,7 +464,7 @@ int main()
     {
         if (glfwJoystickIsGamepad(joystickId))
         {
-            LOG("Gamepad " << joystickId << " - " << glfwGetGamepadName(joystickId) << " - found");
+            LOG("Gamepad " << joystickId << " [" << glfwGetGamepadName(joystickId) << "] found");
         }
     }
 
@@ -503,15 +532,7 @@ int main()
         // Swap tiles.
         if (swapPressed && !wasSwapPressed)
         {
-            size_t x1 = cursorTileX;
-            size_t x2 = x1 + 1;
-            size_t y = (cursorTileY + pit.firstRow_) % pit.rows;
-            auto& tile1 = pit.tiles_[x1 + y * pit.cols];
-            auto& tile2 = pit.tiles_[x2 + y * pit.cols];
-            if (tile1 != Pit::Tile::Wall && tile2 != Pit::Tile::Wall)
-            {
-                std::swap(tile1, tile2);
-            }
+            pit.Swap(cursorTileX, cursorTileY);
         }
 
         pit.ApplyGravity();
@@ -529,14 +550,13 @@ int main()
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Draw the contents of the pit.
-        for (auto crow = 0; crow < pit.rows; crow++)
+        for (auto row = 0; row < pit.rows; row++)
         {
-            size_t row = (crow + pit.firstRow_) % pit.rows;
             for (auto col = 0; col < pit.cols; col++)
             {
                 je::TextureRegion* drawTile = nullptr;
 
-                switch (pit.tiles_[col + row * pit.cols])
+                switch (pit.TileAt(col, row))
                 {
                 case Pit::Tile::Red:
                     drawTile = &redTile;
@@ -569,14 +589,15 @@ int main()
 
                 if (drawTile)
                 {
-                    float y = topLeft.y + crow * 16.0f - ofs;
+                    float y = topLeft.y + row * 16.0f - ofs;
                     if (y < lastRow)
                     {
-                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + crow * 16.0f - ofs));
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f - ofs));
                     }
                     else if (y < bottomRow)
                     {
                         // Fade in the last row.
+                        // TODO: this isn't quite right, as the last row starts full on.
                         GLubyte c = (GLubyte)0x3f;
                         switch (int(ofs))
                         {
@@ -616,7 +637,7 @@ int main()
                             break;
                         }
                         je::Rgba4b grey{ c, c, c, 0xff };
-                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + crow * 16.0f - ofs, grey));
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f - ofs, grey));
                     }
                 }
             }
