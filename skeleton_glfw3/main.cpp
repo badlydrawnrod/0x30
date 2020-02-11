@@ -26,11 +26,13 @@ const char* const TITLE = "The Mysterious 0x30";
 const GLsizei VIRTUAL_WIDTH = WIDTH / 3;
 const GLsizei VIRTUAL_HEIGHT = HEIGHT / 3;
 
+// Input states.
 bool leftPressed = false;
 bool rightPressed = false;
 bool upPressed = false;
 bool downPressed = false;
 bool swapPressed = false;
+
 bool wasLeftPressed = false;
 bool wasRightPressed = false;
 bool wasUpPressed = false;
@@ -41,15 +43,16 @@ bool leftActivated = false;
 bool rightActivated = false;
 bool upActivated = false;
 bool downActivated = false;
+
 bool wasLeftActivated = false;
 bool wasRightActivated = false;
 bool wasUpActivated = false;
 bool wasDownActivated = false;
+
 float joystickX = 0.0f;
 float joystickY = 0.0f;
 float oldJoystickX = 0.0f;
 float oldJoystickY = 0.0f;
-
 
 
 // Show / hide the Windows console.
@@ -68,18 +71,6 @@ void ToggleConsole()
         ShowWindow(GetConsoleWindow(), 0);
     }
     isConsoleHidden = !isConsoleHidden;
-}
-
-
-void GLAPIENTRY OnDebugMessage(GLenum source,
-    GLenum type,
-    GLuint id,
-    GLenum severity,
-    GLsizei length,
-    const GLchar* message,
-    const void* userParam)
-{
-    LOG("GL callback: type = " << type << ", severity = " << severity << ", message = " << message);
 }
 
 
@@ -179,19 +170,17 @@ void UpdateInputState()
 }
 
 
-struct Pit
+class Pit
 {
-    Pit();
-
+public:
     static constexpr size_t cols = 6;
-    static constexpr size_t rows = 13;  // Note, one more than the pit because of the wraparound.
+    static constexpr size_t rows = 13;  // Note, one more than is visible because of the wraparound.
+
     enum class Tile { None, Red, Green, Yellow, Cyan, Magenta, Wall };
 
-    std::array<Tile, cols * rows> tiles_;
-    std::array<bool, cols * rows> runs_;
-    size_t firstRow_ = 0;
-
 public:
+    Pit();
+
     void ApplyGravity();
     void FindVerticalRuns(bool& foundRun);
     void FindHorizontalRuns(bool& foundRun);
@@ -199,11 +188,23 @@ public:
     void FindAdjacentHorizontalRuns(bool& foundRun);
     void CheckForRuns();
     void RemoveRuns();
+    void ScrollOne();
 
     void Swap(size_t x, size_t y);
     Tile TileAt(size_t x, size_t y);
     size_t PitIndex(size_t x, size_t y);
+
+private:
+    std::array<Tile, cols * rows> tiles_;
+    std::array<bool, cols * rows> runs_;
+    size_t firstRow_ = 0;
 };
+
+
+void Pit::ScrollOne()
+{
+    firstRow_ = (firstRow_ + 1) % rows;
+}
 
 
 void Pit::Swap(size_t x, size_t y)
@@ -444,13 +445,6 @@ int main()
         return -1;
     }
 
-    // Enable OpenGL debugging. Requires OpenGL 4.3 or greater.
-    if (glDebugMessageCallback)
-    {
-        glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(OnDebugMessage, nullptr);
-    }
-
     // Create a shader program.
     je::Shader shader;
     LOG("Shader program " << shader.Program());
@@ -473,42 +467,45 @@ int main()
 
     je::Batch batch(shader.Program());
 
+    constexpr float tile_size = 16.0f;
+
     // Extract some interesting regions from the texture.
-    auto redTile = je::TextureRegion{ texture, 0.0f, 48.0f, 16.0f, 16.0f };
-    auto greenTile = je::TextureRegion{ texture, 16.0f, 48.0f, 16.0f, 16.0f };
-    auto yellowTile = je::TextureRegion{ texture, 32.0f, 48.0f, 16.0f, 16.0f };
-    auto magentaTile = je::TextureRegion{ texture, 48.0f, 48.0f, 16.0f, 16.0f };
-    auto cyanTile = je::TextureRegion{ texture, 64.0f, 48.0f, 16.0f, 16.0f };
-    auto wallTile = je::TextureRegion{ texture, 80.0f, 48.0f, 16.0f, 16.0f };
+    auto redTile = je::TextureRegion{ texture, 0 * tile_size, 48.0f, tile_size, tile_size };
+    auto greenTile = je::TextureRegion{ texture, 1 * tile_size, 48.0f, tile_size, tile_size };
+    auto yellowTile = je::TextureRegion{ texture, 2 * tile_size, 48.0f, tile_size, tile_size };
+    auto magentaTile = je::TextureRegion{ texture, 3 * tile_size, 48.0f, tile_size, tile_size };
+    auto cyanTile = je::TextureRegion{ texture, 4 * tile_size, 48.0f, tile_size, tile_size };
+    auto wallTile = je::TextureRegion{ texture, 5 * tile_size, 48.0f, tile_size, tile_size };
     auto cursorTile = je::TextureRegion{ texture, 103.0f, 47.0f, 17.0f, 17.0f };
 
     Pit pit;
-    je::Vec2f topLeft{ VIRTUAL_WIDTH / 2.0f - 3.0f * 16.0f, 32.0f };
 
-    const float bottomRow = 32.0f + 16.0f * 12;
-    const float lastRow = bottomRow - 16.0f;
+    je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tile_size) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tile_size };
 
-    float ofs = 0.0f;
+    const float bottomRow = topLeft.y + (Pit::rows - 1) * tile_size;
+    const float lastRow = bottomRow - tile_size;
+
+    float internalTileScroll = 0.0f;
     float scrollRate = 0.025f;
 
-    int cursorTileX = (pit.cols / 2) - 1;
-    int cursorTileY = pit.rows / 2;
+    int cursorTileX = (Pit::cols / 2) - 1;
+    int cursorTileY = Pit::rows / 2;
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
         UpdateInputState();
 
-        // Scroll.
-        ofs += scrollRate;
-        if (ofs >= 16.0f)
+        // Scroll the contents of the pit up.
+        internalTileScroll += scrollRate;
+        if (internalTileScroll >= tile_size)
         {
-            pit.firstRow_ = (pit.firstRow_ + 1) % pit.rows;
+            pit.ScrollOne();
             if (cursorTileY > 1)
             {
                 cursorTileY--;
             }
-            ofs = 0.0f;
+            internalTileScroll = 0.0f;
         }
 
         // Move the player.
@@ -516,7 +513,7 @@ int main()
         {
             --cursorTileX;
         }
-        if (rightPressed && !wasRightPressed && cursorTileX < pit.cols - 2)
+        if (rightPressed && !wasRightPressed && cursorTileX < Pit::cols - 2)
         {
             ++cursorTileX;
         }
@@ -524,7 +521,7 @@ int main()
         {
             --cursorTileY;
         }
-        if (downPressed && !wasDownPressed && cursorTileY < pit.rows - 2)
+        if (downPressed && !wasDownPressed && cursorTileY < Pit::rows - 2)
         {
             ++cursorTileY;
         }
@@ -550,9 +547,9 @@ int main()
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Draw the contents of the pit.
-        for (auto row = 0; row < pit.rows; row++)
+        for (auto row = 0; row < Pit::rows; row++)
         {
-            for (auto col = 0; col < pit.cols; col++)
+            for (auto col = 0; col < Pit::cols; col++)
             {
                 je::TextureRegion* drawTile = nullptr;
 
@@ -589,17 +586,17 @@ int main()
 
                 if (drawTile)
                 {
-                    float y = topLeft.y + row * 16.0f - ofs;
+                    float y = topLeft.y + row * tile_size - internalTileScroll;
                     if (y < lastRow)
                     {
-                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f - ofs));
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * tile_size, topLeft.y + row * tile_size - internalTileScroll));
                     }
                     else if (y < bottomRow)
                     {
                         // Fade in the last row.
                         // TODO: this isn't quite right, as the last row starts full on.
                         GLubyte c = (GLubyte)0x3f;
-                        switch (int(ofs))
+                        switch (int(internalTileScroll))
                         {
                         case 15:
                         case 14:
@@ -637,29 +634,29 @@ int main()
                             break;
                         }
                         je::Rgba4b grey{ c, c, c, 0xff };
-                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * 16.0f, topLeft.y + row * 16.0f - ofs, grey));
+                        batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * tile_size, topLeft.y + row * tile_size - internalTileScroll, grey));
                     }
                 }
             }
         }
 
-        // Draw a rather rudimentary looking outline of a pit.
-        for (int y = 0; y < 13; y++)
+        // Draw the outline of the pit.
+        for (int y = 0; y < Pit::rows; y++)
         {
-            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f, 32.0f + 16.0f * y));
-            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f + 3.0f * 16.0f, 32.0f + 16.0f * y));
+            batch.AddVertices(je::quads::Create(wallTile, topLeft.x - tile_size, topLeft.y + tile_size * y));
+            batch.AddVertices(je::quads::Create(wallTile, topLeft.x + Pit::cols * tile_size, topLeft.y + tile_size * y));
         }
-        for (int x = 0; x < 8; x++)
+        for (int x = 0; x < Pit::cols + 2; x++)
         {
-            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 16.0f));
-            batch.AddVertices(je::quads::Create(wallTile, VIRTUAL_WIDTH / 2.0f - 4.0f * 16.0f + x * 16.0f, 32.0f + 16.0f * 12));
+            batch.AddVertices(je::quads::Create(wallTile, topLeft.x - tile_size + x * tile_size, topLeft.y - tile_size));
+            batch.AddVertices(je::quads::Create(wallTile, topLeft.x - tile_size + x * tile_size, topLeft.y + tile_size * (Pit::rows - 1)));
         }
 
         // Draw the cursor.
-        float cursorX = topLeft.x + cursorTileX * 16.0f - 1.0f;
-        float cursorY = topLeft.y + cursorTileY * 16.0f - 1.0f - ofs;
+        float cursorX = topLeft.x + cursorTileX * tile_size - 1.0f;
+        float cursorY = topLeft.y + cursorTileY * tile_size - 1.0f - internalTileScroll;
         batch.AddVertices(je::quads::Create(cursorTile, cursorX, cursorY));
-        batch.AddVertices(je::quads::Create(cursorTile, cursorX + 16.0f, cursorY));
+        batch.AddVertices(je::quads::Create(cursorTile, cursorX + tile_size, cursorY));
 
         batch.End();
 
