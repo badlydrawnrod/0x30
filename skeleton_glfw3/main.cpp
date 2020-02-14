@@ -437,6 +437,33 @@ void Pit::RemoveRuns()
 }
 
 
+struct Textures
+{
+    static constexpr float tile_size = 16.0f;
+
+    Textures()
+    {
+        texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
+        redTile = je::TextureRegion{ texture, 0 * tile_size, 48.0f, tile_size, tile_size };
+        greenTile = je::TextureRegion{ texture, 1 * tile_size, 48.0f, tile_size, tile_size };
+        yellowTile = je::TextureRegion{ texture, 2 * tile_size, 48.0f, tile_size, tile_size };
+        magentaTile = je::TextureRegion{ texture, 3 * tile_size, 48.0f, tile_size, tile_size };
+        cyanTile = je::TextureRegion{ texture, 4 * tile_size, 48.0f, tile_size, tile_size };
+        wallTile = je::TextureRegion{ texture, 5 * tile_size, 48.0f, tile_size, tile_size };
+        cursorTile = je::TextureRegion{ texture, 103.0f, 47.0f, 17.0f, 17.0f };
+    }
+
+    je::Texture texture;
+    je::TextureRegion redTile;
+    je::TextureRegion greenTile;
+    je::TextureRegion yellowTile;
+    je::TextureRegion magentaTile;
+    je::TextureRegion cyanTile;
+    je::TextureRegion wallTile;
+    je::TextureRegion cursorTile;
+};
+
+
 int main()
 {
     je::Context context(WIDTH, HEIGHT, TITLE);
@@ -462,21 +489,11 @@ int main()
         }
     }
 
-    // Load a texture.
-    je::Texture texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
-
     je::Batch batch(shader.Program());
 
     constexpr float tile_size = 16.0f;
 
-    // Extract some interesting regions from the texture.
-    auto redTile = je::TextureRegion{ texture, 0 * tile_size, 48.0f, tile_size, tile_size };
-    auto greenTile = je::TextureRegion{ texture, 1 * tile_size, 48.0f, tile_size, tile_size };
-    auto yellowTile = je::TextureRegion{ texture, 2 * tile_size, 48.0f, tile_size, tile_size };
-    auto magentaTile = je::TextureRegion{ texture, 3 * tile_size, 48.0f, tile_size, tile_size };
-    auto cyanTile = je::TextureRegion{ texture, 4 * tile_size, 48.0f, tile_size, tile_size };
-    auto wallTile = je::TextureRegion{ texture, 5 * tile_size, 48.0f, tile_size, tile_size };
-    auto cursorTile = je::TextureRegion{ texture, 103.0f, 47.0f, 17.0f, 17.0f };
+    Textures textures;
 
     Pit pit;
 
@@ -490,6 +507,7 @@ int main()
 
     int cursorTileX = (Pit::cols / 2) - 1;
     int cursorTileY = Pit::rows / 2;
+
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
@@ -556,27 +574,27 @@ int main()
                 switch (pit.TileAt(col, row))
                 {
                 case Pit::Tile::Red:
-                    drawTile = &redTile;
+                    drawTile = &textures.redTile;
                     break;
 
                 case Pit::Tile::Yellow:
-                    drawTile = &yellowTile;
+                    drawTile = &textures.yellowTile;
                     break;
 
                 case Pit::Tile::Green:
-                    drawTile = &greenTile;
+                    drawTile = &textures.greenTile;
                     break;
 
                 case Pit::Tile::Cyan:
-                    drawTile = &cyanTile;
+                    drawTile = &textures.cyanTile;
                     break;
 
                 case Pit::Tile::Magenta:
-                    drawTile = &magentaTile;
+                    drawTile = &textures.magentaTile;
                     break;
 
                 case Pit::Tile::Wall:
-                    drawTile = &wallTile;
+                    drawTile = &textures.wallTile;
                     break;
 
                 case Pit::Tile::None:
@@ -643,20 +661,20 @@ int main()
         // Draw the outline of the pit.
         for (int y = 0; y < Pit::rows; y++)
         {
-            batch.AddVertices(je::quads::Create(wallTile, topLeft.x - tile_size, topLeft.y + tile_size * y));
-            batch.AddVertices(je::quads::Create(wallTile, topLeft.x + Pit::cols * tile_size, topLeft.y + tile_size * y));
+            batch.AddVertices(je::quads::Create(textures.wallTile, topLeft.x - tile_size, topLeft.y + tile_size * y));
+            batch.AddVertices(je::quads::Create(textures.wallTile, topLeft.x + Pit::cols * tile_size, topLeft.y + tile_size * y));
         }
         for (int x = 0; x < Pit::cols + 2; x++)
         {
-            batch.AddVertices(je::quads::Create(wallTile, topLeft.x - tile_size + x * tile_size, topLeft.y - tile_size));
-            batch.AddVertices(je::quads::Create(wallTile, topLeft.x - tile_size + x * tile_size, topLeft.y + tile_size * (Pit::rows - 1)));
+            batch.AddVertices(je::quads::Create(textures.wallTile, topLeft.x - tile_size + x * tile_size, topLeft.y - tile_size));
+            batch.AddVertices(je::quads::Create(textures.wallTile, topLeft.x - tile_size + x * tile_size, topLeft.y + tile_size * (Pit::rows - 1)));
         }
 
         // Draw the cursor.
         float cursorX = topLeft.x + cursorTileX * tile_size - 1.0f;
         float cursorY = topLeft.y + cursorTileY * tile_size - 1.0f - internalTileScroll;
-        batch.AddVertices(je::quads::Create(cursorTile, cursorX, cursorY));
-        batch.AddVertices(je::quads::Create(cursorTile, cursorX + tile_size, cursorY));
+        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
+        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tile_size, cursorY));
 
         batch.End();
 
