@@ -15,6 +15,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
+#include <random>
 
 
 // Window information.
@@ -179,7 +181,7 @@ public:
     enum class Tile { None, Red, Green, Yellow, Cyan, Magenta, Wall };
 
 public:
-    Pit();
+    Pit(std::function<int(int, int)>& rnd);
 
     void ApplyGravity();
     void FindVerticalRuns(bool& foundRun);
@@ -188,6 +190,7 @@ public:
     void FindAdjacentHorizontalRuns(bool& foundRun);
     void CheckForRuns();
     void RemoveRuns();
+    void RefillBottomRow();
     void ScrollOne();
 
     void Swap(size_t x, size_t y);
@@ -198,12 +201,33 @@ private:
     std::array<Tile, cols * rows> tiles_;
     std::array<bool, cols * rows> runs_;
     size_t firstRow_ = 0;
+    std::function<int(int, int)>& rnd_;
 };
+
+
+void Pit::RefillBottomRow()
+{
+    auto start = PitIndex(0, rows - 1);
+    auto end = PitIndex(cols - 1, rows - 1);
+    Tile pieces[] = {
+        Tile::Cyan,
+        Tile::Green,
+        Tile::Magenta,
+        Tile::Red,
+        Tile::Yellow
+    };
+    for (auto i = start; i <= end; i += 2)
+    {
+        tiles_[i] = pieces[rnd_(0, 4)];
+        tiles_[i + 1] = pieces[rnd_(0, 4)];
+    }
+}
 
 
 void Pit::ScrollOne()
 {
     firstRow_ = (firstRow_ + 1) % rows;
+    RefillBottomRow();
 }
 
 
@@ -232,7 +256,7 @@ size_t Pit::PitIndex(size_t x, size_t y) const
 }
 
 
-Pit::Pit()
+Pit::Pit(std::function<int(int, int)>& rnd) : rnd_(rnd)
 {
     std::fill(tiles_.begin(), tiles_.begin() + cols * 1, Tile::Wall);
     std::fill(tiles_.begin() + cols * 1, tiles_.begin() + cols * 4, Tile::Red);
@@ -630,8 +654,16 @@ int main()
 
     constexpr float tile_size = 16.0f;
 
+    // Make a function to create random integers in a closed range.
+    std::random_device randomDevice;
+    std::mt19937 generator(randomDevice());
+    std::function<int(int, int)> Rnd = [&](int lo, int hi) {
+        std::uniform_int_distribution<int> distribution(lo, hi);
+        return distribution(generator);
+    };
+
     Textures textures;
-    Pit pit;
+    Pit pit(Rnd);
     PitRenderer pitRenderer(pit, textures, batch);
 
     je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tile_size) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tile_size };
