@@ -1,10 +1,10 @@
-#include "Batch.h"
-#include "Context.h"
-#include "Logger.h"
-#include "QuadHelpers.h"
-#include "Shaders.h"
-#include "Textures.h"
-#include "Types.h"
+#include "je/Batch.h"
+#include "je/Context.h"
+#include "je/Logger.h"
+#include "je/QuadHelpers.h"
+#include "je/Shaders.h"
+#include "je/Textures.h"
+#include "je/Types.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
