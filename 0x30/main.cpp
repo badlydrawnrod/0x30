@@ -176,6 +176,64 @@ void UpdateInputState()
 }
 
 
+class TextRenderer
+{
+public:
+    TextRenderer(const je::TextureRegion& tiles, je::Batch& batch, float tileWidth = 8.0f, float tileHeight = 8.0f);
+
+    void Draw(float x, float y, const std::string& text);
+    void Draw(float x, float y, const char* text);
+
+private:
+    const je::TextureRegion& tiles_;
+    je::Batch& batch_;
+    float tileWidth_;
+    float tileHeight_;
+};
+
+
+TextRenderer::TextRenderer(const je::TextureRegion& tiles, je::Batch& batch, float tileWidth, float tileHeight)
+    : tiles_{ tiles }, batch_{ batch }, tileWidth_{ tileWidth }, tileHeight_{ tileHeight }
+{
+}
+
+
+void TextRenderer::Draw(float x, float y, const std::string& text)
+{
+    Draw(x, y, text.c_str());
+}
+
+
+void TextRenderer::Draw(float x, float y, const char* text)
+{
+    if (!text)
+    {
+        return;
+    }
+    int widthInTiles = static_cast<int>(tiles_.w / tileWidth_);
+    for (const char* s = text; *s != '\0'; s++)
+    {
+        int c = *s;
+        if (c < ' ' || c > '~')
+        {
+            continue;
+        }
+        c -= ' ';
+
+        float srcX = (c % widthInTiles) * tileWidth_;
+        float srcY = tiles_.y + (c / widthInTiles) * tileHeight_;
+        float srcWidth = tileWidth_;
+        float srcHeight = tileHeight_;
+        batch_.AddVertices(je::quads::Create(
+            tiles_.texture,
+            x, y,
+            srcX, srcY, srcWidth, srcHeight
+        ));
+        x += tileWidth_;
+    }
+}
+
+
 int main()
 {
     je::Context context(WIDTH, HEIGHT, TITLE);
@@ -216,6 +274,7 @@ int main()
     Textures textures;
     Pit pit(Rnd);
     PitRenderer pitRenderer(pit, textures, batch);
+    TextRenderer textRenderer(textures.textTiles, batch);
 
     je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tile_size) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tile_size };
 
@@ -290,6 +349,9 @@ int main()
         float cursorY = topLeft.y + cursorTileY * tile_size - 1.0f - internalTileScroll;
         batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
         batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tile_size, cursorY));
+
+        // Draw some text.
+        textRenderer.Draw(136.0f, 4.0f, TITLE);
 
         batch.End();
 

@@ -15,4 +15,5 @@ struct Textures
     je::TextureRegion cyanTile;
     je::TextureRegion wallTile;
     je::TextureRegion cursorTile;
+    je::TextureRegion textTiles;
 };
