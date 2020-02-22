@@ -24,8 +24,16 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                 float y = topLeft.y + row * drawTile->h - internalTileScroll;
                 if (row == 0)
                 {
-                    // TODO: clip, so we only draw the bottom part of the tile that's visible in the pit.
-                    batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * drawTile->w, topLeft.y + row * drawTile->h - internalTileScroll));
+                    // Clip the top row to the top of the pit.
+                    batch.AddVertices(je::quads::Create(
+                        *drawTile,
+                        topLeft.x + col * drawTile->w,
+                        topLeft.y,
+                        0.0f,
+                        internalTileScroll,
+                        drawTile->w,
+                        drawTile->h - internalTileScroll
+                        ));
                 }
                 else if (row < Pit::rows - 1)
                 {
@@ -74,7 +82,17 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                         break;
                     }
                     je::Rgba4b grey{ c, c, c, 0xff };
-                    batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * drawTile->w, topLeft.y + row * drawTile->h - internalTileScroll, grey));
+
+                    // Clip the bottom row to the bottom of the pit.
+                    batch.AddVertices(je::quads::Create(
+                        *drawTile,
+                        topLeft.x + col * drawTile->w,
+                        topLeft.y + row * drawTile->h - internalTileScroll,
+                        0.0f,
+                        0.0f,
+                        drawTile->w,
+                        internalTileScroll,
+                        grey));
                 }
             }
         }
