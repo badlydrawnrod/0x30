@@ -230,50 +230,55 @@ int main()
     int cursorTileX = (Pit::cols / 2) - 1;
     int cursorTileY = Pit::rows / 2;
 
+    size_t counter = 0;
+
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
         UpdateInputState();
 
-        // Scroll the contents of the pit up.
-        internalTileScroll += scrollRate;
-        if (internalTileScroll >= tile_size)
+        if (!pit.IsImpacted())
         {
-            pit.ScrollOne();
-            if (cursorTileY > 1)
+            // Scroll the contents of the pit up.
+            internalTileScroll += scrollRate;
+            if (internalTileScroll >= tile_size)
             {
-                cursorTileY--;
+                pit.ScrollOne();
+                if (cursorTileY > 1)
+                {
+                    cursorTileY--;
+                }
+                internalTileScroll = 0.0f;
             }
-            internalTileScroll = 0.0f;
-        }
 
-        // Move the player.
-        if (leftPressed && !wasLeftPressed && cursorTileX > 0)
-        {
-            --cursorTileX;
-        }
-        if (rightPressed && !wasRightPressed && cursorTileX < Pit::cols - 2)
-        {
-            ++cursorTileX;
-        }
-        if (upPressed && !wasUpPressed && cursorTileY > 1)
-        {
-            --cursorTileY;
-        }
-        if (downPressed && !wasDownPressed && cursorTileY < Pit::rows - 2)
-        {
-            ++cursorTileY;
-        }
+            // Move the player.
+            if (leftPressed && !wasLeftPressed && cursorTileX > 0)
+            {
+                --cursorTileX;
+            }
+            if (rightPressed && !wasRightPressed && cursorTileX < Pit::cols - 2)
+            {
+                ++cursorTileX;
+            }
+            if (upPressed && !wasUpPressed && cursorTileY > 1)
+            {
+                --cursorTileY;
+            }
+            if (downPressed && !wasDownPressed && cursorTileY < Pit::rows - 2)
+            {
+                ++cursorTileY;
+            }
 
-        // Swap tiles.
-        if (swapPressed && !wasSwapPressed)
-        {
-            pit.Swap(cursorTileX, cursorTileY);
-        }
+            // Swap tiles.
+            if (swapPressed && !wasSwapPressed)
+            {
+                pit.Swap(cursorTileX, cursorTileY);
+            }
 
-        pit.ApplyGravity();
-        pit.CheckForRuns();
-        pit.RemoveRuns();
+            pit.ApplyGravity();
+            pit.CheckForRuns();
+            pit.RemoveRuns();
+        }
 
         // Clear the colour buffer.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -287,19 +292,35 @@ int main()
 
         pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
 
-        // Draw the cursor.
-        float cursorX = topLeft.x + cursorTileX * tile_size - 1.0f;
-        float cursorY = topLeft.y + cursorTileY * tile_size - 1.0f - internalTileScroll;
-        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
-        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tile_size, cursorY));
+        if (!pit.IsImpacted())
+        {
+            // We're still playing, so draw the cursor.
+            float cursorX = topLeft.x + cursorTileX * tile_size - 1.0f;
+            float cursorY = topLeft.y + cursorTileY * tile_size - 1.0f - internalTileScroll;
+            batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
+            batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tile_size, cursorY));
+        }
+        else
+        {
+            // It's game over, so tell the player.
+            if (counter % 60 < 40)
+            {
+                const float x = VIRTUAL_WIDTH / 2.0f - 40.0f;
+                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "GAME OVER!", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "GAME OVER!");
+            }
+        }
 
-        // Draw some text.
-        textRenderer.Draw(136.0f, 4.0f, TITLE);
+        // Draw the title text.
+        textRenderer.Draw(136.0f, 4.0f, TITLE, je::Rgba4b{ 0xff, 0xbf, 0x00, 0xff });
 
         batch.End();
 
         // Swap buffers.
         glfwSwapBuffers(context.Window());
+
+        counter++;
     }
 
     return 0;

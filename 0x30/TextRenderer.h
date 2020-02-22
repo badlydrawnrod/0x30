@@ -11,8 +11,8 @@ class TextRenderer
 public:
     TextRenderer(const je::TextureRegion& tiles, je::Batch& batch, float tileWidth = 8.0f, float tileHeight = 8.0f);
 
-    void Draw(float x, float y, const std::string& text);
-    void Draw(float x, float y, const char* text);
+    void Draw(float x, float y, const std::string& text, const je::Rgba4b colour = { 0xff, 0xff, 0xff, 0xff });
+    void Draw(float x, float y, const char* text, const je::Rgba4b colour = { 0xff, 0xff, 0xff, 0xff });
 
 private:
     const je::TextureRegion& tiles_;

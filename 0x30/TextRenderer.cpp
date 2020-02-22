@@ -11,13 +11,13 @@ TextRenderer::TextRenderer(const je::TextureRegion& tiles, je::Batch& batch, flo
 }
 
 
-void TextRenderer::Draw(float x, float y, const std::string& text)
+void TextRenderer::Draw(float x, float y, const std::string& text, const je::Rgba4b colour)
 {
-    Draw(x, y, text.c_str());
+    Draw(x, y, text.c_str(), colour);
 }
 
 
-void TextRenderer::Draw(float x, float y, const char* text)
+void TextRenderer::Draw(float x, float y, const char* text, const je::Rgba4b colour)
 {
     // Sanity.
     if (!text)
@@ -26,7 +26,6 @@ void TextRenderer::Draw(float x, float y, const char* text)
     }
 
     int widthInTiles = static_cast<int>(tiles_.w / tileWidth_);
-    je::Rgba4b colour{ 0xff, 0xbf, 0, 255 };
     for (const char* s = text; *s != '\0'; s++)
     {
         // Reject out of range.

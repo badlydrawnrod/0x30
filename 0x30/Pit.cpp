@@ -14,6 +14,7 @@ void Pit::RefillBottomRow()
         Tile::Red,
         Tile::Yellow
     };
+    // TODO: prevent adjacent tiles from being the same colour.
     for (auto i = start; i <= end; i += 2)
     {
         tiles_[i] = pieces[rnd_(0, 4)];
@@ -26,6 +27,18 @@ void Pit::ScrollOne()
 {
     firstRow_ = (firstRow_ + 1) % rows;
     RefillBottomRow();
+
+    // The pit is impacted if there are any tiles in the top row.
+    auto start = PitIndex(0, 0);
+    auto end = PitIndex(cols - 1, 0);
+    for (auto i = start; i <= end; i++)
+    {
+        if (tiles_[i] != Tile::None)
+        {
+            impacted_ = true;
+            break;
+        }
+    }
 }
 
 
@@ -54,7 +67,7 @@ size_t Pit::PitIndex(size_t x, size_t y) const
 }
 
 
-Pit::Pit(std::function<int(int, int)>& rnd) : rnd_(rnd)
+Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }
 {
     std::fill(tiles_.begin(), tiles_.begin() + cols * 1, Tile::Wall);
     std::fill(tiles_.begin() + cols * 1, tiles_.begin() + cols * 4, Tile::Red);
