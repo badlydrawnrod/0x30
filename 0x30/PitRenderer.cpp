@@ -22,12 +22,18 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
             if (drawTile)
             {
                 float y = topLeft.y + row * drawTile->h - internalTileScroll;
-                if (y < lastRow)
+                if (row == 0)
+                {
+                    // TODO: clip, so we only draw the bottom part of the tile that's visible in the pit.
+                    batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * drawTile->w, topLeft.y + row * drawTile->h - internalTileScroll));
+                }
+                else if (row < Pit::rows - 1)
                 {
                     batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * drawTile->w, topLeft.y + row * drawTile->h - internalTileScroll));
                 }
                 else if (y < bottomRow)
                 {
+                    // TODO: clip, so we only draw the top part of the tile that's visible in the pit.
                     // Fade in the last row.
                     GLubyte c = (GLubyte)0x3f;
                     switch (int(internalTileScroll))

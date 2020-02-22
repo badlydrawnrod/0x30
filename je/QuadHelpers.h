@@ -92,5 +92,20 @@ namespace je
             const Rgba4b white = { 255, 255, 255, 255 };
             return Create(texture, x, y, srcX, srcY, srcWidth, srcHeight, white);
         }
+
+        // Creates a quad that represents a source region of a texture region.
+        inline Batch::Quad Create(const TextureRegion& region, GLfloat x, GLfloat y, GLfloat srcX, GLfloat srcY, GLfloat srcWidth, GLfloat srcHeight, Rgba4b colour)
+        {
+            const GLfloat textureX = region.x + srcX;
+            const GLfloat textureY = region.y + srcY;
+            return Create(region.texture, x, y, textureX, textureY, srcWidth, srcHeight, colour);
+        }
+
+        // Creates a quad that represents a source region of a texture region.
+        inline Batch::Quad Create(const TextureRegion& region, GLfloat x, GLfloat y, GLfloat srcX, GLfloat srcY, GLfloat srcWidth, GLfloat srcHeight)
+        {
+            const Rgba4b white = { 255, 255, 255, 255 };
+            return Create(region, x, y, srcX, srcY, srcWidth, srcHeight, white);
+        }
     }
 }

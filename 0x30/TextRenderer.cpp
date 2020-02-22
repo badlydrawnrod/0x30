@@ -36,13 +36,8 @@ void TextRenderer::Draw(float x, float y, const char* text, const je::Rgba4b col
 
         const int c = *s - ' ';
         const float srcX = (c % widthInTiles) * tileWidth_;
-        const float srcY = tiles_.y + (c / widthInTiles) * tileHeight_;
-        batch_.AddVertices(je::quads::Create(
-            tiles_.texture,
-            x, y,
-            srcX, srcY, tileWidth_, tileHeight_,
-            colour
-        ));
+        const float srcY = (c / widthInTiles) * tileHeight_;
+        batch_.AddVertices(je::quads::Create(tiles_, x, y, srcX, srcY, tileWidth_, tileHeight_, colour));
         x += tileWidth_;
     }
 }
