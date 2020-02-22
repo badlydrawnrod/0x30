@@ -41,45 +41,11 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                 }
                 else if (y < bottomRow)
                 {
-                    // TODO: clip, so we only draw the top part of the tile that's visible in the pit.
-                    // Fade in the last row.
-                    GLubyte c = (GLubyte)0x3f;
-                    switch (int(internalTileScroll))
+                    // Fade the row in.
+                    GLubyte c = static_cast<GLubyte>(0xff * (internalTileScroll / drawTile->h));
+                    if (c < 0x7f)
                     {
-                    case 15:
-                    case 14:
-                        c = (GLubyte)0xef;
-                        break;
-                    case 13:
-                    case 12:
-                        c = (GLubyte)0xdf;
-                        break;
-                    case 11:
-                    case 10:
-                        c = (GLubyte)0xcf;
-                        break;
-                    case 9:
-                    case 8:
-                        c = (GLubyte)0xbf;
-                        break;
-                    case 7:
-                    case 6:
-                        c = (GLubyte)0xaf;
-                        break;
-                    case 5:
-                    case 4:
-                        c = (GLubyte)0x9f;
-                        break;
-                    case 3:
-                    case 2:
-                        c = (GLubyte)0x8f;
-                        break;
-                    case 1:
-                        c = (GLubyte)0x7f;
-                        break;
-                    default:
-                        c = (GLubyte)0xff;
-                        break;
+                        c = 0x7f;
                     }
                     je::Rgba4b grey{ c, c, c, 0xff };
 
@@ -133,14 +99,24 @@ void PitRenderer::DrawOutline(je::Vec2f topLeft)
 {
     // Draw the outline of the pit.
     const auto& wallTile = textures_.wallTile;
+
+    // Left and right sides.
     for (int y = 0; y < Pit::rows * 2 - 2; y++)
     {
         batch.AddVertices(je::quads::Create(textures_.pitLeft, topLeft.x - textures_.pitLeft.w, topLeft.y + textures_.pitLeft.h * y));
         batch.AddVertices(je::quads::Create(textures_.pitRight, topLeft.x + Pit::cols * wallTile.w, topLeft.y + textures_.pitRight.h * y));
     }
+
+    // Top and bottom sides.
     for (int x = 1; x < Pit::cols * 2 + 1; x++)
     {
         batch.AddVertices(je::quads::Create(textures_.pitTop, topLeft.x - textures_.pitTop.w + x * textures_.pitTop.w, topLeft.y - textures_.pitTop.h));
         batch.AddVertices(je::quads::Create(textures_.pitBottom, topLeft.x - textures_.pitBottom.w + x * textures_.pitBottom.w, topLeft.y + wallTile.h * (Pit::rows - 1)));
     }
+
+    // Corners.
+    batch.AddVertices(je::quads::Create(textures_.pitTopLeft, topLeft.x - textures_.pitTopLeft.w, topLeft.y - textures_.pitTopLeft.h));
+    batch.AddVertices(je::quads::Create(textures_.pitTopRight, topLeft.x + (2 * Pit::cols) * textures_.pitTopRight.w, topLeft.y - textures_.pitTopRight.h));
+    batch.AddVertices(je::quads::Create(textures_.pitBottomLeft, topLeft.x - textures_.pitBottomLeft.w, topLeft.y + (2 * Pit::rows - 2) * textures_.pitBottomLeft.h));
+    batch.AddVertices(je::quads::Create(textures_.pitBottomRight, topLeft.x + (2 * Pit::cols) * textures_.pitBottomRight.w, topLeft.y + (2 * Pit::rows - 2) * textures_.pitBottomRight.h));
 }
