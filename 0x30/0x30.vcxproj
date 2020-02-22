@@ -159,11 +159,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pit.cpp" />
     <ClCompile Include="PitRenderer.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Assets.h" />
     <ClInclude Include="Pit.h" />
     <ClInclude Include="PitRenderer.h" />
+    <ClInclude Include="TextRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

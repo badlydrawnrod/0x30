@@ -1,6 +1,7 @@
 #include "Assets.h"
 #include "Pit.h"
 #include "PitRenderer.h"
+#include "TextRenderer.h"
 
 #include "je/Batch.h"
 #include "je/Context.h"
@@ -172,64 +173,6 @@ void UpdateInputState()
         rightPressed = rightPressed || (rightActivated && !wasRightActivated);
         upPressed = upPressed || (upActivated && !wasUpActivated);
         downPressed = downPressed || (downActivated && !wasDownActivated);
-    }
-}
-
-
-class TextRenderer
-{
-public:
-    TextRenderer(const je::TextureRegion& tiles, je::Batch& batch, float tileWidth = 8.0f, float tileHeight = 8.0f);
-
-    void Draw(float x, float y, const std::string& text);
-    void Draw(float x, float y, const char* text);
-
-private:
-    const je::TextureRegion& tiles_;
-    je::Batch& batch_;
-    float tileWidth_;
-    float tileHeight_;
-};
-
-
-TextRenderer::TextRenderer(const je::TextureRegion& tiles, je::Batch& batch, float tileWidth, float tileHeight)
-    : tiles_{ tiles }, batch_{ batch }, tileWidth_{ tileWidth }, tileHeight_{ tileHeight }
-{
-}
-
-
-void TextRenderer::Draw(float x, float y, const std::string& text)
-{
-    Draw(x, y, text.c_str());
-}
-
-
-void TextRenderer::Draw(float x, float y, const char* text)
-{
-    if (!text)
-    {
-        return;
-    }
-    int widthInTiles = static_cast<int>(tiles_.w / tileWidth_);
-    for (const char* s = text; *s != '\0'; s++)
-    {
-        int c = *s;
-        if (c < ' ' || c > '~')
-        {
-            continue;
-        }
-        c -= ' ';
-
-        float srcX = (c % widthInTiles) * tileWidth_;
-        float srcY = tiles_.y + (c / widthInTiles) * tileHeight_;
-        float srcWidth = tileWidth_;
-        float srcHeight = tileHeight_;
-        batch_.AddVertices(je::quads::Create(
-            tiles_.texture,
-            x, y,
-            srcX, srcY, srcWidth, srcHeight
-        ));
-        x += tileWidth_;
     }
 }
 
