@@ -109,14 +109,14 @@ void PitRenderer::DrawOutline(je::Vec2f topLeft)
 {
     // Draw the outline of the pit.
     const auto& wallTile = textures_.wallTile;
-    for (int y = 0; y < Pit::rows; y++)
+    for (int y = 0; y < Pit::rows * 2 - 2; y++)
     {
-        batch.AddVertices(je::quads::Create(wallTile, topLeft.x - wallTile.w, topLeft.y + wallTile.h * y));
-        batch.AddVertices(je::quads::Create(wallTile, topLeft.x + Pit::cols * wallTile.w, topLeft.y + wallTile.h * y));
+        batch.AddVertices(je::quads::Create(textures_.pitLeft, topLeft.x - textures_.pitLeft.w, topLeft.y + textures_.pitLeft.h * y));
+        batch.AddVertices(je::quads::Create(textures_.pitRight, topLeft.x + Pit::cols * wallTile.w, topLeft.y + textures_.pitRight.h * y));
     }
-    for (int x = 0; x < Pit::cols + 2; x++)
+    for (int x = 1; x < Pit::cols * 2 + 1; x++)
     {
-        batch.AddVertices(je::quads::Create(wallTile, topLeft.x - wallTile.w + x * wallTile.w, topLeft.y - wallTile.h));
-        batch.AddVertices(je::quads::Create(wallTile, topLeft.x - wallTile.w + x * wallTile.w, topLeft.y + wallTile.h * (Pit::rows - 1)));
+        batch.AddVertices(je::quads::Create(textures_.pitTop, topLeft.x - textures_.pitTop.w + x * textures_.pitTop.w, topLeft.y - textures_.pitTop.h));
+        batch.AddVertices(je::quads::Create(textures_.pitBottom, topLeft.x - textures_.pitBottom.w + x * textures_.pitBottom.w, topLeft.y + wallTile.h * (Pit::rows - 1)));
     }
 }

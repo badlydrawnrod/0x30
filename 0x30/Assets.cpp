@@ -13,5 +13,15 @@ Textures::Textures()
     cyanTile = je::TextureRegion{ texture, 4 * tile_size, 48.0f, tile_size, tile_size };
     wallTile = je::TextureRegion{ texture, 5 * tile_size, 48.0f, tile_size, tile_size };
     cursorTile = je::TextureRegion{ texture, 103.0f, 47.0f, 17.0f, 17.0f };
+
     textTiles = je::TextureRegion{ texture, 0.0f, 80.0f, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h) - 80.0f };
+
+    pitTopLeft = je::TextureRegion{ texture, 0.0f, 0.0f, 8.0f, 8.0f };
+    pitTop = je::TextureRegion{ texture, 8.0f, 0.0f, 8.0f, 8.0f };
+    pitTopRight = je::TextureRegion{ texture, 16.0f, 0.0f, 8.0f, 8.0f };
+    pitLeft = je::TextureRegion{ texture, 0.0f, 8.0f, 8.0f, 8.0f };
+    pitRight = je::TextureRegion{ texture, 16.0f, 8.0f, 8.0f, 8.0f };
+    pitBottomLeft = je::TextureRegion{ texture, 0.0f, 16.0f, 8.0f, 8.0f };
+    pitBottom = je::TextureRegion{ texture, 8.0f, 16.0f, 8.0f, 8.0f };
+    pitBottomRight = je::TextureRegion{ texture, 16.0f, 16.0f, 8.0f, 8.0f };
 }

@@ -16,4 +16,12 @@ struct Textures
     je::TextureRegion wallTile;
     je::TextureRegion cursorTile;
     je::TextureRegion textTiles;
+    je::TextureRegion pitTopLeft;
+    je::TextureRegion pitTop;
+    je::TextureRegion pitTopRight;
+    je::TextureRegion pitLeft;
+    je::TextureRegion pitRight;
+    je::TextureRegion pitBottomLeft;
+    je::TextureRegion pitBottom;
+    je::TextureRegion pitBottomRight;
 };
