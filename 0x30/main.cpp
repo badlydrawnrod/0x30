@@ -199,7 +199,7 @@ void TimeRenderer::Draw(je::Vec2f position)
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b timeColour{ 0xff, 0x1f, 0x1f, 0xff };
     textRenderer_.Draw(position.x, position.y, "TIME", textColour);
-    textRenderer_.Draw(position.x, position.y + 12.0f, "0'32", timeColour);
+    textRenderer_.Draw(position.x, position.y + 10.0f, "0'32", timeColour);
 }
 
 
@@ -226,7 +226,34 @@ void ScoreRenderer::Draw(je::Vec2f position)
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b scoreColour{ 0xff, 0x1f, 0x1f, 0xff };
     textRenderer_.Draw(position.x, position.y, "SCORE", textColour);
-    textRenderer_.Draw(position.x - 24.0f, position.y + 12.0f, "12345678", scoreColour);
+    textRenderer_.Draw(position.x - 24.0f, position.y + 10.0f, "12345678", scoreColour);
+}
+
+
+class SpeedRenderer
+{
+
+public:
+    SpeedRenderer(TextRenderer& textRenderer);
+
+    void Draw(je::Vec2f position);
+
+private:
+    TextRenderer textRenderer_;
+};
+
+
+SpeedRenderer::SpeedRenderer(TextRenderer& textRenderer) : textRenderer_{ textRenderer }
+{
+}
+
+
+void SpeedRenderer::Draw(je::Vec2f position)
+{
+    je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
+    je::Rgba4b speedColour{ 0xff, 0x1f, 0x1f, 0xff };
+    textRenderer_.Draw(position.x, position.y, "SPEED", textColour);
+    textRenderer_.Draw(position.x + 32.0f, position.y + 10.0f, "2", speedColour);
 }
 
 
@@ -273,6 +300,7 @@ int main()
     TextRenderer textRenderer(textures.textTiles, batch);
     TimeRenderer timeRenderer(textRenderer);
     ScoreRenderer scoreRenderer(textRenderer);
+    SpeedRenderer speedRenderer(textRenderer);
 
     je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tile_size) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tile_size };
 
@@ -367,11 +395,10 @@ int main()
             }
         }
 
-        // Draw the time.
+        // Draw some stats.
         timeRenderer.Draw({ VIRTUAL_WIDTH / 4.0f, VIRTUAL_HEIGHT / 4.0f });
-
-        // Draw the score.
         scoreRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f });
+        speedRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f + 32.0f });
 
         // Draw the title text.
         textRenderer.Draw(136.0f, 4.0f, TITLE, je::Rgba4b{ 0xff, 0xbf, 0x00, 0xff });
