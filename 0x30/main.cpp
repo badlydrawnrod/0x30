@@ -182,24 +182,42 @@ class TimeRenderer
 public:
     TimeRenderer(TextRenderer& textRenderer);
 
-    void Draw(je::Vec2f position);
+    void Draw(je::Vec2f position, double elapsed);
 
 private:
     TextRenderer& textRenderer_;
+    int minutes_;
+    int seconds_;
+    char timeBuf_[128];
+    int numChars_;
 };
 
 
-TimeRenderer::TimeRenderer(TextRenderer& textRenderer) : textRenderer_{ textRenderer }
+TimeRenderer::TimeRenderer(TextRenderer& textRenderer) : textRenderer_{ textRenderer }, minutes_{ -1 }, seconds_{ -1 }, numChars_{ 0 }
 {
 }
 
 
-void TimeRenderer::Draw(je::Vec2f position)
+void TimeRenderer::Draw(je::Vec2f position, double elapsed)
 {
+    int minutes = (int)(elapsed / 60.0);
+    int seconds = ((int)elapsed % 60);
+
+    // Only re-create the string if it has changed.
+    if (minutes != minutes_ || seconds != seconds_)
+    {
+        numChars_ = sprintf_s(timeBuf_, sizeof(timeBuf_), "%d'%02d", minutes, seconds);
+        minutes_ = minutes;
+        seconds_ = seconds;
+    }
+
+    // TODO: juice it up.
+    // Draw "TIME" on one row, with the elapsed time on the following row, right-justified to "TIME".
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b timeColour{ 0xff, 0x1f, 0x1f, 0xff };
     textRenderer_.Draw(position.x, position.y, "TIME", textColour);
-    textRenderer_.Draw(position.x, position.y + 10.0f, "0'32", timeColour);
+    // TODO: lose the magic numbers.
+    textRenderer_.Draw(position.x + 32.0f - 8.0f * numChars_, position.y + 10.0f, timeBuf_, timeColour);
 }
 
 
@@ -314,11 +332,15 @@ int main()
     int cursorTileY = Pit::rows / 2;
 
     size_t counter = 0;
+    double startTime = glfwGetTime();
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
         UpdateInputState();
+
+        double now = glfwGetTime();
+        double elapsed = now - startTime;
 
         if (!pit.IsImpacted())
         {
@@ -396,7 +418,7 @@ int main()
         }
 
         // Draw some stats.
-        timeRenderer.Draw({ VIRTUAL_WIDTH / 4.0f, VIRTUAL_HEIGHT / 4.0f });
+        timeRenderer.Draw({ VIRTUAL_WIDTH / 4.0f, VIRTUAL_HEIGHT / 4.0f }, elapsed);
         scoreRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f });
         speedRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f + 32.0f });
 
