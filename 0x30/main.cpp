@@ -39,6 +39,7 @@ bool rightPressed = false;
 bool upPressed = false;
 bool downPressed = false;
 bool swapPressed = false;
+bool fillDown = false;
 
 bool wasLeftPressed = false;
 bool wasRightPressed = false;
@@ -93,11 +94,40 @@ void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
         ToggleConsole();
     }
 
-    leftPressed = action == GLFW_PRESS && (key == GLFW_KEY_A || key == GLFW_KEY_LEFT);
-    rightPressed = action == GLFW_PRESS && (key == GLFW_KEY_D || key == GLFW_KEY_RIGHT);
-    upPressed = action == GLFW_PRESS && (key == GLFW_KEY_W || key == GLFW_KEY_UP);
-    downPressed = action == GLFW_PRESS && (key == GLFW_KEY_S || key == GLFW_KEY_DOWN);
-    swapPressed = action == GLFW_PRESS && (key == GLFW_KEY_SPACE || key == GLFW_KEY_ENTER || key == GLFW_KEY_Z || key == GLFW_KEY_X || key == GLFW_KEY_C);
+    bool isPress = (action == GLFW_PRESS);
+    bool isPressOrRepeat = (action == GLFW_PRESS || action == GLFW_REPEAT);
+    switch (key)
+    {
+    case GLFW_KEY_LEFT:
+    case GLFW_KEY_A:
+        leftPressed = isPress;
+        break;
+    case GLFW_KEY_RIGHT:
+    case GLFW_KEY_D:
+        rightPressed = isPress;
+        break;
+    case GLFW_KEY_UP:
+    case GLFW_KEY_W:
+        upPressed = isPress;
+        break;
+    case GLFW_KEY_DOWN:
+    case GLFW_KEY_S:
+        downPressed = isPress;
+        break;
+    case GLFW_KEY_SPACE:
+    case GLFW_KEY_ENTER:
+    case GLFW_KEY_Z:
+    case GLFW_KEY_X:
+    case GLFW_KEY_C:
+        swapPressed = isPress;
+        break;
+    case GLFW_KEY_LEFT_CONTROL:
+    case GLFW_KEY_RIGHT_CONTROL:
+        fillDown = isPressOrRepeat;
+        break;
+    default:
+        break;
+    }
 }
 
 
@@ -134,7 +164,7 @@ void UpdateInputState()
     wasUpActivated = upActivated;
     wasDownActivated = downActivated;
 
-    // Reset the current stat before polling it.
+    // Reset some of the current state before polling it.
     leftPressed = false;
     rightPressed = false;
     upPressed = false;
@@ -159,6 +189,7 @@ void UpdateInputState()
         upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
         downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
         swapPressed = swapPressed || state.buttons[GLFW_GAMEPAD_BUTTON_A];
+        fillDown = fillDown || state.buttons[GLFW_GAMEPAD_BUTTON_X];
 
         joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
         joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
@@ -345,7 +376,7 @@ int main()
         if (!pit.IsImpacted())
         {
             // Scroll the contents of the pit up.
-            internalTileScroll += scrollRate;
+            internalTileScroll += fillDown ? 1.0f : scrollRate;
             if (internalTileScroll >= tile_size)
             {
                 pit.ScrollOne();
