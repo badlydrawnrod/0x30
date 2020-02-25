@@ -164,19 +164,6 @@ void UpdateInputState()
     wasUpActivated = upActivated;
     wasDownActivated = downActivated;
 
-    // Reset some of the current state before polling it.
-    leftPressed = false;
-    rightPressed = false;
-    upPressed = false;
-    downPressed = false;
-    swapPressed = false;
-    joystickX = 0.0f;
-    joystickY = 0.0f;
-    leftActivated = false;
-    rightActivated = false;
-    upActivated = false;
-    downActivated = false;
-
     // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
     glfwPollEvents();
 
