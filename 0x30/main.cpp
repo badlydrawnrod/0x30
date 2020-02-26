@@ -9,6 +9,7 @@
 #include "je/QuadHelpers.h"
 #include "je/Shaders.h"
 #include "je/Textures.h"
+#include "je/Time.h"
 #include "je/Types.h"
 
 #include <glad/glad.h>
@@ -350,14 +351,14 @@ int main()
     int cursorTileY = Pit::rows / 2;
 
     size_t counter = 0;
-    double startTime = glfwGetTime();
+    double startTime = je::GetTime();
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
         UpdateInputState();
 
-        double now = glfwGetTime();
+        double now = je::GetTime();
         double elapsed = now - startTime;
 
         if (!pit.IsImpacted())
