@@ -26,6 +26,7 @@ public:
     void ScrollOne();
 
     void Swap(size_t x, size_t y);
+    int HeightAt(size_t x, size_t y) const;
     Tile TileAt(size_t x, size_t y) const;
     size_t PitIndex(size_t x, size_t y) const;
     bool IsImpacted() const { return impacted_; }
@@ -33,6 +34,7 @@ public:
 private:
     std::array<Tile, cols * rows> tiles_;
     std::array<bool, cols * rows> runs_;
+    std::array<int, cols * rows> heights_;
     size_t firstRow_ = 0;
     std::function<int(int, int)>& rnd_;
     bool impacted_;

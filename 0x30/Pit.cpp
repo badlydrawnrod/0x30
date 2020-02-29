@@ -3,6 +3,9 @@
 #include <algorithm>
 
 
+#define TILE_HEIGHT 15
+
+
 void Pit::RefillBottomRow()
 {
     auto start = PitIndex(0, rows - 1);
@@ -60,6 +63,12 @@ void Pit::Swap(size_t x, size_t y)
 }
 
 
+int Pit::HeightAt(size_t x, size_t y) const
+{
+    return heights_[PitIndex(x, y)];
+}
+
+
 Pit::Tile Pit::TileAt(size_t x, size_t y) const
 {
     return tiles_[PitIndex(x, y)];
@@ -109,6 +118,7 @@ Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }
     }
     std::fill(tiles_.begin() + cols * 11, tiles_.begin() + cols * 12, Tile::Red);
 
+    std::fill(heights_.begin(), heights_.end(), 0);
     std::fill(runs_.begin(), runs_.end(), false);
 }
 
@@ -121,11 +131,29 @@ void Pit::ApplyGravity()
         size_t row = (y + firstRow_) % rows;
         for (size_t x = 0; x < cols; x++)
         {
+            // If the current square is empty and the one above contains a tile that is fully descended then move it
+            // down to this square.
             if (tiles_[x + row * cols] == Pit::Tile::None)
             {
-                if (tiles_[x + rowAbove * cols] != Pit::Tile::None && tiles_[x + rowAbove * cols] != Pit::Tile::Wall)
+                const auto tile = tiles_[x + rowAbove * cols];
+                if (tile != Pit::Tile::None && tile != Pit::Tile::Wall)
                 {
-                    std::swap(tiles_[x + rowAbove * cols], tiles_[x + row * cols]);
+                    // Is it fully descended?
+                    if (const auto height = heights_[x + rowAbove * cols]; height == 0)
+                    {
+                        std::swap(tiles_[x + rowAbove * cols], tiles_[x + row * cols]);
+                        heights_[x + row * cols] = TILE_HEIGHT;
+                    }
+                }
+            }
+
+            // If a tile is not fully descended then bring it down.
+            const auto tile = tiles_[x + row * cols];
+            if (tile != Pit::Tile::None && tile != Pit::Tile::Wall)
+            {
+                if (heights_[x + row * cols] > 0)
+                {
+                    --heights_[x + row * cols];
                 }
             }
         }
@@ -273,6 +301,7 @@ void Pit::RemoveRuns()
             if (runs_[x + row * cols])
             {
                 tiles_[x + row * cols] = Pit::Tile::None;
+                heights_[x + row * cols] = 0;
             }
         }
     }

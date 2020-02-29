@@ -1,6 +1,7 @@
 #include "PitRenderer.h"
 
 #include "Pit.h"
+#include "je/Logger.h"
 #include "je/QuadHelpers.h"
 
 
@@ -19,6 +20,11 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
         for (auto col = 0; col < Pit::cols; col++)
         {
             const je::TextureRegion* drawTile = TileAt(col, row);
+            const int heightAt = HeightAt(col, row);
+            if (heightAt != 0)
+            {
+                LOG("heightAt is " << heightAt << " at col: " << col << ", row: " << row);
+            }
             if (drawTile)
             {
                 float y = topLeft.y + row * drawTile->h - internalTileScroll;
@@ -33,11 +39,15 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                         internalTileScroll,
                         drawTile->w,
                         drawTile->h - internalTileScroll
-                        ));
+                    ));
                 }
                 else if (row < Pit::rows - 1)
                 {
-                    batch.AddVertices(je::quads::Create(*drawTile, topLeft.x + col * drawTile->w, topLeft.y + row * drawTile->h - internalTileScroll));
+                    batch.AddVertices(je::quads::Create(
+                        *drawTile,
+                        topLeft.x + col * drawTile->w,
+                        topLeft.y + row * drawTile->h - internalTileScroll - heightAt
+                    ));
                 }
                 else if (y < bottomRow)
                 {
@@ -63,6 +73,12 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
             }
         }
     }
+}
+
+
+const int PitRenderer::HeightAt(size_t col, size_t row) const
+{
+    return pit_.HeightAt(col, row);
 }
 
 
