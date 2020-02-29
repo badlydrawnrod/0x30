@@ -104,6 +104,12 @@ void Pit::Swap(size_t x, size_t y)
 }
 
 
+bool& Pit::RunAt(size_t x, size_t y)
+{
+    return runs_[PitIndex(x, y)];
+}
+
+
 int Pit::HeightAt(size_t x, size_t y) const
 {
     return heights_[PitIndex(x, y)];
@@ -162,129 +168,135 @@ void Pit::ApplyGravity()
 }
 
 
-void Pit::FindVerticalRuns(bool& foundRun)
+void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
 {
-    for (size_t y = 0; y < rows - 3; y++)
+    // Check for 3 matching adjacent tiles vertically.
+    int heights[] = { HeightAt(x, y), HeightAt(x, y + 1), HeightAt(x, y + 2) };
+    if (heights[0] == 0 && heights[1] == 0 && heights[2] == 0)
     {
-        size_t row0 = (y + firstRow_) % rows;
-        size_t row1 = (row0 + 1) % rows;
-        size_t row2 = (row0 + 2) % rows;
-        for (size_t x = 0; x < cols; x++)
+        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x, y + 1), TileAt(x, y + 2) };
+        if (tiles[0] == tiles[1] && tiles[1] == tiles[2])
         {
-            auto height0 = heights_[x + row0 * cols];
-            auto height1 = heights_[x + row1 * cols];
-            auto height2 = heights_[x + row2 * cols];
-            if (height0 == 0 && height1 == 0 && height2 == 0)
+            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
             {
-                auto tile0 = tiles_[x + row0 * cols];
-                auto tile1 = tiles_[x + row1 * cols];
-                auto tile2 = tiles_[x + row2 * cols];
-                if (tile0 == tile1 && tile1 == tile2)
-                {
-                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
-                    {
-                        foundRun = true;
-                        runs_[x + row0 * cols] = true;
-                        runs_[x + row1 * cols] = true;
-                        runs_[x + row2 * cols] = true;
-                    }
-                }
+                foundRun = true;
+                RunAt(x, y) = true;
+                RunAt(x, y + 1) = true;
+                RunAt(x, y + 2) = true;
             }
         }
     }
 }
 
 
-void Pit::FindHorizontalRuns(bool& foundRun)
+void Pit::CheckForVerticalRuns(bool& foundRun)
 {
-    // Check for 3 adjacent tiles horizontally.
+    for (size_t y = 0; y < rows - 3; y++)
+    {
+        for (size_t x = 0; x < cols; x++)
+        {
+            CheckForVerticalRun(x, y, foundRun);
+        }
+    }
+}
+
+
+void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
+{
+    // Check for 3 matching adjacent tiles horizontally.
+    size_t row = (y + firstRow_) % rows;
+    int heights[] = { HeightAt(x, y), HeightAt(x + 1, y), HeightAt(x + 2, y) };
+    if (heights[0] == 0 && heights[1] == 0 && heights[2] == 0)
+    {
+        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x + 1, y), TileAt(x + 2, y) };
+        if (tiles[0] == tiles[1] && tiles[1] == tiles[2])
+        {
+            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
+            {
+                foundRun = true;
+                RunAt(x, y) = true;
+                RunAt(x + 1, y) = true;
+                RunAt(x + 2, y) = true;
+            }
+        }
+    }
+}
+
+
+void Pit::CheckForHorizontalRuns(bool& foundRun)
+{
     for (size_t x = 0; x < cols - 2; x++)
     {
         for (size_t y = 0; y < rows; y++)
         {
-            size_t row = (y + firstRow_) % rows;
-            auto height0 = heights_[(x + 0) + row * cols];
-            auto height1 = heights_[(x + 1) + row * cols];
-            auto height2 = heights_[(x + 2) + row * cols];
-            if (height0 == 0 && height1 == 0 && height2 == 0)
+            CheckForHorizontalRun(x, y, foundRun);
+        }
+    }
+}
+
+
+void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y, bool& foundRun)
+{
+    int heights[] = { HeightAt(x, y), HeightAt(x, y + 1) };
+    if (heights[0] == 0 && heights[1] == 0)
+    {
+        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x, y + 1) };
+        bool runs[] = { RunAt(x, y), RunAt(x, y + 1) };
+        if (runs[0] != runs[1] && tiles[0] == tiles[1])
+        {
+            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
             {
-                auto tile0 = tiles_[(x + 0) + row * cols];
-                auto tile1 = tiles_[(x + 1) + row * cols];
-                auto tile2 = tiles_[(x + 2) + row * cols];
-                if (tile0 == tile1 && tile1 == tile2)
-                {
-                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
-                    {
-                        foundRun = true;
-                        runs_[(x + 0) + row * cols] = true;
-                        runs_[(x + 1) + row * cols] = true;
-                        runs_[(x + 2) + row * cols] = true;
-                    }
-                }
+                foundRun = true;
+                RunAt(x, y) = true;
+                RunAt(x, y + 1) = true;
             }
         }
     }
 }
 
 
-void Pit::FindAdjacentVerticalRuns(bool& foundRun)
+void Pit::CheckForAdjacentRunsVertically(bool& foundRun)
 {
     // Look for tiles vertically adjacent to an existing run.
     for (size_t y = 0; y < rows - 2; y++)
     {
-        size_t row0 = (y + firstRow_) % rows;
-        size_t row1 = (row0 + 1) % rows;
         for (size_t x = 0; x < cols; x++)
         {
-            auto height0 = heights_[x + row0 * cols];
-            auto height1 = heights_[x + row1 * cols];
-            if (height0 == 0 && height1 == 0)
-            {
-                auto tile0 = tiles_[x + row0 * cols];
-                auto tile1 = tiles_[x + row1 * cols];
-                auto run0 = runs_[x + row0 * cols];
-                auto run1 = runs_[x + row1 * cols];
-                if (run0 != run1 && tile0 == tile1)
-                {
-                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
-                    {
-                        foundRun = true;
-                        runs_[x + row0 * cols] = true;
-                        runs_[x + row1 * cols] = true;
-                    }
-                }
-            }
+            CheckForAdjacentRunVertically(x, y, foundRun);
         }
     }
 }
 
 
-void Pit::FindAdjacentHorizontalRuns(bool& foundRun)
+void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y, bool& foundRun)
+{
+    int heights[] = { HeightAt(x, y), HeightAt(x + 1, y) };
+    if (heights[0] == 0 && heights[1] == 0)
+    {
+        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x + 1, y) };
+        bool runs[] = { RunAt(x, y), RunAt(x + 1, y) };
+        if (runs[0] != runs[1] && tiles[0] == tiles[1])
+        {
+            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
+            {
+                foundRun = true;
+                RunAt(x, y) = true;
+                RunAt(x + 1, y) = true;
+            }
+        }
+    }
+
+}
+
+
+void Pit::CheckForAdjacentRunsHorizontally(bool& foundRun)
 {
     // Look for tiles horizontally adjacent to an existing run.
     for (size_t x = 0; x < cols - 1; x++)
     {
         for (size_t y = 0; y < rows; y++)
         {
-            size_t row = (y + firstRow_) % rows;
-            auto height0 = heights_[(x + 0) + row * cols];
-            auto height1 = heights_[(x + 1) + row * cols];
-            if (height0 == 0 && height1 == 0)
-            {
-                auto tile0 = tiles_[(x + 0) + row * cols];
-                auto tile1 = tiles_[(x + 1) + row * cols];
-                auto run0 = runs_[(x + 0) + row * cols];
-                auto run1 = runs_[(x + 1) + row * cols];
-                if (run0 != run1 && tile0 == tile1)
-                {
-                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
-                    {
-                        foundRun = true;
-                        runs_[(x + 0) + row * cols] = true;
-                        runs_[(x + 1) + row * cols] = true;
-                    }
-                }
-            }
+            CheckForAdjacentRunHorizontally(x, y, foundRun);
         }
     }
 }
@@ -300,16 +312,16 @@ void Pit::CheckForRuns()
 
     // Check for 3 adacent tiles vertically and horizontally.
     bool foundRun = false;
-    FindVerticalRuns(foundRun);
-    FindHorizontalRuns(foundRun);
+    CheckForVerticalRuns(foundRun);
+    CheckForHorizontalRuns(foundRun);
 
     // If we've found any horizontal or vertical runs then look for tiles of the same colour adjacent to a run and
     // add them to it, until we find no further runs.
     while (foundRun)
     {
         foundRun = false;
-        FindAdjacentVerticalRuns(foundRun);
-        FindAdjacentHorizontalRuns(foundRun);
+        CheckForAdjacentRunsVertically(foundRun);
+        CheckForAdjacentRunsHorizontally(foundRun);
     }
 }
 

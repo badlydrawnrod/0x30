@@ -16,16 +16,21 @@ public:
     Pit(std::function<int(int, int)>& rnd);
 
     void ApplyGravity();
-    void FindVerticalRuns(bool& foundRun);
-    void FindHorizontalRuns(bool& foundRun);
-    void FindAdjacentVerticalRuns(bool& foundRun);
-    void FindAdjacentHorizontalRuns(bool& foundRun);
+    void CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun);
+    void CheckForVerticalRuns(bool& foundRun);
+    void CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun);
+    void CheckForHorizontalRuns(bool& foundRun);
+    void CheckForAdjacentRunVertically(const size_t x, const size_t y, bool& foundRun);
+    void CheckForAdjacentRunsVertically(bool& foundRun);
+    void CheckForAdjacentRunHorizontally(const size_t x, const size_t y, bool& foundRun);
+    void CheckForAdjacentRunsHorizontally(bool& foundRun);
     void CheckForRuns();
     void RemoveRuns();
     void RefillBottomRow();
     void ScrollOne();
 
     void Swap(size_t x, size_t y);
+    bool& RunAt(size_t x, size_t y);
     int HeightAt(size_t x, size_t y) const;
     Tile TileAt(size_t x, size_t y) const;
     size_t PitIndex(size_t x, size_t y) const;
