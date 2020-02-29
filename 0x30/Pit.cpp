@@ -6,6 +6,46 @@
 #define TILE_HEIGHT 15
 
 
+Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }
+{
+    std::fill(tiles_.begin(), tiles_.begin() + cols * 1, Tile::Wall);
+    std::fill(tiles_.begin() + cols * 1, tiles_.begin() + cols * 4, Tile::Red);
+    std::fill(tiles_.begin() + cols * 4, tiles_.begin() + cols * 6, Tile::Green);
+    std::fill(tiles_.begin() + cols * 6, tiles_.begin() + cols * 8, Tile::Yellow);
+    std::fill(tiles_.begin() + cols * 8, tiles_.begin() + cols * 10, Tile::Cyan);
+    std::fill(tiles_.begin() + cols * 10, tiles_.begin() + cols * 13, Tile::Magenta);
+    for (size_t y = 0; y < rows; y++)
+    {
+        if (tiles_[y * cols + 3] != Tile::Wall)
+        {
+            tiles_[y * cols + 3] = Tile::None;
+        }
+        if (tiles_[y * cols + 1] != Tile::Wall)
+        {
+            tiles_[y * cols + 1] = Tile::None;
+        }
+        for (size_t x = 2; x < 5; x += 2)
+        {
+            switch (tiles_[y * cols + x])
+            {
+            case Tile::Wall:
+                break;
+            case Tile::Cyan:
+                tiles_[y * cols + x] = Tile::Magenta;
+                break;
+            default:
+                tiles_[y * cols + x] = Tile::Cyan;
+                break;
+            }
+        }
+    }
+    std::fill(tiles_.begin() + cols * 11, tiles_.begin() + cols * 12, Tile::Red);
+
+    std::fill(heights_.begin(), heights_.end(), 0);
+    std::fill(runs_.begin(), runs_.end(), false);
+}
+
+
 void Pit::RefillBottomRow()
 {
     auto start = PitIndex(0, rows - 1);
@@ -28,6 +68,7 @@ void Pit::RefillBottomRow()
             tile = rnd_(0, 4);
         }
         tiles_[i] = pieces[tile];
+        heights_[i] = 0;
         lastTile = tile;
     }
 }
@@ -83,46 +124,6 @@ size_t Pit::PitIndex(size_t x, size_t y) const
 }
 
 
-Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }
-{
-    std::fill(tiles_.begin(), tiles_.begin() + cols * 1, Tile::Wall);
-    std::fill(tiles_.begin() + cols * 1, tiles_.begin() + cols * 4, Tile::Red);
-    std::fill(tiles_.begin() + cols * 4, tiles_.begin() + cols * 6, Tile::Green);
-    std::fill(tiles_.begin() + cols * 6, tiles_.begin() + cols * 8, Tile::Yellow);
-    std::fill(tiles_.begin() + cols * 8, tiles_.begin() + cols * 10, Tile::Cyan);
-    std::fill(tiles_.begin() + cols * 10, tiles_.begin() + cols * 13, Tile::Magenta);
-    for (size_t y = 0; y < rows; y++)
-    {
-        if (tiles_[y * cols + 3] != Tile::Wall)
-        {
-            tiles_[y * cols + 3] = Tile::None;
-        }
-        if (tiles_[y * cols + 1] != Tile::Wall)
-        {
-            tiles_[y * cols + 1] = Tile::None;
-        }
-        for (size_t x = 2; x < 5; x += 2)
-        {
-            switch (tiles_[y * cols + x])
-            {
-            case Tile::Wall:
-                break;
-            case Tile::Cyan:
-                tiles_[y * cols + x] = Tile::Magenta;
-                break;
-            default:
-                tiles_[y * cols + x] = Tile::Cyan;
-                break;
-            }
-        }
-    }
-    std::fill(tiles_.begin() + cols * 11, tiles_.begin() + cols * 12, Tile::Red);
-
-    std::fill(heights_.begin(), heights_.end(), 0);
-    std::fill(runs_.begin(), runs_.end(), false);
-}
-
-
 void Pit::ApplyGravity()
 {
     for (size_t y = rows - 2; y != 0; y--)
@@ -170,17 +171,23 @@ void Pit::FindVerticalRuns(bool& foundRun)
         size_t row2 = (row0 + 2) % rows;
         for (size_t x = 0; x < cols; x++)
         {
-            auto tile0 = tiles_[x + row0 * cols];
-            auto tile1 = tiles_[x + row1 * cols];
-            auto tile2 = tiles_[x + row2 * cols];
-            if (tile0 == tile1 && tile1 == tile2)
+            auto height0 = heights_[x + row0 * cols];
+            auto height1 = heights_[x + row1 * cols];
+            auto height2 = heights_[x + row2 * cols];
+            if (height0 == 0 && height1 == 0 && height2 == 0)
             {
-                if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                auto tile0 = tiles_[x + row0 * cols];
+                auto tile1 = tiles_[x + row1 * cols];
+                auto tile2 = tiles_[x + row2 * cols];
+                if (tile0 == tile1 && tile1 == tile2)
                 {
-                    foundRun = true;
-                    runs_[x + row0 * cols] = true;
-                    runs_[x + row1 * cols] = true;
-                    runs_[x + row2 * cols] = true;
+                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                    {
+                        foundRun = true;
+                        runs_[x + row0 * cols] = true;
+                        runs_[x + row1 * cols] = true;
+                        runs_[x + row2 * cols] = true;
+                    }
                 }
             }
         }
@@ -196,17 +203,23 @@ void Pit::FindHorizontalRuns(bool& foundRun)
         for (size_t y = 0; y < rows; y++)
         {
             size_t row = (y + firstRow_) % rows;
-            auto tile0 = tiles_[(x + 0) + row * cols];
-            auto tile1 = tiles_[(x + 1) + row * cols];
-            auto tile2 = tiles_[(x + 2) + row * cols];
-            if (tile0 == tile1 && tile1 == tile2)
+            auto height0 = heights_[(x + 0) + row * cols];
+            auto height1 = heights_[(x + 1) + row * cols];
+            auto height2 = heights_[(x + 2) + row * cols];
+            if (height0 == 0 && height1 == 0 && height2 == 0)
             {
-                if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                auto tile0 = tiles_[(x + 0) + row * cols];
+                auto tile1 = tiles_[(x + 1) + row * cols];
+                auto tile2 = tiles_[(x + 2) + row * cols];
+                if (tile0 == tile1 && tile1 == tile2)
                 {
-                    foundRun = true;
-                    runs_[(x + 0) + row * cols] = true;
-                    runs_[(x + 1) + row * cols] = true;
-                    runs_[(x + 2) + row * cols] = true;
+                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                    {
+                        foundRun = true;
+                        runs_[(x + 0) + row * cols] = true;
+                        runs_[(x + 1) + row * cols] = true;
+                        runs_[(x + 2) + row * cols] = true;
+                    }
                 }
             }
         }
@@ -223,17 +236,22 @@ void Pit::FindAdjacentVerticalRuns(bool& foundRun)
         size_t row1 = (row0 + 1) % rows;
         for (size_t x = 0; x < cols; x++)
         {
-            auto tile0 = tiles_[x + row0 * cols];
-            auto tile1 = tiles_[x + row1 * cols];
-            auto run0 = runs_[x + row0 * cols];
-            auto run1 = runs_[x + row1 * cols];
-            if (run0 != run1 && tile0 == tile1)
+            auto height0 = heights_[x + row0 * cols];
+            auto height1 = heights_[x + row1 * cols];
+            if (height0 == 0 && height1 == 0)
             {
-                if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                auto tile0 = tiles_[x + row0 * cols];
+                auto tile1 = tiles_[x + row1 * cols];
+                auto run0 = runs_[x + row0 * cols];
+                auto run1 = runs_[x + row1 * cols];
+                if (run0 != run1 && tile0 == tile1)
                 {
-                    foundRun = true;
-                    runs_[x + row0 * cols] = true;
-                    runs_[x + row1 * cols] = true;
+                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                    {
+                        foundRun = true;
+                        runs_[x + row0 * cols] = true;
+                        runs_[x + row1 * cols] = true;
+                    }
                 }
             }
         }
@@ -249,17 +267,22 @@ void Pit::FindAdjacentHorizontalRuns(bool& foundRun)
         for (size_t y = 0; y < rows; y++)
         {
             size_t row = (y + firstRow_) % rows;
-            auto tile0 = tiles_[(x + 0) + row * cols];
-            auto tile1 = tiles_[(x + 1) + row * cols];
-            auto run0 = runs_[(x + 0) + row * cols];
-            auto run1 = runs_[(x + 1) + row * cols];
-            if (run0 != run1 && tile0 == tile1)
+            auto height0 = heights_[(x + 0) + row * cols];
+            auto height1 = heights_[(x + 1) + row * cols];
+            if (height0 == 0 && height1 == 0)
             {
-                if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                auto tile0 = tiles_[(x + 0) + row * cols];
+                auto tile1 = tiles_[(x + 1) + row * cols];
+                auto run0 = runs_[(x + 0) + row * cols];
+                auto run1 = runs_[(x + 1) + row * cols];
+                if (run0 != run1 && tile0 == tile1)
                 {
-                    foundRun = true;
-                    runs_[(x + 0) + row * cols] = true;
-                    runs_[(x + 1) + row * cols] = true;
+                    if (tile0 != Pit::Tile::None && tile0 != Pit::Tile::Wall)
+                    {
+                        foundRun = true;
+                        runs_[(x + 0) + row * cols] = true;
+                        runs_[(x + 1) + row * cols] = true;
+                    }
                 }
             }
         }

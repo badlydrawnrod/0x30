@@ -21,10 +21,6 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
         {
             const je::TextureRegion* drawTile = TileAt(col, row);
             const int heightAt = HeightAt(col, row);
-            if (heightAt != 0)
-            {
-                LOG("heightAt is " << heightAt << " at col: " << col << ", row: " << row);
-            }
             if (drawTile)
             {
                 float y = topLeft.y + row * drawTile->h - internalTileScroll;
@@ -38,7 +34,7 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                         0.0f,
                         internalTileScroll,
                         drawTile->w,
-                        drawTile->h - internalTileScroll
+                        drawTile->h - internalTileScroll - heightAt
                     ));
                 }
                 else if (row < Pit::rows - 1)
@@ -63,7 +59,7 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                     batch.AddVertices(je::quads::Create(
                         *drawTile,
                         topLeft.x + col * drawTile->w,
-                        topLeft.y + row * drawTile->h - internalTileScroll,
+                        topLeft.y + row * drawTile->h - internalTileScroll - heightAt,
                         0.0f,
                         0.0f,
                         drawTile->w,
