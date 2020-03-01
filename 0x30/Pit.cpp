@@ -8,9 +8,14 @@
 
 namespace
 {
-    inline bool IsMovableTile(const Pit::Tile& tile)
+    inline bool IsMovable(const Pit::Tile& tile)
     {
         return tile != Pit::Tile::None && tile != Pit::Tile::Wall;
+    }
+
+    inline bool IsEmpty(const Pit::Tile& tile)
+    {
+        return tile == Pit::Tile::None;
     }
 }
 
@@ -149,10 +154,9 @@ void Pit::ApplyGravity()
         {
             // If the current square is empty and the one above contains a tile that is fully descended then move it
             // down to this square.
-            if (tiles_[x + row * cols] == Pit::Tile::None)
+            if (IsEmpty(tiles_[x + row * cols]))
             {
-                const auto tile = tiles_[x + rowAbove * cols];
-                if (IsMovableTile(tile))
+                if (IsMovable(tiles_[x + rowAbove * cols]))
                 {
                     // Is it fully descended?
                     if (const auto height = heights_[x + rowAbove * cols]; height == 0)
@@ -164,8 +168,7 @@ void Pit::ApplyGravity()
             }
 
             // If a tile is not fully descended then bring it down.
-            const auto tile = tiles_[x + row * cols];
-            if (IsMovableTile(tile))
+            if (IsMovable(tiles_[x + row * cols]))
             {
                 if (heights_[x + row * cols] > 0)
                 {
@@ -180,7 +183,7 @@ void Pit::ApplyGravity()
 void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
 {
     // Not a run if the square under the run candidate is empty.
-    if (TileAt(x, y + 3) == Tile::None)
+    if (IsEmpty(TileAt(x, y + 3)))
     {
         return;
     }
@@ -192,7 +195,7 @@ void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
         Pit::Tile tiles[] = { TileAt(x, y), TileAt(x, y + 1), TileAt(x, y + 2) };
         if (tiles[0] == tiles[1] && tiles[1] == tiles[2])
         {
-            if (IsMovableTile(tiles[0]))
+            if (IsMovable(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
@@ -221,7 +224,7 @@ void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
     // Not a run if any of the squares under the run candidate are empty.
     for (size_t col = x; col < x + 3; col++)
     {
-        if (TileAt(col, y + 1) == Tile::None)
+        if (IsEmpty(TileAt(col, y + 1)))
         {
             return;
         }
@@ -235,7 +238,7 @@ void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
         Pit::Tile tiles[] = { TileAt(x, y), TileAt(x + 1, y), TileAt(x + 2, y) };
         if (tiles[0] == tiles[1] && tiles[1] == tiles[2])
         {
-            if (IsMovableTile(tiles[0]))
+            if (IsMovable(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
@@ -262,7 +265,7 @@ void Pit::CheckForHorizontalRuns(bool& foundRun)
 void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y, bool& foundRun)
 {
     // Not a run if the square underneath the run candidate is empty.
-    if (TileAt(x, y + 2) == Tile::None)
+    if (IsEmpty(TileAt(x, y + 2)))
     {
         return;
     }
@@ -274,7 +277,7 @@ void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y, bool& fo
         bool runs[] = { RunAt(x, y), RunAt(x, y + 1) };
         if (runs[0] != runs[1] && tiles[0] == tiles[1])
         {
-            if (IsMovableTile(tiles[0]))
+            if (IsMovable(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
@@ -303,7 +306,7 @@ void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y, bool& 
     // Not a run if any of the squares underneath the run canidate are empty.
     for (size_t col = x; col < x + 2; col++)
     {
-        if (TileAt(col, y + 1) == Tile::None)
+        if (IsEmpty(TileAt(col, y + 1)))
         {
             return;
         }
@@ -316,7 +319,7 @@ void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y, bool& 
         bool runs[] = { RunAt(x, y), RunAt(x + 1, y) };
         if (runs[0] != runs[1] && tiles[0] == tiles[1])
         {
-            if (IsMovableTile(tiles[0]))
+            if (IsMovable(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
