@@ -347,7 +347,6 @@ void Pit::CheckForAdjacentRunsHorizontally(bool& foundRun)
 void Pit::CheckForRuns()
 {
     // Look for runs of tiles of the same colour that are at least 3 tiles horizontally or vertically.
-    // TODO: Don't include falling tiles, i.e., those that have a blank square below them.
 
     // At the start, there are no runs.
     std::fill(runs_.begin(), runs_.end(), false);
