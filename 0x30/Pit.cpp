@@ -120,7 +120,7 @@ void Pit::Swap(size_t x, size_t y)
 }
 
 
-int& Pit::RunAt(size_t x, size_t y)
+size_t& Pit::RunAt(size_t x, size_t y)
 {
     return runs_[PitIndex(x, y)];
 }
@@ -196,7 +196,7 @@ void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
         Pit::Tile tiles[] = { TileAt(x, y), TileAt(x, y + 1) };
         if (tiles[0] == tiles[1])
         {
-            int runs[] = { RunAt(x, y), RunAt(x, y + 1) };
+            size_t runs[] = { RunAt(x, y), RunAt(x, y + 1) };
             if ((runs[0] == run_ && runs[1] == 0) || (runs[0] == 0 && runs[1] == run_))
             {
                 if (IsMovable(tiles[0]))
@@ -240,7 +240,7 @@ void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
         Pit::Tile tiles[] = { TileAt(x, y), TileAt(x + 1, y) };
         if (tiles[0] == tiles[1])
         {
-            int runs[] = { RunAt(x, y), RunAt(x + 1, y) };
+            size_t runs[] = { RunAt(x, y), RunAt(x + 1, y) };
             if ((runs[0] == run_ && runs[1] == 0) || (runs[0] == 0 && runs[1] == run_))
             {
                 if (IsMovable(tiles[0]))
@@ -406,39 +406,52 @@ void Pit::CheckForRuns()
 
 void Pit::RemoveRuns()
 {
-    // Some crude debugging to visualize the runs.
-    if (run_ > 1)
+    // There were no runs detected.
+    if (run_ == 1)
     {
-        LOG("There are " << (run_ - 1) << " runs");
-        for (size_t y = 0; y < rows; y++)
-        {
-            std::string row;
-            for (size_t x = 0; x < cols; x++)
-            {
-                int run = RunAt(x, y);
-                if (run > 0)
-                {
-                    row += '0' + RunAt(x, y);
-                }
-                else
-                {
-                    row += '.';
-                }
-            }
-            LOG(row);
-        }
+        return;
     }
+
+    LOG("There are " << (run_ - 1) << " runs");
+    for (size_t y = 0; y < rows; y++)
+    {
+        std::string row;
+        for (size_t x = 0; x < cols; x++)
+        {
+            size_t run = RunAt(x, y);
+            if (run > 0)
+            {
+                row += '0' + (int) RunAt(x, y);
+            }
+            else
+            {
+                row += '.';
+            }
+        }
+        LOG(row);
+    }
+
+    std::vector<size_t> sizes(run_ - 1, 0);
 
     for (size_t y = 0; y < rows; y++)
     {
         size_t row = (y + firstRow_) % rows;
         for (size_t x = 0; x < cols; x++)
         {
-            if (runs_[x + row * cols])
+            if (auto run = runs_[x + row * cols]; run > 0)
             {
+                ++sizes[run - 1];
                 tiles_[x + row * cols] = Pit::Tile::None;
                 heights_[x + row * cols] = 0;
             }
         }
+    }
+
+    LOG("Run sizes");
+    int n = 1;
+    for (auto size : sizes)
+    {
+        LOG(n << " " << size);
+        ++n;
     }
 }
