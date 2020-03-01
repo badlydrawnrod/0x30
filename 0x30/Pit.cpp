@@ -6,6 +6,15 @@
 #define TILE_HEIGHT 15
 
 
+namespace
+{
+    inline bool IsMovableTile(const Pit::Tile& tile)
+    {
+        return tile != Pit::Tile::None && tile != Pit::Tile::Wall;
+    }
+}
+
+
 Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }
 {
     std::fill(tiles_.begin(), tiles_.begin() + cols * 1, Tile::Wall);
@@ -143,7 +152,7 @@ void Pit::ApplyGravity()
             if (tiles_[x + row * cols] == Pit::Tile::None)
             {
                 const auto tile = tiles_[x + rowAbove * cols];
-                if (tile != Pit::Tile::None && tile != Pit::Tile::Wall)
+                if (IsMovableTile(tile))
                 {
                     // Is it fully descended?
                     if (const auto height = heights_[x + rowAbove * cols]; height == 0)
@@ -156,7 +165,7 @@ void Pit::ApplyGravity()
 
             // If a tile is not fully descended then bring it down.
             const auto tile = tiles_[x + row * cols];
-            if (tile != Pit::Tile::None && tile != Pit::Tile::Wall)
+            if (IsMovableTile(tile))
             {
                 if (heights_[x + row * cols] > 0)
                 {
@@ -170,6 +179,12 @@ void Pit::ApplyGravity()
 
 void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
 {
+    // Not a run if the square under the run candidate is empty.
+    if (TileAt(x, y + 3) == Tile::None)
+    {
+        return;
+    }
+
     // Check for 3 matching adjacent tiles vertically.
     int heights[] = { HeightAt(x, y), HeightAt(x, y + 1), HeightAt(x, y + 2) };
     if (heights[0] == 0 && heights[1] == 0 && heights[2] == 0)
@@ -177,7 +192,7 @@ void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
         Pit::Tile tiles[] = { TileAt(x, y), TileAt(x, y + 1), TileAt(x, y + 2) };
         if (tiles[0] == tiles[1] && tiles[1] == tiles[2])
         {
-            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
+            if (IsMovableTile(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
@@ -203,6 +218,15 @@ void Pit::CheckForVerticalRuns(bool& foundRun)
 
 void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
 {
+    // Not a run if any of the squares under the run candidate are empty.
+    for (size_t col = x; col < x + 3; col++)
+    {
+        if (TileAt(col, y + 1) == Tile::None)
+        {
+            return;
+        }
+    }
+
     // Check for 3 matching adjacent tiles horizontally.
     size_t row = (y + firstRow_) % rows;
     int heights[] = { HeightAt(x, y), HeightAt(x + 1, y), HeightAt(x + 2, y) };
@@ -211,7 +235,7 @@ void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
         Pit::Tile tiles[] = { TileAt(x, y), TileAt(x + 1, y), TileAt(x + 2, y) };
         if (tiles[0] == tiles[1] && tiles[1] == tiles[2])
         {
-            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
+            if (IsMovableTile(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
@@ -237,6 +261,12 @@ void Pit::CheckForHorizontalRuns(bool& foundRun)
 
 void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y, bool& foundRun)
 {
+    // Not a run if the square underneath the run candidate is empty.
+    if (TileAt(x, y + 2) == Tile::None)
+    {
+        return;
+    }
+
     int heights[] = { HeightAt(x, y), HeightAt(x, y + 1) };
     if (heights[0] == 0 && heights[1] == 0)
     {
@@ -244,7 +274,7 @@ void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y, bool& fo
         bool runs[] = { RunAt(x, y), RunAt(x, y + 1) };
         if (runs[0] != runs[1] && tiles[0] == tiles[1])
         {
-            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
+            if (IsMovableTile(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
@@ -270,6 +300,15 @@ void Pit::CheckForAdjacentRunsVertically(bool& foundRun)
 
 void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y, bool& foundRun)
 {
+    // Not a run if any of the squares underneath the run canidate are empty.
+    for (size_t col = x; col < x + 2; col++)
+    {
+        if (TileAt(col, y + 1) == Tile::None)
+        {
+            return;
+        }
+    }
+
     int heights[] = { HeightAt(x, y), HeightAt(x + 1, y) };
     if (heights[0] == 0 && heights[1] == 0)
     {
@@ -277,7 +316,7 @@ void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y, bool& 
         bool runs[] = { RunAt(x, y), RunAt(x + 1, y) };
         if (runs[0] != runs[1] && tiles[0] == tiles[1])
         {
-            if (tiles[0] != Pit::Tile::None && tiles[0] != Pit::Tile::Wall)
+            if (IsMovableTile(tiles[0]))
             {
                 foundRun = true;
                 RunAt(x, y) = true;
