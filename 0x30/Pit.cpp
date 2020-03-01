@@ -146,6 +146,14 @@ size_t Pit::PitIndex(size_t x, size_t y) const
 }
 
 
+void Pit::Update()
+{
+    ApplyGravity();
+    CheckForRuns();
+    RemoveRuns();
+}
+
+
 void Pit::ApplyGravity()
 {
     for (size_t y = rows - 2; y != 0; y--)
@@ -406,6 +414,8 @@ void Pit::CheckForRuns()
 
 void Pit::RemoveRuns()
 {
+    runSizes_.resize(run_ - 1);
+
     // There were no runs detected.
     if (run_ == 1)
     {
@@ -431,8 +441,6 @@ void Pit::RemoveRuns()
         LOG(row);
     }
 
-    std::vector<size_t> sizes(run_ - 1, 0);
-
     for (size_t y = 0; y < rows; y++)
     {
         size_t row = (y + firstRow_) % rows;
@@ -440,18 +448,10 @@ void Pit::RemoveRuns()
         {
             if (auto run = runs_[x + row * cols]; run > 0)
             {
-                ++sizes[run - 1];
+                ++runSizes_[run - 1];
                 tiles_[x + row * cols] = Pit::Tile::None;
                 heights_[x + row * cols] = 0;
             }
         }
-    }
-
-    LOG("Run sizes");
-    int n = 1;
-    for (auto size : sizes)
-    {
-        LOG(n << " " << size);
-        ++n;
     }
 }

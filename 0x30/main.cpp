@@ -352,6 +352,7 @@ int main()
 
     size_t counter = 0;
     double startTime = je::GetTime();
+    uint64_t score = 0;
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
@@ -399,9 +400,49 @@ int main()
                 pit.Swap(cursorTileX, cursorTileY);
             }
 
-            pit.ApplyGravity();
-            pit.CheckForRuns();
-            pit.RemoveRuns();
+            pit.Update();
+
+            const auto& runSizes = pit.Runs();
+            if (runSizes.size() > 0)
+            {
+                LOG("Run sizes");
+                int n = 1;
+                for (auto size : runSizes)
+                {
+                    LOG(n << " " << size);
+                    ++n;
+                    int runScore = 0;
+                    switch (size)
+                    {
+                    case 3:
+                        runScore = 10;
+                        break;
+                    case 4:
+                        runScore = 25;
+                        break;
+                    case 5:
+                        runScore = 50;
+                        break;
+                    case 6:
+                        runScore = 100;
+                        break;
+                    case 7:
+                        runScore = 250;
+                        break;
+                    case 8:
+                        runScore = 500;
+                        break;
+                    case 9:
+                        runScore = 1000;
+                        break;
+                    default:
+                        break;
+                    }
+                    LOG("Run score: " << runScore);
+                    score += runScore;
+                }
+                LOG("Score: " << score);
+            }
         }
 
         // Clear the colour buffer.

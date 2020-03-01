@@ -15,20 +15,24 @@ public:
 public:
     Pit(std::function<int(int, int)>& rnd);
 
-    void ApplyGravity();
-    void CheckForRuns();
-    void RemoveRuns();
-    void RefillBottomRow();
+    void Update();
     void ScrollOne();
-
     void Swap(size_t x, size_t y);
+
     size_t& RunAt(size_t x, size_t y);
     int HeightAt(size_t x, size_t y) const;
     Tile TileAt(size_t x, size_t y) const;
     size_t PitIndex(size_t x, size_t y) const;
+
     bool IsImpacted() const { return impacted_; }
+    const std::vector<size_t>& Runs() const { return runSizes_; }
 
 private:
+    void ApplyGravity();
+    void CheckForRuns();
+    void RemoveRuns();
+    void RefillBottomRow();
+
     void CheckForAdjacentRunVertically(const size_t x, const size_t y);
     void CheckForAdjacentRunsVertically();
     void CheckForAdjacentRunHorizontally(const size_t x, const size_t y);
@@ -45,4 +49,5 @@ private:
     std::function<int(int, int)>& rnd_;
     bool impacted_;
     size_t run_;
+    std::vector<size_t> runSizes_;
 };
