@@ -22,7 +22,9 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <iomanip>
 #include <random>
+#include <sstream>
 
 
 // Window information.
@@ -246,7 +248,7 @@ class ScoreRenderer
 public:
     ScoreRenderer(TextRenderer& textRenderer);
 
-    void Draw(je::Vec2f position);
+    void Draw(je::Vec2f position, uint64_t score);
 
 private:
     TextRenderer textRenderer_;
@@ -258,12 +260,14 @@ ScoreRenderer::ScoreRenderer(TextRenderer& textRenderer) : textRenderer_{ textRe
 }
 
 
-void ScoreRenderer::Draw(je::Vec2f position)
+void ScoreRenderer::Draw(je::Vec2f position, uint64_t score)
 {
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b scoreColour{ 0xff, 0x1f, 0x1f, 0xff };
     textRenderer_.Draw(position.x, position.y, "SCORE", textColour);
-    textRenderer_.Draw(position.x - 24.0f, position.y + 10.0f, "12345678", scoreColour);
+    std::ostringstream scoreString;
+    scoreString << std::setw(8) << score;
+    textRenderer_.Draw(position.x - 24.0f, position.y + 10.0f, scoreString.str(), scoreColour);
 }
 
 
@@ -405,6 +409,7 @@ int main()
             const auto& runSizes = pit.Runs();
             if (runSizes.size() > 0)
             {
+                auto multiplier = runSizes.size();
                 LOG("Run sizes");
                 int n = 1;
                 for (auto size : runSizes)
@@ -438,8 +443,8 @@ int main()
                     default:
                         break;
                     }
-                    LOG("Run score: " << runScore);
-                    score += runScore;
+                    LOG("Run score: " << runScore << " * multiplier " << multiplier << " = " << (runScore * multiplier));
+                    score += runScore * multiplier;
                 }
                 LOG("Score: " << score);
             }
@@ -479,7 +484,7 @@ int main()
 
         // Draw some stats.
         timeRenderer.Draw({ VIRTUAL_WIDTH / 4.0f, VIRTUAL_HEIGHT / 4.0f }, elapsed);
-        scoreRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f });
+        scoreRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f }, score);
         speedRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f + 32.0f });
 
         // Draw the title text.
