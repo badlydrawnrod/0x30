@@ -1,5 +1,7 @@
 #include "Pit.h"
 
+#include "je/Logger.h"
+
 #include <algorithm>
 
 
@@ -118,7 +120,7 @@ void Pit::Swap(size_t x, size_t y)
 }
 
 
-bool& Pit::RunAt(size_t x, size_t y)
+int& Pit::RunAt(size_t x, size_t y)
 {
     return runs_[PitIndex(x, y)];
 }
@@ -180,12 +182,107 @@ void Pit::ApplyGravity()
 }
 
 
+void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
+{
+    // Not a run if the square underneath the run candidate is empty.
+    if (IsEmpty(TileAt(x, y + 2)))
+    {
+        return;
+    }
+
+    int heights[] = { HeightAt(x, y), HeightAt(x, y + 1) };
+    if (heights[0] == 0 && heights[1] == 0)
+    {
+        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x, y + 1) };
+        if (tiles[0] == tiles[1])
+        {
+            int runs[] = { RunAt(x, y), RunAt(x, y + 1) };
+            if ((runs[0] == run_ && runs[1] == 0) || (runs[0] == 0 && runs[1] == run_))
+            {
+                if (IsMovable(tiles[0]))
+                {
+                    RunAt(x, y) = run_;
+                    RunAt(x, y + 1) = run_;
+                }
+            }
+        }
+    }
+}
+
+
+void Pit::CheckForAdjacentRunsVertically()
+{
+    // Look for tiles vertically adjacent to an existing run.
+    for (size_t y = 0; y < rows - 2; y++)
+    {
+        for (size_t x = 0; x < cols; x++)
+        {
+            CheckForAdjacentRunVertically(x, y);
+        }
+    }
+}
+
+
+void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
+{
+    // Not a run if any of the squares underneath the run candidate are empty.
+    for (size_t col = x; col < x + 2; col++)
+    {
+        if (IsEmpty(TileAt(col, y + 1)))
+        {
+            return;
+        }
+    }
+
+    int heights[] = { HeightAt(x, y), HeightAt(x + 1, y) };
+    if (heights[0] == 0 && heights[1] == 0)
+    {
+        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x + 1, y) };
+        if (tiles[0] == tiles[1])
+        {
+            int runs[] = { RunAt(x, y), RunAt(x + 1, y) };
+            if ((runs[0] == run_ && runs[1] == 0) || (runs[0] == 0 && runs[1] == run_))
+            {
+                if (IsMovable(tiles[0]))
+                {
+                    RunAt(x, y) = run_;
+                    RunAt(x + 1, y) = run_;
+                }
+            }
+        }
+    }
+
+}
+
+
+void Pit::CheckForAdjacentRunsHorizontally()
+{
+    // Look for tiles horizontally adjacent to an existing run.
+    for (size_t x = 0; x < cols - 1; x++)
+    {
+        for (size_t y = 0; y < rows; y++)
+        {
+            CheckForAdjacentRunHorizontally(x, y);
+        }
+    }
+}
+
+
 void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
 {
     // Not a run if the square under the run candidate is empty.
     if (IsEmpty(TileAt(x, y + 3)))
     {
         return;
+    }
+
+    // Not a run if there's already a run here.
+    for (size_t row = y; row < y + 3; row++)
+    {
+        if (RunAt(x, row) > 0)
+        {
+            return;
+        }
     }
 
     // Check for 3 matching adjacent tiles vertically.
@@ -198,9 +295,9 @@ void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
             if (IsMovable(tiles[0]))
             {
                 foundRun = true;
-                RunAt(x, y) = true;
-                RunAt(x, y + 1) = true;
-                RunAt(x, y + 2) = true;
+                RunAt(x, y) = run_;
+                RunAt(x, y + 1) = run_;
+                RunAt(x, y + 2) = run_;
             }
         }
     }
@@ -213,7 +310,18 @@ void Pit::CheckForVerticalRuns(bool& foundRun)
     {
         for (size_t x = 0; x < cols; x++)
         {
-            CheckForVerticalRun(x, y, foundRun);
+            bool isRun = false;
+            CheckForVerticalRun(x, y, isRun);
+            if (isRun)
+            {
+                CheckForAdjacentRunsHorizontally();
+                CheckForAdjacentRunsVertically();
+            }
+            foundRun = foundRun || isRun;
+            if (isRun)
+            {
+                ++run_;
+            }
         }
     }
 }
@@ -221,10 +329,14 @@ void Pit::CheckForVerticalRuns(bool& foundRun)
 
 void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
 {
-    // Not a run if any of the squares under the run candidate are empty.
+    // Not a run if any of the squares under the run candidate are empty or if there's already a run here.
     for (size_t col = x; col < x + 3; col++)
     {
         if (IsEmpty(TileAt(col, y + 1)))
+        {
+            return;
+        }
+        if (RunAt(col, y) > 0)
         {
             return;
         }
@@ -241,9 +353,9 @@ void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
             if (IsMovable(tiles[0]))
             {
                 foundRun = true;
-                RunAt(x, y) = true;
-                RunAt(x + 1, y) = true;
-                RunAt(x + 2, y) = true;
+                RunAt(x, y) = run_;
+                RunAt(x + 1, y) = run_;
+                RunAt(x + 2, y) = run_;
             }
         }
     }
@@ -256,89 +368,18 @@ void Pit::CheckForHorizontalRuns(bool& foundRun)
     {
         for (size_t y = 0; y < rows; y++)
         {
-            CheckForHorizontalRun(x, y, foundRun);
-        }
-    }
-}
-
-
-void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y, bool& foundRun)
-{
-    // Not a run if the square underneath the run candidate is empty.
-    if (IsEmpty(TileAt(x, y + 2)))
-    {
-        return;
-    }
-
-    int heights[] = { HeightAt(x, y), HeightAt(x, y + 1) };
-    if (heights[0] == 0 && heights[1] == 0)
-    {
-        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x, y + 1) };
-        bool runs[] = { RunAt(x, y), RunAt(x, y + 1) };
-        if (runs[0] != runs[1] && tiles[0] == tiles[1])
-        {
-            if (IsMovable(tiles[0]))
+            bool isRun = false;
+            CheckForHorizontalRun(x, y, isRun);
+            if (isRun)
             {
-                foundRun = true;
-                RunAt(x, y) = true;
-                RunAt(x, y + 1) = true;
+                CheckForAdjacentRunsHorizontally();
+                CheckForAdjacentRunsVertically();
             }
-        }
-    }
-}
-
-
-void Pit::CheckForAdjacentRunsVertically(bool& foundRun)
-{
-    // Look for tiles vertically adjacent to an existing run.
-    for (size_t y = 0; y < rows - 2; y++)
-    {
-        for (size_t x = 0; x < cols; x++)
-        {
-            CheckForAdjacentRunVertically(x, y, foundRun);
-        }
-    }
-}
-
-
-void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y, bool& foundRun)
-{
-    // Not a run if any of the squares underneath the run canidate are empty.
-    for (size_t col = x; col < x + 2; col++)
-    {
-        if (IsEmpty(TileAt(col, y + 1)))
-        {
-            return;
-        }
-    }
-
-    int heights[] = { HeightAt(x, y), HeightAt(x + 1, y) };
-    if (heights[0] == 0 && heights[1] == 0)
-    {
-        Pit::Tile tiles[] = { TileAt(x, y), TileAt(x + 1, y) };
-        bool runs[] = { RunAt(x, y), RunAt(x + 1, y) };
-        if (runs[0] != runs[1] && tiles[0] == tiles[1])
-        {
-            if (IsMovable(tiles[0]))
+            foundRun = foundRun || isRun;
+            if (isRun)
             {
-                foundRun = true;
-                RunAt(x, y) = true;
-                RunAt(x + 1, y) = true;
+                ++run_;
             }
-        }
-    }
-
-}
-
-
-void Pit::CheckForAdjacentRunsHorizontally(bool& foundRun)
-{
-    // Look for tiles horizontally adjacent to an existing run.
-    for (size_t x = 0; x < cols - 1; x++)
-    {
-        for (size_t y = 0; y < rows; y++)
-        {
-            CheckForAdjacentRunHorizontally(x, y, foundRun);
         }
     }
 }
@@ -349,26 +390,45 @@ void Pit::CheckForRuns()
     // Look for runs of tiles of the same colour that are at least 3 tiles horizontally or vertically.
 
     // At the start, there are no runs.
-    std::fill(runs_.begin(), runs_.end(), false);
+    std::fill(runs_.begin(), runs_.end(), 0);
+    run_ = 1;
 
     // Check for 3 adacent tiles vertically and horizontally.
     bool foundRun = false;
-    CheckForVerticalRuns(foundRun);
-    CheckForHorizontalRuns(foundRun);
-
-    // If we've found any horizontal or vertical runs then look for tiles of the same colour adjacent to a run and
-    // add them to it, until we find no further runs.
-    while (foundRun)
+    do
     {
         foundRun = false;
-        CheckForAdjacentRunsVertically(foundRun);
-        CheckForAdjacentRunsHorizontally(foundRun);
-    }
+        CheckForVerticalRuns(foundRun);
+        CheckForHorizontalRuns(foundRun);
+    } while (foundRun);
 }
 
 
 void Pit::RemoveRuns()
 {
+    // Some crude debugging to visualize the runs.
+    if (run_ > 1)
+    {
+        LOG("There are " << (run_ - 1) << " runs");
+        for (size_t y = 0; y < rows; y++)
+        {
+            std::string row;
+            for (size_t x = 0; x < cols; x++)
+            {
+                int run = RunAt(x, y);
+                if (run > 0)
+                {
+                    row += '0' + RunAt(x, y);
+                }
+                else
+                {
+                    row += '.';
+                }
+            }
+            LOG(row);
+        }
+    }
+
     for (size_t y = 0; y < rows; y++)
     {
         size_t row = (y + firstRow_) % rows;
