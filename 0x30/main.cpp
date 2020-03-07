@@ -244,7 +244,6 @@ void TimeRenderer::Draw(je::Vec2f position, double elapsed)
 
 class ScoreRenderer
 {
-
 public:
     ScoreRenderer(TextRenderer& textRenderer);
 
@@ -298,6 +297,87 @@ void SpeedRenderer::Draw(je::Vec2f position)
 }
 
 
+class Flyup
+{
+public:
+    Flyup(const je::TextureRegion& texture, float x, float y, float duration);
+    void Draw(je::Batch& batch);
+    bool IsAlive() const;
+
+private:
+    const je::TextureRegion& texture_;
+    float x_;
+    float y_;
+    double endTime_;
+};
+
+
+Flyup::Flyup(const je::TextureRegion& texture, float x, float y, float duration) : texture_{ texture }, x_{ x }, y_{ y }, endTime_{ je::GetTime() + duration }
+{
+}
+
+
+void Flyup::Draw(je::Batch& batch)
+{
+    batch.AddVertices(je::quads::Create(texture_, x_, y_));
+    y_ -= 0.25f;
+}
+
+
+bool Flyup::IsAlive() const
+{
+    return je::GetTime() < endTime_;
+}
+
+
+void UpdateScore(const Pit& pit, uint64_t& score)
+{
+    const auto& runs = pit.Runs();
+    if (runs.size() > 0)
+    {
+        auto multiplier = runs.size();
+        LOG("Run info");
+        int n = 1;
+        for (auto runInfo : runs)
+        {
+            LOG(n << " size: " << runInfo.runSize << ", chain: " << runInfo.chainLength);
+            ++n;
+            int runScore = 0;
+            switch (runInfo.runSize)
+            {
+            case 3:
+                runScore = 10;
+                break;
+            case 4:
+                runScore = 25;
+                break;
+            case 5:
+                runScore = 50;
+                break;
+            case 6:
+                runScore = 100;
+                break;
+            case 7:
+                runScore = 250;
+                break;
+            case 8:
+                runScore = 500;
+                break;
+            case 9:
+                runScore = 1000;
+                break;
+            default:
+                break;
+            }
+            uint64_t scoreChange = runScore * runInfo.chainLength * multiplier;
+            LOG("Run score: " << runScore << " * chain length " << runInfo.chainLength << " * multiplier " << multiplier << " = " << scoreChange);
+            score += scoreChange;
+        }
+        LOG("Score: " << score);
+    }
+}
+
+
 int main()
 {
     je::Context context(WIDTH, HEIGHT, TITLE);
@@ -325,7 +405,7 @@ int main()
 
     je::Batch batch(shader.Program());
 
-    constexpr float tile_size = 16.0f;
+    constexpr float tileSize = 16.0f;
 
     // Make a function to create random integers in a closed range.
     std::random_device randomDevice;
@@ -343,10 +423,10 @@ int main()
     ScoreRenderer scoreRenderer(textRenderer);
     SpeedRenderer speedRenderer(textRenderer);
 
-    je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tile_size) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tile_size };
+    je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };
 
-    const float bottomRow = topLeft.y + (Pit::rows - 1) * tile_size;
-    const float lastRow = bottomRow - tile_size;
+    const float bottomRow = topLeft.y + (Pit::rows - 1) * tileSize;
+    const float lastRow = bottomRow - tileSize;
 
     float internalTileScroll = 0.0f;
     float scrollRate = 0.025f;
@@ -357,6 +437,9 @@ int main()
     size_t counter = 0;
     double startTime = je::GetTime();
     uint64_t score = 0;
+
+    std::vector<Flyup> flyups;
+    flyups.push_back(Flyup(textures.combo4, VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 1));
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
@@ -370,7 +453,7 @@ int main()
         {
             // Scroll the contents of the pit up.
             internalTileScroll += fillDown ? 1.0f : scrollRate;
-            if (internalTileScroll >= tile_size)
+            if (internalTileScroll >= tileSize)
             {
                 pit.ScrollOne();
                 if (cursorTileY > 1)
@@ -406,48 +489,7 @@ int main()
 
             pit.Update();
 
-            const auto& runSizes = pit.Runs();
-            if (runSizes.size() > 0)
-            {
-                auto multiplier = runSizes.size();
-                LOG("Run info");
-                int n = 1;
-                for (auto size : runSizes)
-                {
-                    LOG(n << " size: " << size.runSize << ", chain: " << size.chainLength);
-                    ++n;
-                    int runScore = 0;
-                    switch (size.runSize)
-                    {
-                    case 3:
-                        runScore = 10;
-                        break;
-                    case 4:
-                        runScore = 25;
-                        break;
-                    case 5:
-                        runScore = 50;
-                        break;
-                    case 6:
-                        runScore = 100;
-                        break;
-                    case 7:
-                        runScore = 250;
-                        break;
-                    case 8:
-                        runScore = 500;
-                        break;
-                    case 9:
-                        runScore = 1000;
-                        break;
-                    default:
-                        break;
-                    }
-                    LOG("Run score: " << runScore << " * chain length " << size.chainLength << " * multiplier " << multiplier << " = " << (runScore * size.chainLength * multiplier));
-                    score += runScore * multiplier;
-                }
-                LOG("Score: " << score);
-            }
+            UpdateScore(pit, score);
         }
 
         // Clear the colour buffer.
@@ -465,10 +507,10 @@ int main()
         if (!pit.IsImpacted())
         {
             // We're still playing, so draw the cursor.
-            float cursorX = topLeft.x + cursorTileX * tile_size - 1.0f;
-            float cursorY = topLeft.y + cursorTileY * tile_size - 1.0f - internalTileScroll;
+            float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
+            float cursorY = topLeft.y + cursorTileY * tileSize - 1.0f - internalTileScroll;
             batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
-            batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tile_size, cursorY));
+            batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
         }
         else
         {
@@ -481,6 +523,16 @@ int main()
                 textRenderer.Draw(x, y, "GAME OVER!");
             }
         }
+
+        // Draw fly-ups.
+        for (auto& flyup : flyups)
+        {
+            if (flyup.IsAlive())
+            {
+                flyup.Draw(batch);
+            }
+        }
+        // TODO: remove dead flyups.
 
         // Draw some stats.
         timeRenderer.Draw({ VIRTUAL_WIDTH / 4.0f, VIRTUAL_HEIGHT / 4.0f }, elapsed);

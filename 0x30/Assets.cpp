@@ -24,4 +24,11 @@ Textures::Textures()
     pitBottomLeft = je::TextureRegion{ texture, 0.0f, 16.0f, 8.0f, 8.0f };
     pitBottom = je::TextureRegion{ texture, 8.0f, 16.0f, 8.0f, 8.0f };
     pitBottomRight = je::TextureRegion{ texture, 16.0f, 16.0f, 8.0f, 8.0f };
+
+    combo4 = je::TextureRegion{ texture,  80.0f, 0.0f, 8.0f, 8.0f };
+    combo5 = je::TextureRegion{ texture,  88.0f, 0.0f, 8.0f, 8.0f };
+    combo6 = je::TextureRegion{ texture,  96.0f, 0.0f, 8.0f, 8.0f };
+    combo7 = je::TextureRegion{ texture, 104.0f, 0.0f, 8.0f, 8.0f };
+    combo8 = je::TextureRegion{ texture, 112.0f, 0.0f, 8.0f, 8.0f };
+    combo9 = je::TextureRegion{ texture, 120.0f, 0.0f, 8.0f, 8.0f };
 }
