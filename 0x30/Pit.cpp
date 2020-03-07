@@ -58,7 +58,8 @@ Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }
     std::fill(tiles_.begin() + cols * 11, tiles_.begin() + cols * 12, Tile::Red);
 
     std::fill(heights_.begin(), heights_.end(), 0);
-    std::fill(runs_.begin(), runs_.end(), false);
+    std::fill(runs_.begin(), runs_.end(), 0);
+    std::fill(chains_.begin(), chains_.end(), 0);
 }
 
 
@@ -151,6 +152,7 @@ void Pit::Update()
     ApplyGravity();
     CheckForRuns();
     RemoveRuns();
+    RemoveDeadChains();
 }
 
 
@@ -172,6 +174,7 @@ void Pit::ApplyGravity()
                     if (const auto height = heights_[x + rowAbove * cols]; height == 0)
                     {
                         std::swap(tiles_[x + rowAbove * cols], tiles_[x + row * cols]);
+                        std::swap(chains_[x + rowAbove * cols], chains_[x + row * cols]);
                         heights_[x + row * cols] = TILE_HEIGHT;
                     }
                 }
@@ -422,6 +425,7 @@ void Pit::RemoveRuns()
         return;
     }
 
+    // Output some debug to show the pit.
     LOG("There are " << (run_ - 1) << " runs");
     for (size_t y = 0; y < rows; y++)
     {
@@ -431,7 +435,7 @@ void Pit::RemoveRuns()
             size_t run = RunAt(x, y);
             if (run > 0)
             {
-                row += '0' + (int) RunAt(x, y);
+                row += '0' + (int)RunAt(x, y);
             }
             else
             {
@@ -441,16 +445,51 @@ void Pit::RemoveRuns()
         LOG(row);
     }
 
+    // Clear all of the runs.
     for (size_t y = 0; y < rows; y++)
     {
+        for (size_t x = 0; x < cols; x++)
+        {
+            auto index = PitIndex(x, y);
+            if (auto run = runs_[index]; run > 0)
+            {
+                ++runSizes_[run - 1].runSize;
+                tiles_[index] = Pit::Tile::None;
+                heights_[index] = 0;
+
+                // If there's a fully descended block in the row above then set its chain count to one more than ours.
+                auto previousRow = PitIndex(x, y - 1);
+                if (IsMovable(tiles_[previousRow]) && heights_[previousRow] == 0)
+                {
+                    chains_[previousRow] = chains_[index] + 1;
+                }
+
+                // What's the maximum chain length for this run?
+                if (1 + chains_[index] > runSizes_[run - 1].chainLength)
+                {
+                    runSizes_[run - 1].chainLength = 1 + chains_[index];
+                }
+                chains_[index] = 0;
+            }
+        }
+    }
+}
+
+
+void Pit::RemoveDeadChains()
+{
+    for (size_t y = 0; y < rows - 1; y++)
+    {
+        size_t rowBelow = (y + rows + 1 + firstRow_) % rows;
         size_t row = (y + firstRow_) % rows;
         for (size_t x = 0; x < cols; x++)
         {
-            if (auto run = runs_[x + row * cols]; run > 0)
+            // Reset the chain if we're fully descended and blocked below.
+            if (chains_[x + row * cols] > 0                                                     // We have a chain here.
+                && IsMovable(tiles_[x + row * cols]) && heights_[x + row * cols] == 0           // We have a fully descended block.
+                && !IsEmpty(tiles_[x + rowBelow * cols]) && heights_[x + rowBelow * cols] == 0) // We're blocked below by a fully descended block.
             {
-                ++runSizes_[run - 1];
-                tiles_[x + row * cols] = Pit::Tile::None;
-                heights_[x + row * cols] = 0;
+                chains_[x + row * cols] = 0;
             }
         }
     }

@@ -410,14 +410,14 @@ int main()
             if (runSizes.size() > 0)
             {
                 auto multiplier = runSizes.size();
-                LOG("Run sizes");
+                LOG("Run info");
                 int n = 1;
                 for (auto size : runSizes)
                 {
-                    LOG(n << " " << size);
+                    LOG(n << " size: " << size.runSize << ", chain: " << size.chainLength);
                     ++n;
                     int runScore = 0;
-                    switch (size)
+                    switch (size.runSize)
                     {
                     case 3:
                         runScore = 10;
@@ -443,7 +443,7 @@ int main()
                     default:
                         break;
                     }
-                    LOG("Run score: " << runScore << " * multiplier " << multiplier << " = " << (runScore * multiplier));
+                    LOG("Run score: " << runScore << " * chain length " << size.chainLength << " * multiplier " << multiplier << " = " << (runScore * size.chainLength * multiplier));
                     score += runScore * multiplier;
                 }
                 LOG("Score: " << score);

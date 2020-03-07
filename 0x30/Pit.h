@@ -12,6 +12,12 @@ public:
 
     enum class Tile { None, Red, Green, Yellow, Cyan, Magenta, Wall };
 
+    struct RunInfo
+    {
+        size_t runSize;
+        size_t chainLength;
+    };
+
 public:
     Pit(std::function<int(int, int)>& rnd);
 
@@ -25,12 +31,13 @@ public:
     size_t PitIndex(size_t x, size_t y) const;
 
     bool IsImpacted() const { return impacted_; }
-    const std::vector<size_t>& Runs() const { return runSizes_; }
+    const std::vector<RunInfo>& Runs() const { return runSizes_; }
 
 private:
     void ApplyGravity();
     void CheckForRuns();
     void RemoveRuns();
+    void RemoveDeadChains();
     void RefillBottomRow();
 
     void CheckForAdjacentRunVertically(const size_t x, const size_t y);
@@ -45,9 +52,10 @@ private:
     std::array<Tile, cols * rows> tiles_;
     std::array<size_t, cols * rows> runs_;
     std::array<int, cols * rows> heights_;
+    std::array<size_t, cols * rows> chains_;
     size_t firstRow_ = 0;
     std::function<int(int, int)>& rnd_;
     bool impacted_;
     size_t run_;
-    std::vector<size_t> runSizes_;
+    std::vector<RunInfo> runSizes_;
 };
