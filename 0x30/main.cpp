@@ -369,8 +369,8 @@ void UpdateScore(const Pit& pit, uint64_t& score)
             default:
                 break;
             }
-            uint64_t scoreChange = runScore * runInfo.chainLength * multiplier;
-            LOG("Run score: " << runScore << " * chain length " << runInfo.chainLength << " * multiplier " << multiplier << " = " << scoreChange);
+            uint64_t scoreChange = runScore * (runInfo.chainLength + 1) * multiplier;
+            LOG("Run score: " << runScore << " * chain length " << (runInfo.chainLength + 1) << " * multiplier " << multiplier << " = " << scoreChange);
             score += scoreChange;
         }
         LOG("Score: " << score);
@@ -491,7 +491,7 @@ int main()
 
             UpdateScore(pit, score);
 
-            // Add fly-ups for runs of 4 or more.
+            // Add fly-ups for runs of 4 or more, and show chains.
             for (const auto& run : pit.Runs())
             {
                 if (run.runSize > 3)
@@ -520,10 +520,42 @@ int main()
                         texture = textures.combo9;
                         break;
                     }
+
                     for (auto i = 0; i < run.runSize; i++)
                     {
                         float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
                         float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
+                        flyups.emplace_back(texture, x, y, duration);
+                    }
+                }
+
+                if (run.chainLength > 0)
+                {
+                    float duration = 1.5f;
+                    je::TextureRegion texture;
+                    switch (1 + run.chainLength)
+                    {
+                    case 2:
+                        texture = textures.chain2;
+                        break;
+                    case 3:
+                        texture = textures.chain3;
+                        break;
+                    case 4:
+                        texture = textures.chain4;
+                        break;
+                    case 5:
+                        texture = textures.chain5;
+                        break;
+                    case 6:
+                        texture = textures.chain6;
+                        break;
+                    }
+
+                    for (auto i = 0; i < run.runSize; i++)
+                    {
+                        float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
+                        float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll - tileSize;
                         flyups.emplace_back(texture, x, y, duration);
                     }
                 }

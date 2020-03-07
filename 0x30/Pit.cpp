@@ -454,9 +454,9 @@ void Pit::RemoveRuns()
             if (auto run = runs_[index]; run > 0)
             {
                 // Update the maximum chain length for this run.
-                if (1 + chains_[index] > runInfo_[run - 1].chainLength)
+                if (chains_[index] > runInfo_[run - 1].chainLength)
                 {
-                    runInfo_[run - 1].chainLength = 1 + chains_[index];
+                    runInfo_[run - 1].chainLength = chains_[index];
                 }
             }
         }

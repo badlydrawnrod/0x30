@@ -31,4 +31,10 @@ Textures::Textures()
     combo7 = je::TextureRegion{ texture, 104.0f, 0.0f, 8.0f, 8.0f };
     combo8 = je::TextureRegion{ texture, 112.0f, 0.0f, 8.0f, 8.0f };
     combo9 = je::TextureRegion{ texture, 120.0f, 0.0f, 8.0f, 8.0f };
+
+    chain2 = je::TextureRegion{ texture,  40.0f, 24.0f, 12.0f, 8.0f };
+    chain3 = je::TextureRegion{ texture,  56.0f, 24.0f, 12.0f, 8.0f };
+    chain4 = je::TextureRegion{ texture,  72.0f, 24.0f, 12.0f, 8.0f };
+    chain5 = je::TextureRegion{ texture,  88.0f, 24.0f, 12.0f, 8.0f };
+    chain6 = je::TextureRegion{ texture, 104.0f, 24.0f, 12.0f, 8.0f };
 }

@@ -34,4 +34,10 @@ struct Textures
     je::TextureRegion combo7;
     je::TextureRegion combo8;
     je::TextureRegion combo9;
+
+    je::TextureRegion chain2;
+    je::TextureRegion chain3;
+    je::TextureRegion chain4;
+    je::TextureRegion chain5;
+    je::TextureRegion chain6;
 };
