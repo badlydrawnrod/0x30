@@ -445,6 +445,23 @@ void Pit::RemoveRuns()
         LOG(row);
     }
 
+    // Find the maximum chain length for each run.
+    for (size_t y = 0; y < rows; y++)
+    {
+        for (size_t x = 0; x < cols; x++)
+        {
+            auto index = PitIndex(x, y);
+            if (auto run = runs_[index]; run > 0)
+            {
+                // Update the maximum chain length for this run.
+                if (1 + chains_[index] > runSizes_[run - 1].chainLength)
+                {
+                    runSizes_[run - 1].chainLength = 1 + chains_[index];
+                }
+            }
+        }
+    }
+
     // Clear all of the runs.
     for (size_t y = 0; y < rows; y++)
     {
@@ -457,17 +474,12 @@ void Pit::RemoveRuns()
                 tiles_[index] = Pit::Tile::None;
                 heights_[index] = 0;
 
-                // If there's a fully descended block in the row above then set its chain count to one more than ours.
+                // If there's a fully descended block in the row above then set its chain count to one more than the
+                // maximum chain length for this run.
                 auto previousRow = PitIndex(x, y - 1);
                 if (IsMovable(tiles_[previousRow]) && heights_[previousRow] == 0)
                 {
-                    chains_[previousRow] = chains_[index] + 1;
-                }
-
-                // What's the maximum chain length for this run?
-                if (1 + chains_[index] > runSizes_[run - 1].chainLength)
-                {
-                    runSizes_[run - 1].chainLength = 1 + chains_[index];
+                    chains_[previousRow] = runSizes_[run - 1].chainLength + 1;
                 }
                 chains_[index] = 0;
             }
@@ -484,7 +496,7 @@ void Pit::RemoveDeadChains()
         size_t row = (y + firstRow_) % rows;
         for (size_t x = 0; x < cols; x++)
         {
-            // Reset the chain if we're fully descended and blocked below.
+            // Reset the chain if the tile we're looking at is fully descended and is blocked below.
             if (chains_[x + row * cols] > 0                                                     // We have a chain here.
                 && IsMovable(tiles_[x + row * cols]) && heights_[x + row * cols] == 0           // We have a fully descended block.
                 && !IsEmpty(tiles_[x + rowBelow * cols]) && heights_[x + rowBelow * cols] == 0) // We're blocked below by a fully descended block.
