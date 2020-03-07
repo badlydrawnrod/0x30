@@ -490,6 +490,44 @@ int main()
             pit.Update();
 
             UpdateScore(pit, score);
+
+            // Add fly-ups for runs of 4 or more.
+            for (const auto& run : pit.Runs())
+            {
+                if (run.runSize > 3)
+                {
+                    float duration = 1.0f;
+                    je::TextureRegion texture;
+
+                    switch (run.runSize)
+                    {
+                    case 4:
+                        texture = textures.combo4;
+                        break;
+                    case 5:
+                        texture = textures.combo5;
+                        break;
+                    case 6:
+                        texture = textures.combo6;
+                        break;
+                    case 7:
+                        texture = textures.combo7;
+                        break;
+                    case 8:
+                        texture = textures.combo8;
+                        break;
+                    case 9:
+                        texture = textures.combo9;
+                        break;
+                    }
+                    for (auto i = 0; i < run.runSize; i++)
+                    {
+                        float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
+                        float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
+                        flyups.emplace_back(texture, x, y, duration);
+                    }
+                }
+            }
         }
 
         // Clear the colour buffer.

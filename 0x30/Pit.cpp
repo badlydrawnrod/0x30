@@ -417,7 +417,7 @@ void Pit::CheckForRuns()
 
 void Pit::RemoveRuns()
 {
-    runSizes_.resize(run_ - 1);
+    runInfo_.resize(run_ - 1);
 
     // There were no runs detected.
     if (run_ == 1)
@@ -454,9 +454,9 @@ void Pit::RemoveRuns()
             if (auto run = runs_[index]; run > 0)
             {
                 // Update the maximum chain length for this run.
-                if (1 + chains_[index] > runSizes_[run - 1].chainLength)
+                if (1 + chains_[index] > runInfo_[run - 1].chainLength)
                 {
-                    runSizes_[run - 1].chainLength = 1 + chains_[index];
+                    runInfo_[run - 1].chainLength = 1 + chains_[index];
                 }
             }
         }
@@ -470,7 +470,8 @@ void Pit::RemoveRuns()
             auto index = PitIndex(x, y);
             if (auto run = runs_[index]; run > 0)
             {
-                ++runSizes_[run - 1].runSize;
+                runInfo_[run - 1].coord[runInfo_[run - 1].runSize] = { x, y };
+                ++runInfo_[run - 1].runSize;
                 tiles_[index] = Pit::Tile::None;
                 heights_[index] = 0;
 
@@ -479,7 +480,7 @@ void Pit::RemoveRuns()
                 auto previousRow = PitIndex(x, y - 1);
                 if (IsMovable(tiles_[previousRow]) && heights_[previousRow] == 0)
                 {
-                    chains_[previousRow] = runSizes_[run - 1].chainLength + 1;
+                    chains_[previousRow] = runInfo_[run - 1].chainLength + 1;
                 }
                 chains_[index] = 0;
             }

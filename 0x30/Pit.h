@@ -12,10 +12,17 @@ public:
 
     enum class Tile { None, Red, Green, Yellow, Cyan, Magenta, Wall };
 
+    struct PitCoord
+    {
+        size_t x;
+        size_t y;
+    };
+
     struct RunInfo
     {
         size_t runSize;
         size_t chainLength;
+        std::array<PitCoord, 9> coord;  // It is impossible for a run to be more than 9 items.
     };
 
 public:
@@ -31,7 +38,7 @@ public:
     size_t PitIndex(size_t x, size_t y) const;
 
     bool IsImpacted() const { return impacted_; }
-    const std::vector<RunInfo>& Runs() const { return runSizes_; }
+    const std::vector<RunInfo>& Runs() const { return runInfo_; }
 
 private:
     void ApplyGravity();
@@ -57,5 +64,5 @@ private:
     std::function<int(int, int)>& rnd_;
     bool impacted_;
     size_t run_;
-    std::vector<RunInfo> runSizes_;
+    std::vector<RunInfo> runInfo_;
 };
