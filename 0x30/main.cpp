@@ -27,14 +27,15 @@
 #include <sstream>
 
 
-// Window information.
-const GLuint WIDTH = 960;   // 1280;
-const GLuint HEIGHT = 720;  // 720;
-const char* const TITLE = "The Mysterious 0x30";
-
 // Virtual screen information.
-const GLsizei VIRTUAL_WIDTH = WIDTH / 3;
-const GLsizei VIRTUAL_HEIGHT = HEIGHT / 3;
+const GLsizei VIRTUAL_WIDTH = 320;
+const GLsizei VIRTUAL_HEIGHT = 240;
+
+// Window information.
+const GLuint WIDTH = VIRTUAL_WIDTH * 3;
+const GLuint HEIGHT = VIRTUAL_HEIGHT * 3;
+
+const char* const TITLE = "The Mysterious 0x30";
 
 // Input states.
 bool leftPressed = false;
@@ -234,10 +235,13 @@ void TimeRenderer::Draw(je::Vec2f position, double elapsed)
 
     // TODO: juice it up.
     // Draw "TIME" on one row, with the elapsed time on the following row, right-justified to "TIME".
+    je::Rgba4b blackColour{ 0x00, 0x00, 0x00, 0xff };
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b timeColour{ 0xff, 0x1f, 0x1f, 0xff };
+    textRenderer_.Draw(1.0f + position.x, 1.0f + position.y, "TIME", blackColour);
     textRenderer_.Draw(position.x, position.y, "TIME", textColour);
     // TODO: lose the magic numbers.
+    textRenderer_.Draw(1.0f + position.x + 32.0f - 8.0f * numChars_, 1.0f + position.y + 10.0f, timeBuf_, blackColour);
     textRenderer_.Draw(position.x + 32.0f - 8.0f * numChars_, position.y + 10.0f, timeBuf_, timeColour);
 }
 
@@ -261,11 +265,14 @@ ScoreRenderer::ScoreRenderer(TextRenderer& textRenderer) : textRenderer_{ textRe
 
 void ScoreRenderer::Draw(je::Vec2f position, uint64_t score)
 {
+    je::Rgba4b blackColour{ 0x00, 0x00, 0x00, 0xff };
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b scoreColour{ 0xff, 0x1f, 0x1f, 0xff };
+    textRenderer_.Draw(1.0f + position.x, 1.0f + position.y, "SCORE", blackColour);
     textRenderer_.Draw(position.x, position.y, "SCORE", textColour);
     std::ostringstream scoreString;
     scoreString << std::setw(8) << score;
+    textRenderer_.Draw(1.0f + position.x - 24.0f, 1.0f + position.y + 10.0f, scoreString.str(), blackColour);
     textRenderer_.Draw(position.x - 24.0f, position.y + 10.0f, scoreString.str(), scoreColour);
 }
 
@@ -290,9 +297,12 @@ SpeedRenderer::SpeedRenderer(TextRenderer& textRenderer) : textRenderer_{ textRe
 
 void SpeedRenderer::Draw(je::Vec2f position)
 {
+    je::Rgba4b blackColour{ 0x00, 0x00, 0x00, 0xff };
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b speedColour{ 0xff, 0x1f, 0x1f, 0xff };
+    textRenderer_.Draw(1.0f + position.x, 1.0f + position.y, "SPEED", blackColour);
     textRenderer_.Draw(position.x, position.y, "SPEED", textColour);
+    textRenderer_.Draw(1.0f + position.x + 32.0f, 1.0f + position.y + 10.0f, "2", blackColour);
     textRenderer_.Draw(position.x + 32.0f, position.y + 10.0f, "2", speedColour);
 }
 
@@ -573,7 +583,7 @@ int main()
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Draw the backdrop.
-        batch.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
+        batch.AddVertices(je::quads::Create(textures.backdrops[5], 0.0f, 0.0f));
 
         pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
 
@@ -608,12 +618,11 @@ int main()
         // TODO: remove dead flyups.
 
         // Draw some stats.
-        timeRenderer.Draw({ VIRTUAL_WIDTH / 4.0f, VIRTUAL_HEIGHT / 4.0f }, elapsed);
-        scoreRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f }, score);
-        speedRenderer.Draw({ 3 * VIRTUAL_WIDTH / 4.0f - 24.0f, VIRTUAL_HEIGHT / 4.0f + 32.0f });
-
-        // Draw the title text.
-        textRenderer.Draw(136.0f, 4.0f, TITLE, je::Rgba4b{ 0xff, 0xbf, 0x00, 0xff });
+        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
+        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
+        timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, elapsed);
+        scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
+        speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
 
         batch.End();
 

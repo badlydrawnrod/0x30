@@ -44,6 +44,34 @@ namespace je
             return Create(texture, position.x, position.y, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h));
         }
 
+        // Creates a quad that represents an entire texture region with top left at (x, y), and size to (width, height).
+        inline Batch::Quad Create(const TextureRegion& region, GLfloat x, GLfloat y, GLfloat width, GLfloat height, Rgba4b colour)
+        {
+            const GLfloat textureWidth = static_cast<GLfloat>(region.texture.w);
+            const GLfloat textureHeight = static_cast<GLfloat>(region.texture.h);
+            const GLfloat u0 = region.x / textureWidth;
+            const GLfloat v0 = region.y / textureHeight;
+            const GLfloat u1 = (region.x + region.w) / textureWidth;
+            const GLfloat v1 = (region.y + region.h) / textureHeight;
+
+            return Batch::Quad{
+                region.texture.textureId,
+                Batch::Vertices{
+                VertexPosTexColour{ { x, y + height}, { u0, v1 }, colour },
+                VertexPosTexColour{ { x + width, y + height}, { u1, v1}, colour },
+                VertexPosTexColour{ { x + width, y }, { u1, v0 }, colour },
+                VertexPosTexColour{ { x, y }, { u0, v0 }, colour }
+                }
+            };
+        }
+
+        // Creates a quad that represents an entire texture region with top left at (x, y), and size to (width, height).
+        inline Batch::Quad Create(const TextureRegion& region, GLfloat x, GLfloat y, GLfloat width, GLfloat height)
+        {
+            const Rgba4b white = { 255, 255, 255, 255 };
+            return Create(region, x, y, width, height, white);
+        }
+
         // Creates a quad that represents a texture region with top left at (x, y).
         inline Batch::Quad Create(const TextureRegion& region, GLfloat x, GLfloat y, Rgba4b colour)
         {
