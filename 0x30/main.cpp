@@ -583,8 +583,9 @@ int main()
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         // Draw the backdrop.
-        batch.AddVertices(je::quads::Create(textures.backdrops[5], 0.0f, 0.0f));
+        batch.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
 
+        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
         pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
 
         if (!pit.IsImpacted())
