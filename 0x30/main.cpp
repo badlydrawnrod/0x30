@@ -310,21 +310,39 @@ void SpeedRenderer::Draw(je::Vec2f position)
 class Flyup
 {
 public:
-    Flyup(const je::TextureRegion& texture, float x, float y, float duration);
+    Flyup(je::TextureRegion& texture, float x, float y, float duration);
+    Flyup(const Flyup& other);
+    Flyup& operator=(const Flyup& other);
+
     void Draw(je::Batch& batch);
     bool IsAlive() const;
 
 private:
-    const je::TextureRegion& texture_;
+    je::TextureRegion& texture_;
     float x_;
     float y_;
     double endTime_;
 };
 
 
-Flyup::Flyup(const je::TextureRegion& texture, float x, float y, float duration) : texture_{ texture }, x_{ x }, y_{ y }, endTime_{ je::GetTime() + duration }
+Flyup::Flyup(je::TextureRegion& texture, float x, float y, float duration) : texture_{ texture }, x_{ x }, y_{ y }, endTime_{ je::GetTime() + duration }
 {
 }
+
+Flyup::Flyup(const Flyup& other) : texture_{ other.texture_ }, x_{ other.x_ }, y_{ other.y_ }, endTime_{ other.endTime_ }
+{
+}
+
+Flyup& Flyup::operator=(const Flyup& other)
+{
+    texture_ = other.texture_;
+    x_ = other.x_;
+    y_ = other.y_;
+    endTime_ = other.endTime_;
+
+    return *this;
+}
+
 
 
 void Flyup::Draw(je::Batch& batch)
@@ -616,7 +634,9 @@ int main()
                 flyup.Draw(batch);
             }
         }
-        // TODO: remove dead flyups.
+
+        // Remove dead fly-ups.
+        flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
 
         // Draw some stats.
         batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));

@@ -22,7 +22,7 @@ namespace
 }
 
 
-Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }
+Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, run_{ 0 }
 {
     std::fill(tiles_.begin(), tiles_.begin() + cols * 1, Tile::Wall);
     std::fill(tiles_.begin() + cols * 1, tiles_.begin() + cols * 4, Tile::Red);
