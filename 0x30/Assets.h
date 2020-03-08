@@ -2,12 +2,17 @@
 
 #include "je/Textures.h"
 
+#include <vector>
+
 
 struct Textures
 {
     Textures();
 
     je::Texture texture;
+    std::vector<je::Texture> backdrops;
+
+    je::TextureRegion blankTile;
 
     je::TextureRegion redTile;
     je::TextureRegion greenTile;

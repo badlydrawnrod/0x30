@@ -28,8 +28,8 @@
 
 
 // Window information.
-const GLuint WIDTH = 1280;
-const GLuint HEIGHT = 720;
+const GLuint WIDTH = 960;   // 1280;
+const GLuint HEIGHT = 720;  // 720;
 const char* const TITLE = "The Mysterious 0x30";
 
 // Virtual screen information.
@@ -571,6 +571,9 @@ int main()
 
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+        // Draw the backdrop.
+        batch.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
 
         pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
 

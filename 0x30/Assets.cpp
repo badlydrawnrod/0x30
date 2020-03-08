@@ -1,11 +1,17 @@
 #include "Assets.h"
 
+#include <filesystem>
+
+
 static constexpr float tile_size = 16.0f;
 
 
 Textures::Textures()
 {
     texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
+
+    blankTile = je::TextureRegion{ texture, 0, 32.0f, tile_size, tile_size };
+
     redTile = je::TextureRegion{ texture, 0 * tile_size, 48.0f, tile_size, tile_size };
     greenTile = je::TextureRegion{ texture, 1 * tile_size, 48.0f, tile_size, tile_size };
     yellowTile = je::TextureRegion{ texture, 2 * tile_size, 48.0f, tile_size, tile_size };
@@ -37,4 +43,13 @@ Textures::Textures()
     chain4 = je::TextureRegion{ texture,  72.0f, 24.0f, 12.0f, 8.0f };
     chain5 = je::TextureRegion{ texture,  88.0f, 24.0f, 12.0f, 8.0f };
     chain6 = je::TextureRegion{ texture, 104.0f, 24.0f, 12.0f, 8.0f };
+
+    std::filesystem::path backdropsDir{ "../assets/backdrops" };
+    for (auto& entry : std::filesystem::directory_iterator(backdropsDir))
+    {
+        std::filesystem::path path = entry.path();
+        std::string pathString = path.string();
+        const char* filename = pathString.data();
+        backdrops.push_back(je::LoadTextureFromFile(filename));
+    }
 }

@@ -39,6 +39,14 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                 }
                 else if (row < Pit::rows - 1)
                 {
+                    if (heightAt > 0)
+                    {
+                        batch.AddVertices(je::quads::Create(
+                            textures_.blankTile,
+                            topLeft.x + col * drawTile->w,
+                            topLeft.y + row * drawTile->h - internalTileScroll
+                        ));
+                    }
                     batch.AddVertices(je::quads::Create(
                         *drawTile,
                         topLeft.x + col * drawTile->w,
@@ -101,6 +109,8 @@ const je::TextureRegion* PitRenderer::TileAt(size_t col, size_t row) const
         return &textures_.wallTile;
 
     case Pit::Tile::None:
+        return &textures_.blankTile;
+
     default:
         return nullptr;
     }

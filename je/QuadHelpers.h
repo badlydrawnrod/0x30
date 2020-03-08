@@ -32,6 +32,12 @@ namespace je
             return Create(texture, x, y, width, height, white);
         }
 
+        // Creates a quad that represents the entire texture with top left at (x, y).
+        inline Batch::Quad Create(const Texture& texture, GLfloat x, GLfloat y)
+        {
+            return Create(texture, x, y, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h));
+        }
+
         // Creates a quad that represents the entire texture with top left at "position".
         inline Batch::Quad Create(const Texture& texture, Vec2f position)
         {
