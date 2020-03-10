@@ -80,27 +80,27 @@ const int PitRenderer::HeightAt(size_t col, size_t row) const
 
 const je::TextureRegion* PitRenderer::TileAt(size_t col, size_t row) const
 {
-    switch (pit_.TileAt(col, row))
+    switch (pit_.TileTypeAt(col, row))
     {
-    case Pit::Tile::Red:
+    case Pit::TileType::Red:
         return &textures_.redTile;
 
-    case Pit::Tile::Yellow:
+    case Pit::TileType::Yellow:
         return &textures_.yellowTile;
 
-    case Pit::Tile::Green:
+    case Pit::TileType::Green:
         return &textures_.greenTile;
 
-    case Pit::Tile::Cyan:
+    case Pit::TileType::Cyan:
         return &textures_.cyanTile;
 
-    case Pit::Tile::Magenta:
+    case Pit::TileType::Magenta:
         return &textures_.magentaTile;
 
-    case Pit::Tile::Wall:
+    case Pit::TileType::Wall:
         return &textures_.wallTile;
 
-    case Pit::Tile::None:
+    case Pit::TileType::None:
     default:
         return nullptr;
     }

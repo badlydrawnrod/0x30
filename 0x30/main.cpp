@@ -32,8 +32,8 @@ const GLsizei VIRTUAL_WIDTH = 320;
 const GLsizei VIRTUAL_HEIGHT = 240;
 
 // Window information.
-const GLuint WIDTH = VIRTUAL_WIDTH * 4;
-const GLuint HEIGHT = VIRTUAL_HEIGHT * 4;
+const GLuint WIDTH = VIRTUAL_WIDTH * 3;
+const GLuint HEIGHT = VIRTUAL_HEIGHT * 3;
 
 const char* const TITLE = "The Mysterious 0x30";
 
@@ -467,7 +467,6 @@ int main()
     uint64_t score = 0;
 
     std::vector<Flyup> flyups;
-    flyups.push_back(Flyup(textures.combo4, VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 1));
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
