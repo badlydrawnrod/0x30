@@ -190,14 +190,15 @@ void Pit::ApplyGravity()
 }
 
 
-void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
+bool Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
 {
     // Not a run if the square underneath the run candidate is empty.
     if (IsEmpty(x, y + 2))
     {
-        return;
+        return false;
     }
 
+    bool foundRun = false;
     if (HeightAt(x, y) == 0 && HeightAt(x, y + 1) == 0)
     {
         if (TileAt(x, y) == TileAt(x, y + 1))
@@ -206,39 +207,47 @@ void Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
             {
                 if (IsMovable(x, y))
                 {
+                    foundRun = true;
                     RunAt(x, y) = run_;
                     RunAt(x, y + 1) = run_;
                 }
             }
         }
     }
+    return foundRun;
 }
 
 
-void Pit::CheckForAdjacentRunsVertically()
+bool Pit::CheckForAdjacentRunsVertically()
 {
     // Look for tiles vertically adjacent to an existing run.
+    bool foundRun = false;
     for (size_t y = 0; y < rows - 2; y++)
     {
         for (size_t x = 0; x < cols; x++)
         {
-            CheckForAdjacentRunVertically(x, y);
+            if (CheckForAdjacentRunVertically(x, y))
+            {
+                foundRun = true;
+            }
         }
     }
+    return foundRun;
 }
 
 
-void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
+bool Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
 {
     // Not a run if any of the squares underneath the run candidate are empty.
     for (size_t col = x; col < x + 2; col++)
     {
         if (IsEmpty(col, y + 1))
         {
-            return;
+            return false;
         }
     }
 
+    bool foundRun = false;
     if (HeightAt(x, y) == 0 && HeightAt(x + 1, y) == 0)
     {
         if (TileAt(x, y) == TileAt(x + 1, y))
@@ -247,26 +256,33 @@ void Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
             {
                 if (IsMovable(x, y))
                 {
+                    foundRun = true;
                     RunAt(x, y) = run_;
                     RunAt(x + 1, y) = run_;
                 }
             }
         }
     }
-
+    return foundRun;
 }
 
 
-void Pit::CheckForAdjacentRunsHorizontally()
+bool Pit::CheckForAdjacentRunsHorizontally()
 {
     // Look for tiles horizontally adjacent to an existing run.
+    bool foundRun = false;
     for (size_t x = 0; x < cols - 1; x++)
     {
         for (size_t y = 0; y < rows; y++)
         {
-            CheckForAdjacentRunHorizontally(x, y);
+            if (CheckForAdjacentRunHorizontally(x, y))
+            {
+                foundRun = true;
+            }
         }
     }
+
+    return foundRun;
 }
 
 
@@ -314,8 +330,18 @@ void Pit::CheckForVerticalRuns(bool& foundRun)
             CheckForVerticalRun(x, y, isRun);
             if (isRun)
             {
-                CheckForAdjacentRunsHorizontally();
-                CheckForAdjacentRunsVertically();
+                for (bool moreRuns = true; moreRuns;)
+                {
+                    moreRuns = false;
+                    if (CheckForAdjacentRunsHorizontally())
+                    {
+                        moreRuns = true;
+                    }
+                    if (CheckForAdjacentRunsVertically())
+                    {
+                        moreRuns = true;
+                    }
+                }
             }
             foundRun = foundRun || isRun;
             if (isRun)
@@ -369,8 +395,18 @@ void Pit::CheckForHorizontalRuns(bool& foundRun)
             CheckForHorizontalRun(x, y, isRun);
             if (isRun)
             {
-                CheckForAdjacentRunsHorizontally();
-                CheckForAdjacentRunsVertically();
+                for (bool moreRuns = true; moreRuns;)
+                {
+                    moreRuns = false;
+                    if (CheckForAdjacentRunsHorizontally())
+                    {
+                        moreRuns = true;
+                    }
+                    if (CheckForAdjacentRunsVertically())
+                    {
+                        moreRuns = true;
+                    }
+                }
             }
             foundRun = foundRun || isRun;
             if (isRun)

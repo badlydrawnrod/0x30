@@ -22,6 +22,7 @@ public:
     {
         size_t runSize;
         size_t chainLength;
+        // TODO: the following line is a lie given that I just got 10 while play-testing. Fix it!
         std::array<PitCoord, 9> coord;  // It is impossible for a run to be more than 9 items.
     };
 
@@ -60,10 +61,10 @@ private:
     void RemoveDeadChains();
     void RefillBottomRow();
 
-    void CheckForAdjacentRunVertically(const size_t x, const size_t y);
-    void CheckForAdjacentRunsVertically();
-    void CheckForAdjacentRunHorizontally(const size_t x, const size_t y);
-    void CheckForAdjacentRunsHorizontally();
+    bool CheckForAdjacentRunVertically(const size_t x, const size_t y);
+    bool CheckForAdjacentRunsVertically();
+    bool CheckForAdjacentRunHorizontally(const size_t x, const size_t y);
+    bool CheckForAdjacentRunsHorizontally();
     void CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun);
     void CheckForVerticalRuns(bool& foundRun);
     void CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun);
