@@ -25,6 +25,19 @@ public:
         std::vector<PitCoord> coord;
     };
 
+    struct Tile
+    {
+        TileType tileType{ TileType::None };
+        size_t runId{ 0 };
+        int height{ 0 };
+
+        Tile() : Tile{ TileType::None } {}
+
+        Tile(TileType tileType) : tileType{ tileType }
+        {
+        }
+    };
+
 public:
     Pit(std::function<int(int, int)>& rnd);
 
@@ -44,7 +57,7 @@ private:
     void LowerHeight(size_t x, size_t y);
     void MoveDown(size_t x, size_t y);
 
-    void PutTile(size_t x, size_t y, TileType type);
+    void ClearTile(size_t x, size_t y);
 
     size_t& RunAt(size_t x, size_t y);
     TileType TileAt(size_t x, size_t y) const;
@@ -69,9 +82,7 @@ private:
     void CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun);
     void CheckForHorizontalRuns(bool& foundRun);
 
-    std::array<TileType, cols * rows> tiles_;
-    std::array<size_t, cols * rows> runs_;
-    std::array<int, cols * rows> heights_;
+    std::array<Tile, cols * rows> tiles_;
     std::array<size_t, cols * rows> chains_;
     size_t firstRow_ = 0;
     std::function<int(int, int)>& rnd_;

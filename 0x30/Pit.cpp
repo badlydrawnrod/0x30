@@ -16,43 +16,43 @@ inline size_t Pit::PitIndex(size_t x, size_t y) const
 }
 
 
-void Pit::PutTile(size_t x, size_t y, TileType type)
+void Pit::ClearTile(size_t x, size_t y)
 {
     auto i = PitIndex(x, y);
-    tiles_[i] = type;
-    heights_[i] = 0;
+    tiles_[i] = Tile{};
 }
 
 
 int Pit::HeightAt(size_t x, size_t y) const
 {
-    return heights_[PitIndex(x, y)];
+    return tiles_[PitIndex(x, y)].height;
 }
 
 
 void Pit::LowerHeight(size_t x, size_t y)
 {
     auto index = PitIndex(x, y);
-    --heights_[index];
+    --tiles_[index].height;
 }
 
 
 Pit::TileType Pit::TileTypeAt(size_t x, size_t y) const
 {
-    return tiles_[PitIndex(x, y)];
+    return tiles_[PitIndex(x, y)].tileType;
 }
 
 
 inline bool Pit::IsEmpty(size_t x, size_t y) const
 {
-    const auto& tileType = tiles_[PitIndex(x, y)];
+    const auto& tileType = tiles_[PitIndex(x, y)].tileType;
     return tileType == TileType::None;
 }
 
 
 inline bool Pit::IsMovable(size_t x, size_t y) const
 {
-    const auto& tileType = tiles_[PitIndex(x, y)];
+    const auto& tile = tiles_[PitIndex(x, y)];
+    const auto tileType = tile.tileType;
     return tileType != TileType::None && tileType != TileType::Wall;
 }
 
@@ -65,13 +65,13 @@ inline size_t& Pit::ChainAt(size_t x, size_t y)
 
 inline size_t& Pit::RunAt(size_t x, size_t y)
 {
-    return runs_[PitIndex(x, y)];
+    return tiles_[PitIndex(x, y)].runId;
 }
 
 
 inline Pit::TileType Pit::TileAt(size_t x, size_t y) const
 {
-    return tiles_[PitIndex(x, y)];
+    return tiles_[PitIndex(x, y)].tileType;
 }
 
 
@@ -81,14 +81,12 @@ inline void Pit::MoveDown(size_t x, size_t y)
     size_t indexAbove = PitIndex(x, y - 1);
     std::swap(tiles_[index], tiles_[indexAbove]);
     std::swap(chains_[index], chains_[indexAbove]);
-    heights_[index] = TILE_HEIGHT;
+    tiles_[index].height = TILE_HEIGHT;
 }
 
 Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, run_{ 0 }
 {
-    std::fill(tiles_.begin(), tiles_.end(), TileType::None);
-    std::fill(heights_.begin(), heights_.end(), 0);
-    std::fill(runs_.begin(), runs_.end(), 0);
+    std::fill(tiles_.begin(), tiles_.end(), Tile());
     std::fill(chains_.begin(), chains_.end(), 0);
 }
 
@@ -114,8 +112,7 @@ void Pit::RefillBottomRow()
         {
             tile = rnd_(0, 4);
         }
-        tiles_[i] = pieces[tile];
-        heights_[i] = 0;
+        tiles_[i] = Tile(pieces[tile]);
         lastTile = tile;
     }
 }
@@ -131,7 +128,7 @@ void Pit::ScrollOne()
     auto end = PitIndex(cols - 1, 0);
     for (auto i = start; i <= end; i++)
     {
-        if (tiles_[i] != TileType::None)
+        if (tiles_[i].tileType != TileType::None)
         {
             impacted_ = true;
             break;
@@ -144,7 +141,7 @@ void Pit::Swap(size_t x, size_t y)
 {
     auto& tile1 = tiles_[PitIndex(x, y)];
     auto& tile2 = tiles_[PitIndex(x + 1, y)];
-    if (tile1 != Pit::TileType::Wall && tile2 != Pit::TileType::Wall)
+    if (tile1.tileType != Pit::TileType::Wall && tile2.tileType != Pit::TileType::Wall)
     {
         std::swap(tile1, tile2);
     }
@@ -423,7 +420,10 @@ void Pit::CheckForRuns()
     // Look for runs of tiles of the same colour that are at least 3 tiles horizontally or vertically.
 
     // At the start, there are no runs.
-    std::fill(runs_.begin(), runs_.end(), 0);
+    for (auto& tile : tiles_)
+    {
+        tile.runId = 0;
+    }
     run_ = 1;
 
     // Check for 3 adacent tiles vertically and horizontally.
@@ -493,7 +493,7 @@ void Pit::RemoveRuns()
             {
                 runInfo_[run - 1].coord.push_back(PitCoord{ x, y });
                 ++runInfo_[run - 1].runSize;
-                PutTile(x, y, TileType::None);
+                ClearTile(x, y);
 
                 // If there's a fully descended block in the row above then set its chain count to one more than the
                 // maximum chain length for this run.
