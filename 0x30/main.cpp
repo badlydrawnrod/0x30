@@ -210,7 +210,7 @@ private:
     TextRenderer& textRenderer_;
     int minutes_;
     int seconds_;
-    char timeBuf_[128];
+    char timeBuf_[128] = { 0 };
     int numChars_;
 };
 
@@ -318,7 +318,7 @@ public:
     bool IsAlive() const;
 
 private:
-    je::TextureRegion& texture_;
+    je::TextureRegion texture_;
     float x_;
     float y_;
     double endTime_;
@@ -402,6 +402,82 @@ void UpdateScore(const Pit& pit, uint64_t& score)
             score += scoreChange;
         }
         LOG("Score: " << score);
+    }
+}
+
+
+void AddFlyupsForRun(std::vector<Flyup>& flyups, const Pit::RunInfo& run, const Textures& textures, je::Vec2f topLeft, float internalTileScroll, float tileSize)
+{
+    // Add fly-ups for runs of 4-9.
+    if (run.runSize >= 4 && run.runSize < 10)
+    {
+        float runFlyupDuration = 1.0f;
+        je::TextureRegion texture;
+
+        switch (run.runSize)
+        {
+        case 4:
+            texture = textures.combo4;
+            break;
+        case 5:
+            texture = textures.combo5;
+            break;
+        case 6:
+            texture = textures.combo6;
+            break;
+        case 7:
+            texture = textures.combo7;
+            break;
+        case 8:
+            texture = textures.combo8;
+            break;
+        case 9:
+            texture = textures.combo9;
+            break;
+        }
+
+        for (auto i = 0; i < run.runSize; i++)
+        {
+            float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
+            float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
+            flyups.emplace_back(texture, x, y, runFlyupDuration);
+        }
+    }
+}
+
+
+void AddFlyupsForChains(std::vector<Flyup>& flyups, const Pit::RunInfo& run, const Textures& textures, je::Vec2f topLeft, float internalTileScroll, float tileSize)
+{
+    // Add fly-ups for chains of 2-6.
+    if (const auto chains = run.chainLength + 1; chains >= 2 && chains < 7)
+    {
+        const float chainFlyupDuration = 1.5f;
+        je::TextureRegion texture;
+        switch (chains)
+        {
+        case 2:
+            texture = textures.chain2;
+            break;
+        case 3:
+            texture = textures.chain3;
+            break;
+        case 4:
+            texture = textures.chain4;
+            break;
+        case 5:
+            texture = textures.chain5;
+            break;
+        case 6:
+            texture = textures.chain6;
+            break;
+        }
+
+        for (auto i = 0; i < run.runSize; i++)
+        {
+            float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
+            float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll - tileSize;
+            flyups.emplace_back(texture, x, y, chainFlyupDuration);
+        }
     }
 }
 
@@ -518,74 +594,11 @@ int main()
 
             UpdateScore(pit, score);
 
-            // Add fly-ups for runs of 4 or more, and show chains.
+            // Add fly-ups.
             for (const auto& run : pit.Runs())
             {
-                if (run.runSize > 3)
-                {
-                    float duration = 1.0f;
-                    je::TextureRegion texture;
-
-                    switch (run.runSize)
-                    {
-                    case 4:
-                        texture = textures.combo4;
-                        break;
-                    case 5:
-                        texture = textures.combo5;
-                        break;
-                    case 6:
-                        texture = textures.combo6;
-                        break;
-                    case 7:
-                        texture = textures.combo7;
-                        break;
-                    case 8:
-                        texture = textures.combo8;
-                        break;
-                    case 9:
-                        texture = textures.combo9;
-                        break;
-                    }
-
-                    for (auto i = 0; i < run.runSize; i++)
-                    {
-                        float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
-                        float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
-                        flyups.emplace_back(texture, x, y, duration);
-                    }
-                }
-
-                if (run.chainLength > 0)
-                {
-                    float duration = 1.5f;
-                    je::TextureRegion texture;
-                    switch (1 + run.chainLength)
-                    {
-                    case 2:
-                        texture = textures.chain2;
-                        break;
-                    case 3:
-                        texture = textures.chain3;
-                        break;
-                    case 4:
-                        texture = textures.chain4;
-                        break;
-                    case 5:
-                        texture = textures.chain5;
-                        break;
-                    case 6:
-                        texture = textures.chain6;
-                        break;
-                    }
-
-                    for (auto i = 0; i < run.runSize; i++)
-                    {
-                        float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
-                        float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll - tileSize;
-                        flyups.emplace_back(texture, x, y, duration);
-                    }
-                }
+                AddFlyupsForRun(flyups, run, textures, topLeft, internalTileScroll, tileSize);
+                AddFlyupsForChains(flyups, run, textures, topLeft, internalTileScroll, tileSize);
             }
         }
 

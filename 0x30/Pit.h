@@ -22,8 +22,7 @@ public:
     {
         size_t runSize;
         size_t chainLength;
-        // TODO: the following line is a lie given that I just got 10 while play-testing. Fix it!
-        std::array<PitCoord, 9> coord;  // It is impossible for a run to be more than 9 items.
+        std::vector<PitCoord> coord;
     };
 
 public:

@@ -491,7 +491,7 @@ void Pit::RemoveRuns()
             auto index = PitIndex(x, y);
             if (auto run = RunAt(x, y); run > 0)
             {
-                runInfo_[run - 1].coord[runInfo_[run - 1].runSize] = { x, y };
+                runInfo_[run - 1].coord.push_back(PitCoord{ x, y });
                 ++runInfo_[run - 1].runSize;
                 PutTile(x, y, TileType::None);
 
