@@ -59,7 +59,7 @@ inline bool Pit::IsMovable(size_t x, size_t y) const
 
 inline size_t& Pit::ChainAt(size_t x, size_t y)
 {
-    return chains_[PitIndex(x, y)];
+    return tiles_[PitIndex(x, y)].chain;
 }
 
 
@@ -80,14 +80,12 @@ inline void Pit::MoveDown(size_t x, size_t y)
     size_t index = PitIndex(x, y);
     size_t indexAbove = PitIndex(x, y - 1);
     std::swap(tiles_[index], tiles_[indexAbove]);
-    std::swap(chains_[index], chains_[indexAbove]);
     tiles_[index].height = TILE_HEIGHT;
 }
 
 Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, run_{ 0 }
 {
     std::fill(tiles_.begin(), tiles_.end(), Tile());
-    std::fill(chains_.begin(), chains_.end(), 0);
 }
 
 
@@ -504,7 +502,7 @@ void Pit::RemoveRuns()
                         ChainAt(x, y - 1) = runInfo_[run - 1].chainLength + 1;
                     }
                 }
-                chains_[index] = 0;
+                tiles_[index].chain = 0;
             }
         }
     }

@@ -30,6 +30,7 @@ public:
         TileType tileType{ TileType::None };
         size_t runId{ 0 };
         int height{ 0 };
+        size_t chain{ 0 };
 
         Tile() : Tile{ TileType::None } {}
 
@@ -83,7 +84,6 @@ private:
     void CheckForHorizontalRuns(bool& foundRun);
 
     std::array<Tile, cols * rows> tiles_;
-    std::array<size_t, cols * rows> chains_;
     size_t firstRow_ = 0;
     std::function<int(int, int)>& rnd_;
     bool impacted_;
