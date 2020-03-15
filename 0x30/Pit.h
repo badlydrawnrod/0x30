@@ -37,6 +37,31 @@ public:
         Tile(TileType tileType) : tileType{ tileType }
         {
         }
+
+        bool IsEmpty() const
+        {
+            return tileType == TileType::None;
+        }
+
+        bool IsMovableType() const
+        {
+            return tileType != TileType::Wall;
+        }
+
+        bool IsFixedType() const
+        {
+            return tileType == TileType::Wall;
+        }
+
+        bool IsInRun() const
+        {
+            return runId != 0;
+        }
+
+        bool IsDescended() const
+        {
+            return height == 0;
+        }
     };
 
 public:
@@ -61,11 +86,38 @@ private:
     void ClearTile(size_t x, size_t y);
 
     size_t& RunAt(size_t x, size_t y);
-    TileType TileAt(size_t x, size_t y) const;
+    const Tile& TileAt(size_t x, size_t y) const;
     size_t& ChainAt(size_t x, size_t y);
 
-    bool IsEmpty(size_t x, size_t y) const;
-    bool IsMovable(size_t x, size_t y) const;
+    bool IsEmpty(size_t x, size_t y) const
+    {
+        return TileAt(x, y).IsEmpty();
+    }
+
+    bool IsMovableType(size_t x, size_t y) const
+    {
+        return TileAt(x, y).IsMovableType();
+    }
+
+    bool IsFixedType(size_t x, size_t y) const
+    {
+        return TileAt(x, y).IsFixedType();
+    }
+
+    bool IsInRun(size_t x, size_t y) const
+    {
+        return TileAt(x, y).IsInRun();
+    }
+
+    bool IsDescended(size_t x, size_t y) const
+    {
+        return TileAt(x, y).IsDescended();
+    }
+
+    bool IsSwappable(size_t x, size_t y) const
+    {
+        return TileAt(x, y).IsSwappable();
+    }
 
 
     void ApplyGravity();
