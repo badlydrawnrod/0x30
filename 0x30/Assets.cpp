@@ -3,22 +3,29 @@
 #include <filesystem>
 
 
-static constexpr float tile_size = 16.0f;
+static constexpr float tileSize = 16.0f;
 
 
 Textures::Textures()
 {
     texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
 
-    blankTile = je::TextureRegion{ texture, 0, 32.0f, tile_size, tile_size };
+    blankTile = je::TextureRegion{ texture, 0, 32.0f, tileSize, tileSize };
 
-    redTile = je::TextureRegion{ texture, 0 * tile_size, 48.0f, tile_size, tile_size };
-    greenTile = je::TextureRegion{ texture, 1 * tile_size, 48.0f, tile_size, tile_size };
-    yellowTile = je::TextureRegion{ texture, 2 * tile_size, 48.0f, tile_size, tile_size };
-    magentaTile = je::TextureRegion{ texture, 3 * tile_size, 48.0f, tile_size, tile_size };
-    cyanTile = je::TextureRegion{ texture, 4 * tile_size, 48.0f, tile_size, tile_size };
-    wallTile = je::TextureRegion{ texture, 5 * tile_size, 48.0f, tile_size, tile_size };
+    redTile = je::TextureRegion{ texture, 0 * tileSize, 48.0f, tileSize, tileSize };
+    greenTile = je::TextureRegion{ texture, 1 * tileSize, 48.0f, tileSize, tileSize };
+    yellowTile = je::TextureRegion{ texture, 2 * tileSize, 48.0f, tileSize, tileSize };
+    magentaTile = je::TextureRegion{ texture, 3 * tileSize, 48.0f, tileSize, tileSize };
+    cyanTile = je::TextureRegion{ texture, 4 * tileSize, 48.0f, tileSize, tileSize };
+
+    wallTile = je::TextureRegion{ texture, 5 * tileSize, 48.0f, tileSize, tileSize };
     cursorTile = je::TextureRegion{ texture, 103.0f, 47.0f, 17.0f, 17.0f };
+
+    redTileRun = je::TextureRegion{ texture, 0 * tileSize, 64.0f, tileSize, tileSize };
+    greenTileRun = je::TextureRegion{ texture, 1 * tileSize, 64.0f, tileSize, tileSize };
+    yellowTileRun = je::TextureRegion{ texture, 2 * tileSize, 64.0f, tileSize, tileSize };
+    magentaTileRun = je::TextureRegion{ texture, 3 * tileSize, 64.0f, tileSize, tileSize };
+    cyanTileRun = je::TextureRegion{ texture, 4 * tileSize, 64.0f, tileSize, tileSize };
 
     textTiles = je::TextureRegion{ texture, 0.0f, 80.0f, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h) - 80.0f };
 
