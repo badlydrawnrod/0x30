@@ -71,23 +71,51 @@ public:
     void ScrollOne();
     void Swap(size_t x, size_t y);
 
-    int HeightAt(size_t x, size_t y) const;
-    TileType TileTypeAt(size_t x, size_t y) const;
+    int HeightAt(size_t x, size_t y) const
+    {
+        return tiles_[PitIndex(x, y)].height;
+    }
+
+    TileType TileTypeAt(size_t x, size_t y) const
+    {
+        return tiles_[PitIndex(x, y)].tileType;
+    }
 
     bool IsImpacted() const { return impacted_; }
     const std::vector<RunInfo>& Runs() const { return runInfo_; }
 
 private:
-    size_t PitIndex(size_t x, size_t y) const;
+    size_t PitIndex(size_t x, size_t y) const
+    {
+        size_t col = x % cols;
+        size_t row = (y + firstRow_) % rows;
+        return col + row * cols;
+    }
 
-    void LowerHeight(size_t x, size_t y);
-    void MoveDown(size_t x, size_t y);
+    Tile& TileAt(size_t x, size_t y)
+    {
+        return tiles_[PitIndex(x, y)];
+    }
 
-    void ClearTile(size_t x, size_t y);
+    const Tile& TileAt(size_t x, size_t y) const
+    {
+        return tiles_[PitIndex(x, y)];
+    }
 
-    size_t& RunAt(size_t x, size_t y);
-    const Tile& TileAt(size_t x, size_t y) const;
-    size_t& ChainAt(size_t x, size_t y);
+    void ClearTile(size_t x, size_t y)
+    {
+        TileAt(x, y) = Tile{};
+    }
+
+    size_t& RunAt(size_t x, size_t y)
+    {
+        return TileAt(x, y).runId;
+    }
+
+    size_t& ChainAt(size_t x, size_t y)
+    {
+        return tiles_[PitIndex(x, y)].chain;
+    }
 
     bool IsEmpty(size_t x, size_t y) const
     {
@@ -114,11 +142,8 @@ private:
         return TileAt(x, y).IsDescended();
     }
 
-    bool IsSwappable(size_t x, size_t y) const
-    {
-        return TileAt(x, y).IsSwappable();
-    }
-
+    void LowerHeight(size_t x, size_t y);
+    void MoveDown(size_t x, size_t y);
 
     void ApplyGravity();
     void CheckForRuns();

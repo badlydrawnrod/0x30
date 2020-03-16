@@ -8,80 +8,19 @@
 #define TILE_HEIGHT 15
 
 
-inline size_t Pit::PitIndex(size_t x, size_t y) const
-{
-    size_t col = x % cols;
-    size_t row = (y + firstRow_) % rows;
-    return col + row * cols;
-}
-
-
-void Pit::ClearTile(size_t x, size_t y)
-{
-    auto i = PitIndex(x, y);
-    tiles_[i] = Tile{};
-}
-
-
-int Pit::HeightAt(size_t x, size_t y) const
-{
-    return tiles_[PitIndex(x, y)].height;
-}
-
-
 void Pit::LowerHeight(size_t x, size_t y)
 {
-    auto index = PitIndex(x, y);
-    --tiles_[index].height;
-}
-
-
-Pit::TileType Pit::TileTypeAt(size_t x, size_t y) const
-{
-    return tiles_[PitIndex(x, y)].tileType;
-}
-
-
-inline bool Pit::IsEmpty(size_t x, size_t y) const
-{
-    const auto& tileType = tiles_[PitIndex(x, y)].tileType;
-    return tileType == TileType::None;
-}
-
-
-inline bool Pit::IsMovableType(size_t x, size_t y) const
-{
-    const auto& tile = tiles_[PitIndex(x, y)];
-    const auto tileType = tile.tileType;
-    return tileType != TileType::None && tileType != TileType::Wall;
-}
-
-
-inline size_t& Pit::ChainAt(size_t x, size_t y)
-{
-    return tiles_[PitIndex(x, y)].chain;
-}
-
-
-inline size_t& Pit::RunAt(size_t x, size_t y)
-{
-    return tiles_[PitIndex(x, y)].runId;
-}
-
-
-inline Pit::TileType Pit::TileAt(size_t x, size_t y) const
-{
-    return tiles_[PitIndex(x, y)].tileType;
+    auto& tile = TileAt(x, y);
+    --tile.height;
 }
 
 
 inline void Pit::MoveDown(size_t x, size_t y)
 {
-    size_t index = PitIndex(x, y);
-    size_t indexAbove = PitIndex(x, y - 1);
-    std::swap(tiles_[index], tiles_[indexAbove]);
-    tiles_[index].height = TILE_HEIGHT;
+    std::swap(TileAt(x, y), TileAt(x, y - 1));
+    TileAt(x, y).height = TILE_HEIGHT;
 }
+
 
 Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, run_{ 0 }
 {
@@ -121,12 +60,12 @@ void Pit::ScrollOne()
     firstRow_ = (firstRow_ + 1) % rows;
     RefillBottomRow();
 
-    // The pit is impacted if there are any tiles in the top row.
+    // The pit is impacted if there are any non-empty tiles in the top row.
     auto start = PitIndex(0, 0);
     auto end = PitIndex(cols - 1, 0);
     for (auto i = start; i <= end; i++)
     {
-        if (tiles_[i].tileType != TileType::None)
+        if (!tiles_[i].IsEmpty())
         {
             impacted_ = true;
             break;
@@ -139,7 +78,7 @@ void Pit::Swap(size_t x, size_t y)
 {
     auto& tile1 = tiles_[PitIndex(x, y)];
     auto& tile2 = tiles_[PitIndex(x + 1, y)];
-    if (tile1.tileType != Pit::TileType::Wall && tile2.tileType != Pit::TileType::Wall)
+    if (tile1.IsMovableType() && tile2.IsMovableType())
     {
         std::swap(tile1, tile2);
     }
@@ -165,18 +104,14 @@ void Pit::ApplyGravity()
             // down to this square.
             if (IsEmpty(x, y))
             {
-                if (IsMovableType(x, y - 1))
+                if (IsMovableType(x, y - 1) && IsDescended(x, y - 1))
                 {
-                    // Is it fully descended?
-                    if (HeightAt(x, y - 1) == 0)
-                    {
-                        MoveDown(x, y);
-                    }
+                    MoveDown(x, y);
                 }
             }
 
             // If a tile is not fully descended then bring it down.
-            if (IsMovableType(x, y) && HeightAt(x, y) > 0)
+            if (IsMovableType(x, y) && !IsDescended(x, y))
             {
                 LowerHeight(x, y);
             }
@@ -194,18 +129,15 @@ bool Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
     }
 
     bool foundRun = false;
-    if (HeightAt(x, y) == 0 && HeightAt(x, y + 1) == 0)
+    if (IsDescended(x, y) && IsDescended(x, y + 1))
     {
-        if (TileAt(x, y) == TileAt(x, y + 1))
+        if (TileTypeAt(x, y) == TileTypeAt(x, y + 1) && IsMovableType(x, y) && !IsEmpty(x, y))
         {
             if (RunAt(x, y) == run_ && RunAt(x, y + 1) == 0 || RunAt(x, y) == 0 && RunAt(x, y + 1) == run_)
             {
-                if (IsMovableType(x, y))
-                {
-                    foundRun = true;
-                    RunAt(x, y) = run_;
-                    RunAt(x, y + 1) = run_;
-                }
+                foundRun = true;
+                RunAt(x, y) = run_;
+                RunAt(x, y + 1) = run_;
             }
         }
     }
@@ -243,18 +175,15 @@ bool Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
     }
 
     bool foundRun = false;
-    if (HeightAt(x, y) == 0 && HeightAt(x + 1, y) == 0)
+    if (IsDescended(x, y) && IsDescended(x + 1, y))
     {
-        if (TileAt(x, y) == TileAt(x + 1, y))
+        if (TileTypeAt(x, y) == TileTypeAt(x + 1, y) && IsMovableType(x, y) && !IsEmpty(x, y))
         {
             if (RunAt(x, y) == run_ && RunAt(x + 1, y) == 0 || RunAt(x, y) == 0 && RunAt(x + 1, y) == run_)
             {
-                if (IsMovableType(x, y))
-                {
-                    foundRun = true;
-                    RunAt(x, y) = run_;
-                    RunAt(x + 1, y) = run_;
-                }
+                foundRun = true;
+                RunAt(x, y) = run_;
+                RunAt(x + 1, y) = run_;
             }
         }
     }
@@ -299,11 +228,11 @@ void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
     }
 
     // Check for 3 matching adjacent tiles vertically.
-    if (HeightAt(x, y) == 0 && HeightAt(x, y + 1) == 0 && HeightAt(x, y + 2) == 0)
+    if (IsDescended(x, y) && IsDescended(x, y + 1) && IsDescended(x, y + 2))
     {
-        if (TileAt(x, y) == TileAt(x, y + 1) && TileAt(x, y + 1) == TileAt(x, y + 2))
+        if (TileTypeAt(x, y) == TileTypeAt(x, y + 1) && TileTypeAt(x, y + 1) == TileTypeAt(x, y + 2))
         {
-            if (IsMovableType(x, y))
+            if (IsMovableType(x, y) && !IsEmpty(x, y))
             {
                 foundRun = true;
                 RunAt(x, y) = run_;
@@ -364,11 +293,11 @@ void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
     }
 
     // Check for 3 matching adjacent tiles horizontally.
-    if (HeightAt(x, y) == 0 && HeightAt(x + 1, y) == 0 && HeightAt(x + 2, y) == 0)
+    if (IsDescended(x, y) && IsDescended(x + 1, y) && IsDescended(x + 2, y))
     {
-        if (TileAt(x, y) == TileAt(x + 1, y) && TileAt(x + 1, y) == TileAt(x + 2, y))
+        if (TileTypeAt(x, y) == TileTypeAt(x + 1, y) && TileTypeAt(x + 1, y) == TileTypeAt(x + 2, y))
         {
-            if (IsMovableType(x, y))
+            if (IsMovableType(x, y) && !IsEmpty(x, y))
             {
                 foundRun = true;
                 RunAt(x, y) = run_;
@@ -497,7 +426,7 @@ void Pit::RemoveRuns()
                 // maximum chain length for this run.
                 if (y > 0)
                 {
-                    if (IsMovableType(x, y - 1) && HeightAt(x, y - 1) == 0)
+                    if (IsMovableType(x, y - 1) && IsDescended(x, y - 1))
                     {
                         ChainAt(x, y - 1) = runInfo_[run - 1].chainLength + 1;
                     }
@@ -517,8 +446,8 @@ void Pit::RemoveDeadChains()
         {
             // Reset the chain if the tile we're looking at is fully descended and is blocked below.
             if (ChainAt(x, y) > 0                                   // We have a chain here.
-                && IsMovableType(x, y) && HeightAt(x, y) == 0           // We have a fully descended block.
-                && !IsEmpty(x, y + 1) && HeightAt(x, y + 1) == 0)   // We're blocked below by a fully descended block.
+                && IsMovableType(x, y) && IsDescended(x, y)         // We have a fully descended block.
+                && !IsEmpty(x, y + 1) && IsDescended(x, y + 1))     // We're blocked below by a fully descended block.
             {
                 ChainAt(x, y) = 0;
             }
