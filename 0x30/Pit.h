@@ -155,10 +155,10 @@ private:
     bool CheckForAdjacentRunsVertically();
     bool CheckForAdjacentRunHorizontally(const size_t x, const size_t y);
     bool CheckForAdjacentRunsHorizontally();
-    void CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun);
-    void CheckForVerticalRuns(bool& foundRun);
-    void CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun);
-    void CheckForHorizontalRuns(bool& foundRun);
+    bool CheckForVerticalRun(const size_t x, const size_t y);
+    bool CheckForVerticalRuns();
+    bool CheckForHorizontalRun(const size_t x, const size_t y);
+    bool CheckForHorizontalRuns();
 
     std::array<Tile, cols * rows> tiles_;
     size_t firstRow_ = 0;

@@ -210,12 +210,12 @@ bool Pit::CheckForAdjacentRunsHorizontally()
 }
 
 
-void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
+bool Pit::CheckForVerticalRun(const size_t x, const size_t y)
 {
     // Not a run if the square under the run candidate is empty.
     if (IsEmpty(x, y + 3))
     {
-        return;
+        return false;
     }
 
     // Not a run if there's already a run here.
@@ -223,11 +223,12 @@ void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
     {
         if (RunAt(x, row) > 0)
         {
-            return;
+            return false;
         }
     }
 
     // Check for 3 matching adjacent tiles vertically.
+    bool foundRun = false;
     if (IsDescended(x, y) && IsDescended(x, y + 1) && IsDescended(x, y + 2))
     {
         if (TileTypeAt(x, y) == TileTypeAt(x, y + 1) && TileTypeAt(x, y + 1) == TileTypeAt(x, y + 2))
@@ -241,18 +242,19 @@ void Pit::CheckForVerticalRun(const size_t x, const size_t y, bool& foundRun)
             }
         }
     }
+
+    return foundRun;
 }
 
 
-void Pit::CheckForVerticalRuns(bool& foundRun)
+bool Pit::CheckForVerticalRuns()
 {
+    bool foundRun = false;
     for (size_t y = 0; y < rows - 3; y++)
     {
         for (size_t x = 0; x < cols; x++)
         {
-            bool isRun = false;
-            CheckForVerticalRun(x, y, isRun);
-            if (isRun)
+            if (CheckForVerticalRun(x, y))
             {
                 for (bool moreRuns = true; moreRuns;)
                 {
@@ -266,33 +268,33 @@ void Pit::CheckForVerticalRuns(bool& foundRun)
                         moreRuns = true;
                     }
                 }
-            }
-            foundRun = foundRun || isRun;
-            if (isRun)
-            {
+                foundRun = true;
                 ++run_;
             }
         }
     }
+    
+    return foundRun;
 }
 
 
-void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
+bool Pit::CheckForHorizontalRun(const size_t x, const size_t y)
 {
     // Not a run if any of the squares under the run candidate are empty or if there's already a run here.
     for (size_t col = x; col < x + 3; col++)
     {
         if (IsEmpty(col, y + 1))
         {
-            return;
+            return false;
         }
         if (RunAt(col, y) > 0)
         {
-            return;
+            return false;
         }
     }
 
     // Check for 3 matching adjacent tiles horizontally.
+    bool foundRun = false;
     if (IsDescended(x, y) && IsDescended(x + 1, y) && IsDescended(x + 2, y))
     {
         if (TileTypeAt(x, y) == TileTypeAt(x + 1, y) && TileTypeAt(x + 1, y) == TileTypeAt(x + 2, y))
@@ -306,18 +308,19 @@ void Pit::CheckForHorizontalRun(const size_t x, const size_t y, bool& foundRun)
             }
         }
     }
+
+    return foundRun;
 }
 
 
-void Pit::CheckForHorizontalRuns(bool& foundRun)
+bool Pit::CheckForHorizontalRuns()
 {
+    bool foundRun = false;
     for (size_t x = 0; x < cols - 2; x++)
     {
         for (size_t y = 0; y < rows; y++)
         {
-            bool isRun = false;
-            CheckForHorizontalRun(x, y, isRun);
-            if (isRun)
+            if (CheckForHorizontalRun(x, y))
             {
                 for (bool moreRuns = true; moreRuns;)
                 {
@@ -331,14 +334,13 @@ void Pit::CheckForHorizontalRuns(bool& foundRun)
                         moreRuns = true;
                     }
                 }
-            }
-            foundRun = foundRun || isRun;
-            if (isRun)
-            {
+                foundRun = true;
                 ++run_;
             }
         }
     }
+
+    return foundRun;
 }
 
 
@@ -354,12 +356,18 @@ void Pit::CheckForRuns()
     run_ = 1;
 
     // Check for 3 adacent tiles vertically and horizontally.
-    bool foundRun = false;
+    bool foundRun;
     do
     {
         foundRun = false;
-        CheckForVerticalRuns(foundRun);
-        CheckForHorizontalRuns(foundRun);
+        if (CheckForVerticalRuns())
+        {
+            foundRun = true;
+        }
+        if (CheckForHorizontalRuns())
+        {
+            foundRun = true;
+        }
     } while (foundRun);
 }
 
