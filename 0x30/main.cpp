@@ -168,6 +168,14 @@ void UpdateInputState()
     wasUpActivated = upActivated;
     wasDownActivated = downActivated;
 
+    // Reset the state.
+    leftPressed = false;
+    rightPressed = false;
+    upPressed = false;
+    downPressed = false;
+    swapPressed = false;
+    fillDown = false;
+
     // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
     glfwPollEvents();
 
