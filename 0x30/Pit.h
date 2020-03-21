@@ -23,20 +23,7 @@ public:
         size_t runSize;
         size_t chainLength;
         std::vector<PitCoord> coord;
-
-        void Reset()
-        {
-            runSize = 0;
-            chainLength = 0;
-            coord.clear();
-        }
-
-        void Add(size_t x, size_t y)
-        {
-            coord.push_back(PitCoord{ x, y });
-        }
     };
-
 
     struct Tile
     {
@@ -159,8 +146,6 @@ private:
     void MoveDown(size_t x, size_t y);
 
     void ApplyGravity();
-    void AddRun(size_t x, size_t y);
-
     void CheckForRuns();
     void RemoveRuns();
     void RemoveDeadChains();
@@ -181,5 +166,4 @@ private:
     bool impacted_;
     size_t run_;
     std::vector<RunInfo> runInfo_;
-    RunInfo currentRun_;
 };
