@@ -120,6 +120,13 @@ void Pit::ApplyGravity()
 }
 
 
+void Pit::AddRun(size_t x, size_t y)
+{
+    currentRun_.Add(x, y);
+    RunAt(x, y) = run_;
+}
+
+
 bool Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
 {
     // Not a run if the square underneath the run candidate is empty.
@@ -136,8 +143,8 @@ bool Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
             if (RunAt(x, y) == run_ && RunAt(x, y + 1) == 0 || RunAt(x, y) == 0 && RunAt(x, y + 1) == run_)
             {
                 foundRun = true;
-                RunAt(x, y) = run_;
-                RunAt(x, y + 1) = run_;
+                AddRun(x, y);
+                AddRun(x, y + 1);
             }
         }
     }
@@ -182,8 +189,8 @@ bool Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
             if (RunAt(x, y) == run_ && RunAt(x + 1, y) == 0 || RunAt(x, y) == 0 && RunAt(x + 1, y) == run_)
             {
                 foundRun = true;
-                RunAt(x, y) = run_;
-                RunAt(x + 1, y) = run_;
+                AddRun(x, y);
+                AddRun(x + 1, y);
             }
         }
     }
@@ -236,9 +243,9 @@ bool Pit::CheckForVerticalRun(const size_t x, const size_t y)
             if (IsMovableType(x, y) && !IsEmpty(x, y))
             {
                 foundRun = true;
-                RunAt(x, y) = run_;
-                RunAt(x, y + 1) = run_;
-                RunAt(x, y + 2) = run_;
+                AddRun(x, y);
+                AddRun(x, y + 1);
+                AddRun(x, y + 2);
             }
         }
     }
@@ -254,6 +261,7 @@ bool Pit::CheckForVerticalRuns()
     {
         for (size_t x = 0; x < cols; x++)
         {
+            currentRun_.Reset();
             if (CheckForVerticalRun(x, y))
             {
                 for (bool moreRuns = true; moreRuns;)
@@ -295,6 +303,7 @@ bool Pit::CheckForHorizontalRun(const size_t x, const size_t y)
 
     // Check for 3 matching adjacent tiles horizontally.
     bool foundRun = false;
+
     if (IsDescended(x, y) && IsDescended(x + 1, y) && IsDescended(x + 2, y))
     {
         if (TileTypeAt(x, y) == TileTypeAt(x + 1, y) && TileTypeAt(x + 1, y) == TileTypeAt(x + 2, y))
@@ -302,9 +311,9 @@ bool Pit::CheckForHorizontalRun(const size_t x, const size_t y)
             if (IsMovableType(x, y) && !IsEmpty(x, y))
             {
                 foundRun = true;
-                RunAt(x, y) = run_;
-                RunAt(x + 1, y) = run_;
-                RunAt(x + 2, y) = run_;
+                AddRun(x, y);
+                AddRun(x + 1, y);
+                AddRun(x + 2, y);
             }
         }
     }
@@ -320,6 +329,7 @@ bool Pit::CheckForHorizontalRuns()
     {
         for (size_t y = 0; y < rows; y++)
         {
+            currentRun_.Reset();
             if (CheckForHorizontalRun(x, y))
             {
                 for (bool moreRuns = true; moreRuns;)
