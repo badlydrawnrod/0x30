@@ -32,6 +32,7 @@ void Pit::RefillBottomRow()
 {
     auto start = PitIndex(0, rows - 1);
     auto end = PitIndex(cols - 1, rows - 1);
+    auto above = PitIndex(0, rows - 2);
     std::array<TileType, 5> pieces = {
         TileType::Cyan,
         TileType::Green,
@@ -41,11 +42,12 @@ void Pit::RefillBottomRow()
     };
 
     int lastTile = -1;
-    for (auto i = start; i <= end; i++)
+    for (auto i = start; i <= end; i++, above++)
     {
         // Prevent adjacent tiles from being the same colour.
+        const TileType tileAbove = tiles_[above].tileType;
         int tile = rnd_(0, 4);
-        while (tile == lastTile)
+        while (tile == lastTile || pieces[tile] == tileAbove)
         {
             tile = rnd_(0, 4);
         }
