@@ -43,7 +43,9 @@ bool rightPressed = false;
 bool upPressed = false;
 bool downPressed = false;
 bool swapPressed = false;
-bool fillDown = false;
+bool fillHeld = false;
+
+bool keyboardFillHeld = false;
 
 bool wasLeftPressed = false;
 bool wasRightPressed = false;
@@ -127,7 +129,7 @@ void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
         break;
     case GLFW_KEY_LEFT_CONTROL:
     case GLFW_KEY_RIGHT_CONTROL:
-        fillDown = isPressOrRepeat;
+        keyboardFillHeld = isPressOrRepeat;
         break;
     default:
         break;
@@ -174,7 +176,6 @@ void UpdateInputState()
     upPressed = false;
     downPressed = false;
     swapPressed = false;
-    fillDown = false;
 
     // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
     glfwPollEvents();
@@ -188,7 +189,7 @@ void UpdateInputState()
         upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
         downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
         swapPressed = swapPressed || state.buttons[GLFW_GAMEPAD_BUTTON_A];
-        fillDown = fillDown || state.buttons[GLFW_GAMEPAD_BUTTON_X];
+        fillHeld = keyboardFillHeld || state.buttons[GLFW_GAMEPAD_BUTTON_X];
 
         joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
         joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
@@ -563,7 +564,7 @@ int main()
         if (!pit.IsImpacted())
         {
             // Scroll the contents of the pit up.
-            internalTileScroll += fillDown ? 1.0f : scrollRate;
+            internalTileScroll += fillHeld ? 1.0f : scrollRate;
             if (internalTileScroll >= tileSize)
             {
                 pit.ScrollOne();
