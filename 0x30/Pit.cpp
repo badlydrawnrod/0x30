@@ -25,21 +25,23 @@ inline void Pit::MoveDown(size_t x, size_t y)
 Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, run_{ 0 }
 {
     std::fill(tiles_.begin(), tiles_.end(), Tile());
+    RefillRows(rows / 2);
 }
 
 
-void Pit::RefillBottomRow()
+void Pit::Refill(size_t row)
 {
-    auto start = PitIndex(0, rows - 1);
-    auto end = PitIndex(cols - 1, rows - 1);
-    auto above = PitIndex(0, rows - 2);
-    std::array<TileType, 5> pieces = {
+    const std::array<TileType, 5> pieces = {
         TileType::Cyan,
         TileType::Green,
         TileType::Magenta,
         TileType::Red,
         TileType::Yellow
     };
+
+    auto start = PitIndex(0, row);
+    auto end = PitIndex(cols - 1, row);
+    auto above = PitIndex(0, row - 2);
 
     int lastTile = -1;
     for (auto i = start; i <= end; i++, above++)
@@ -54,6 +56,21 @@ void Pit::RefillBottomRow()
         tiles_[i] = Tile(pieces[tile]);
         lastTile = tile;
     }
+}
+
+
+void Pit::RefillRows(int numRows)
+{
+    for (size_t row = rows - numRows; row != rows; row++)
+    {
+        Refill(row);
+    }
+}
+
+
+void Pit::RefillBottomRow()
+{
+    RefillRows(1);
 }
 
 

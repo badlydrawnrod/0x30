@@ -149,7 +149,10 @@ private:
     void CheckForRuns();
     void RemoveRuns();
     void RemoveDeadChains();
+
+    void Refill(size_t row);
     void RefillBottomRow();
+    void RefillRows(int numRows);
 
     bool CheckForAdjacentRunVertically(const size_t x, const size_t y);
     bool CheckForAdjacentRunsVertically();
