@@ -491,6 +491,163 @@ void AddFlyupsForChains(std::vector<Flyup>& flyups, const Pit::RunInfo& run, con
 }
 
 
+class Playing
+{
+public:
+    Playing(je::Batch& batch, Textures& textures, std::function<int(int, int)>& rnd);
+
+    void Update();
+    void Draw();
+
+private:
+    const float tileSize = 16.0f;
+
+    je::Batch& batch;
+    Textures& textures;
+    Pit pit;
+    PitRenderer pitRenderer;
+    TextRenderer textRenderer;
+    TimeRenderer timeRenderer;
+    ScoreRenderer scoreRenderer;
+    SpeedRenderer speedRenderer;
+    double startTime{ je::GetTime() };
+
+    const je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };
+    const float bottomRow{ topLeft.y + (Pit::rows - 1) * tileSize };
+    const float lastRow{ bottomRow - tileSize };
+
+    float internalTileScroll{ 0.0f };
+    float scrollRate{ 0.025f };
+
+    int cursorTileX{ (Pit::cols / 2) - 1 };
+    int cursorTileY{ Pit::rows / 2 };
+
+    size_t counter{ 0 };
+    uint64_t score{ 0 };
+    std::vector<Flyup> flyups;
+};
+
+
+Playing::Playing(je::Batch& batch, Textures& textures, std::function<int(int, int)>& rnd) :
+    batch{ batch },
+    textures{ textures },
+    pit{ rnd },
+    pitRenderer{ pit, textures, batch },
+    textRenderer{ textures.textTiles, batch },
+    timeRenderer{ textRenderer },
+    scoreRenderer{ textRenderer },
+    speedRenderer{ textRenderer }
+{
+}
+
+
+void Playing::Update()
+{
+    double now = je::GetTime();
+    double elapsed = now - startTime;
+
+    if (!pit.IsImpacted())
+    {
+        // Scroll the contents of the pit up.
+        internalTileScroll += fillHeld ? 1.0f : scrollRate;
+        if (internalTileScroll >= tileSize)
+        {
+            pit.ScrollOne();
+            if (cursorTileY > 1)
+            {
+                cursorTileY--;
+            }
+            internalTileScroll = 0.0f;
+        }
+
+        // Move the player.
+        if (leftPressed && !wasLeftPressed && cursorTileX > 0)
+        {
+            --cursorTileX;
+        }
+        if (rightPressed && !wasRightPressed && cursorTileX < Pit::cols - 2)
+        {
+            ++cursorTileX;
+        }
+        if (upPressed && !wasUpPressed && cursorTileY > 1)
+        {
+            --cursorTileY;
+        }
+        if (downPressed && !wasDownPressed && cursorTileY < Pit::rows - 2)
+        {
+            ++cursorTileY;
+        }
+
+        // Swap tiles.
+        if (swapPressed && !wasSwapPressed)
+        {
+            pit.Swap(cursorTileX, cursorTileY);
+        }
+
+        pit.Update();
+
+        UpdateScore(pit, score);
+
+        // Add fly-ups.
+        for (const auto& run : pit.Runs())
+        {
+            AddFlyupsForRun(flyups, run, textures, topLeft, internalTileScroll, tileSize);
+            AddFlyupsForChains(flyups, run, textures, topLeft, internalTileScroll, tileSize);
+        }
+
+        // Remove dead fly-ups.
+        flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
+
+        // Draw some stats.
+        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
+        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
+        timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, elapsed);
+        scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
+        speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
+    }
+}
+
+
+void Playing::Draw()
+{
+    // Draw the backdrop.
+    batch.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
+
+    batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
+    pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
+
+    if (!pit.IsImpacted())
+    {
+        // We're still playing, so draw the cursor.
+        float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
+        float cursorY = topLeft.y + cursorTileY * tileSize - 1.0f - internalTileScroll;
+        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
+        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
+    }
+    else
+    {
+        // It's game over, so tell the player.
+        if (counter % 60 < 40)
+        {
+            const float x = VIRTUAL_WIDTH / 2.0f - 40.0f;
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "GAME OVER!", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "GAME OVER!");
+        }
+        counter++;
+    }
+
+    // Draw fly-ups.
+    for (auto& flyup : flyups)
+    {
+        if (flyup.IsAlive())
+        {
+            flyup.Draw(batch);
+        }
+    }
+}
+
+
 int main()
 {
     je::Context context(WIDTH, HEIGHT, TITLE);
@@ -518,8 +675,6 @@ int main()
 
     je::Batch batch(shader.Program());
 
-    constexpr float tileSize = 16.0f;
-
     // Make a function to create random integers in a closed range.
     std::random_device randomDevice;
     std::mt19937 generator(randomDevice());
@@ -529,87 +684,13 @@ int main()
     };
 
     Textures textures;
-    Pit pit(Rnd);
-    PitRenderer pitRenderer(pit, textures, batch);
-    TextRenderer textRenderer(textures.textTiles, batch);
-    TimeRenderer timeRenderer(textRenderer);
-    ScoreRenderer scoreRenderer(textRenderer);
-    SpeedRenderer speedRenderer(textRenderer);
-
-    je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };
-
-    const float bottomRow = topLeft.y + (Pit::rows - 1) * tileSize;
-    const float lastRow = bottomRow - tileSize;
-
-    float internalTileScroll = 0.0f;
-    float scrollRate = 0.025f;
-
-    int cursorTileX = (Pit::cols / 2) - 1;
-    int cursorTileY = Pit::rows / 2;
-
-    size_t counter = 0;
-    double startTime = je::GetTime();
-    uint64_t score = 0;
-
-    std::vector<Flyup> flyups;
+    Playing playing(batch, textures, Rnd);
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
         UpdateInputState();
-
-        double now = je::GetTime();
-        double elapsed = now - startTime;
-
-        if (!pit.IsImpacted())
-        {
-            // Scroll the contents of the pit up.
-            internalTileScroll += fillHeld ? 1.0f : scrollRate;
-            if (internalTileScroll >= tileSize)
-            {
-                pit.ScrollOne();
-                if (cursorTileY > 1)
-                {
-                    cursorTileY--;
-                }
-                internalTileScroll = 0.0f;
-            }
-
-            // Move the player.
-            if (leftPressed && !wasLeftPressed && cursorTileX > 0)
-            {
-                --cursorTileX;
-            }
-            if (rightPressed && !wasRightPressed && cursorTileX < Pit::cols - 2)
-            {
-                ++cursorTileX;
-            }
-            if (upPressed && !wasUpPressed && cursorTileY > 1)
-            {
-                --cursorTileY;
-            }
-            if (downPressed && !wasDownPressed && cursorTileY < Pit::rows - 2)
-            {
-                ++cursorTileY;
-            }
-
-            // Swap tiles.
-            if (swapPressed && !wasSwapPressed)
-            {
-                pit.Swap(cursorTileX, cursorTileY);
-            }
-
-            pit.Update();
-
-            UpdateScore(pit, score);
-
-            // Add fly-ups.
-            for (const auto& run : pit.Runs())
-            {
-                AddFlyupsForRun(flyups, run, textures, topLeft, internalTileScroll, tileSize);
-                AddFlyupsForChains(flyups, run, textures, topLeft, internalTileScroll, tileSize);
-            }
-        }
+        playing.Update();
 
         // Clear the colour buffer.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -620,58 +701,11 @@ int main()
 
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-
-        // Draw the backdrop.
-        batch.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
-
-        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
-        pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
-
-        if (!pit.IsImpacted())
-        {
-            // We're still playing, so draw the cursor.
-            float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
-            float cursorY = topLeft.y + cursorTileY * tileSize - 1.0f - internalTileScroll;
-            batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
-            batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
-        }
-        else
-        {
-            // It's game over, so tell the player.
-            if (counter % 60 < 40)
-            {
-                const float x = VIRTUAL_WIDTH / 2.0f - 40.0f;
-                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "GAME OVER!", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "GAME OVER!");
-            }
-        }
-
-        // Draw fly-ups.
-        for (auto& flyup : flyups)
-        {
-            if (flyup.IsAlive())
-            {
-                flyup.Draw(batch);
-            }
-        }
-
-        // Remove dead fly-ups.
-        flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
-
-        // Draw some stats.
-        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
-        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
-        timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, elapsed);
-        scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-        speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
-
+        playing.Draw();
         batch.End();
 
         // Swap buffers.
         glfwSwapBuffers(context.Window());
-
-        counter++;
     }
 
     return 0;
