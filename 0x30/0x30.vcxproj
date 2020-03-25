@@ -156,16 +156,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Assets.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pit.cpp" />
     <ClCompile Include="PitRenderer.cpp" />
+    <ClCompile Include="Playing.cpp" />
+    <ClCompile Include="ScoreRenderer.cpp" />
+    <ClCompile Include="SpeedRenderer.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
+    <ClCompile Include="TimeRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Assets.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Pit.h" />
     <ClInclude Include="PitRenderer.h" />
+    <ClInclude Include="Playing.h" />
+    <ClInclude Include="ScoreRenderer.h" />
+    <ClInclude Include="SpeedRenderer.h" />
     <ClInclude Include="TextRenderer.h" />
+    <ClInclude Include="TimeRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
