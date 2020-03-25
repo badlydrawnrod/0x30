@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Assets.cpp" />
+    <ClCompile Include="Flyup.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pit.cpp" />
@@ -169,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="Assets.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Flyup.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Pit.h" />
     <ClInclude Include="PitRenderer.h" />

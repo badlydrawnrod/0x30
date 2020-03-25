@@ -2,6 +2,7 @@
 
 #include "Assets.h"
 #include "Constants.h"
+#include "Flyup.h"
 #include "Pit.h"
 #include "PitRenderer.h"
 #include "ScoreRenderer.h"
@@ -16,56 +17,6 @@
 #include <functional>
 #include <iomanip>
 #include <sstream>
-
-
-class Flyup
-{
-public:
-    Flyup(je::TextureRegion& texture, float x, float y, float duration);
-    Flyup(const Flyup& other);
-    Flyup& operator=(const Flyup& other);
-
-    void Draw(je::Batch& batch);
-    bool IsAlive() const;
-
-private:
-    je::TextureRegion texture_;
-    float x_;
-    float y_;
-    double endTime_;
-};
-
-
-inline Flyup::Flyup(je::TextureRegion& texture, float x, float y, float duration) : texture_{ texture }, x_{ x }, y_{ y }, endTime_{ je::GetTime() + duration }
-{
-}
-
-inline Flyup::Flyup(const Flyup& other) : texture_{ other.texture_ }, x_{ other.x_ }, y_{ other.y_ }, endTime_{ other.endTime_ }
-{
-}
-
-inline Flyup& Flyup::operator=(const Flyup& other)
-{
-    texture_ = other.texture_;
-    x_ = other.x_;
-    y_ = other.y_;
-    endTime_ = other.endTime_;
-
-    return *this;
-}
-
-inline void Flyup::Draw(je::Batch& batch)
-{
-    batch.AddVertices(je::quads::Create(texture_, x_, y_));
-    y_ -= 0.25f;
-}
-
-
-inline bool Flyup::IsAlive() const
-{
-    return je::GetTime() < endTime_;
-}
-
 
 
 class Playing

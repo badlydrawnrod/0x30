@@ -45,7 +45,8 @@ namespace input
         }
         if (key == GLFW_KEY_F12 && action == GLFW_PRESS)
         {
-            //            ToggleConsole();
+            // TODO: reconnect this.
+            // ToggleConsole();
         }
 
         bool isPress = (action == GLFW_PRESS);
