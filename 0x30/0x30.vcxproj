@@ -159,6 +159,7 @@
     <ClCompile Include="Flyup.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Pit.cpp" />
     <ClCompile Include="PitRenderer.cpp" />
     <ClCompile Include="Playing.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Flyup.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Pit.h" />
     <ClInclude Include="PitRenderer.h" />
     <ClInclude Include="Playing.h" />

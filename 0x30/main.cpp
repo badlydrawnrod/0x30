@@ -1,6 +1,7 @@
 #include "Assets.h"
 #include "Constants.h"
 #include "Input.h"
+#include "Menu.h"
 #include "Pit.h"
 #include "PitRenderer.h"
 #include "Playing.h"
@@ -78,12 +79,14 @@ int main()
 
     Textures textures;
     Playing playing(batch, textures, Rnd);
+    Menu menu(batch, textures);
 
     // Loop.
     while (!glfwWindowShouldClose(context.Window()))
     {
         input::UpdateInputState();
-        playing.Update();
+        menu.Update();
+        //playing.Update();
 
         // Clear the colour buffer.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -94,7 +97,8 @@ int main()
 
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        playing.Draw();
+        menu.Draw();
+        //playing.Draw();
         batch.End();
 
         // Swap buffers.
