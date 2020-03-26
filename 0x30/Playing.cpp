@@ -142,8 +142,13 @@ void Playing::UpdateScore(const Pit& pit, uint64_t& score)
 }
 
 
-void Playing::Update()
+Screens Playing::Update()
 {
+    if (input::wasMenuPressed && !input::menuPressed)
+    {
+        return Screens::Menu;
+    }
+
     double now = je::GetTime();
     double elapsed = now - startTime;
 
@@ -206,6 +211,8 @@ void Playing::Update()
         scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
         speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
     }
+
+    return Screens::Playing;
 }
 
 

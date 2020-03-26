@@ -24,7 +24,7 @@ class Playing
 public:
     Playing(je::Batch& batch, Textures& textures, std::function<int(int, int)>& rnd);
 
-    void Update();
+    Screens Update();
     void Draw();
 
 private:

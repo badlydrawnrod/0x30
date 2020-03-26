@@ -6,6 +6,8 @@
 namespace input
 {
     // Input states.
+    bool viewPressed = false;
+    bool menuPressed = false;
     bool leftPressed = false;
     bool rightPressed = false;
     bool upPressed = false;
@@ -15,6 +17,8 @@ namespace input
 
     bool keyboardFillHeld = false;
 
+    bool wasViewPressed = false;
+    bool wasMenuPressed = false;
     bool wasLeftPressed = false;
     bool wasRightPressed = false;
     bool wasUpPressed = false;
@@ -39,16 +43,6 @@ namespace input
     // Called by GLFW whenever a key is pressed or released.
     void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
     {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        {
-            glfwSetWindowShouldClose(window, GL_TRUE);
-        }
-        if (key == GLFW_KEY_F12 && action == GLFW_PRESS)
-        {
-            // TODO: reconnect this.
-            // ToggleConsole();
-        }
-
         bool isPress = (action == GLFW_PRESS);
         bool isPressOrRepeat = (action == GLFW_PRESS || action == GLFW_REPEAT);
         switch (key)
@@ -80,11 +74,16 @@ namespace input
         case GLFW_KEY_RIGHT_CONTROL:
             keyboardFillHeld = isPressOrRepeat;
             break;
+        case GLFW_KEY_F12:
+            viewPressed = isPress;
+            break;
+        case GLFW_KEY_ESCAPE:
+            menuPressed = isPress;
+            break;
         default:
             break;
         }
     }
-
 
     // Called by GLFW whenever a joystick / gamepad is connected or disconnected.
     void OnJoystickEvent(int joystickId, int event)
@@ -107,6 +106,8 @@ namespace input
     void UpdateInputState()
     {
         // Copy the current state.
+        wasViewPressed = viewPressed;
+        wasMenuPressed = menuPressed;
         wasLeftPressed = leftPressed;
         wasRightPressed = rightPressed;
         wasUpPressed = upPressed;
@@ -120,6 +121,8 @@ namespace input
         wasDownActivated = downActivated;
 
         // Reset the state.
+        viewPressed = false;
+        menuPressed = false;
         leftPressed = false;
         rightPressed = false;
         upPressed = false;
@@ -133,6 +136,8 @@ namespace input
         GLFWgamepadstate state;
         if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
         {
+            viewPressed = viewPressed || state.buttons[GLFW_GAMEPAD_BUTTON_BACK];
+            menuPressed = menuPressed || state.buttons[GLFW_GAMEPAD_BUTTON_START];
             leftPressed = leftPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT];
             rightPressed = rightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
             upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];

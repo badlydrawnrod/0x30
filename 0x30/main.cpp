@@ -51,8 +51,6 @@ void ToggleConsole()
 }
 
 
-
-
 int main()
 {
     je::Context context(WIDTH, HEIGHT, TITLE);
@@ -82,11 +80,34 @@ int main()
     Menu menu(batch, textures);
 
     // Loop.
+    Screens currentScreen{ Screens::Menu };
     while (!glfwWindowShouldClose(context.Window()))
     {
         input::UpdateInputState();
-        menu.Update();
-        //playing.Update();
+        if (input::wasViewPressed && !input::viewPressed)
+        {
+            ToggleConsole();
+        }
+
+        Screens newScreen = currentScreen;
+        switch (currentScreen)
+        {
+        case Screens::Menu:
+            newScreen = menu.Update();
+            break;
+        case Screens::Playing:
+            newScreen = playing.Update();
+            break;
+        case Screens::Quit:
+            glfwSetWindowShouldClose(context.Window(), GL_TRUE);
+            break;
+        }
+        if (newScreen != currentScreen)
+        {
+            // TODO: exit the last screen.
+            currentScreen = newScreen;
+            // TODO: enter the new screen.
+        }
 
         // Clear the colour buffer.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -97,8 +118,15 @@ int main()
 
         // Draw the batch.
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        menu.Draw();
-        //playing.Draw();
+        switch (currentScreen)
+        {
+        case Screens::Menu:
+            menu.Draw();
+            break;
+        case Screens::Playing:
+            playing.Draw();
+            break;
+        }
         batch.End();
 
         // Swap buffers.

@@ -6,6 +6,8 @@
 namespace input
 {
     // Input states.
+    extern bool viewPressed;
+    extern bool menuPressed;
     extern bool leftPressed;
     extern bool rightPressed;
     extern bool upPressed;
@@ -15,6 +17,8 @@ namespace input
 
     extern bool keyboardFillHeld;
 
+    extern bool wasViewPressed;
+    extern bool wasMenuPressed;
     extern bool wasLeftPressed;
     extern bool wasRightPressed;
     extern bool wasUpPressed;

@@ -12,3 +12,6 @@ const GLuint WIDTH = VIRTUAL_WIDTH * 3;
 const GLuint HEIGHT = VIRTUAL_HEIGHT * 3;
 
 const char* const TITLE = "The Mysterious 0x30";
+
+// Screens.
+enum class Screens { Quit, Menu, Playing };

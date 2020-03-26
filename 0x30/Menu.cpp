@@ -15,8 +15,19 @@ Menu::Menu(je::Batch& batch, Textures& textures) :
 }
 
 
-void Menu::Update()
+Screens Menu::Update()
 {
+    if (input::wasSwapPressed && !input::swapPressed)
+    {
+        return Screens::Playing;
+    }
+    
+    if (input::wasMenuPressed && !input::menuPressed)
+    {
+        return Screens::Quit;
+    }
+
+    return Screens::Menu;
 }
 
 
