@@ -16,8 +16,8 @@ public:
     void Draw();
 
 private:
-    je::Batch& batch;
-    Textures& textures;
-    TextRenderer textRenderer;
+    je::Batch& batch_;
+    Textures& textures_;
+    TextRenderer textRenderer_;
     double startTime_;
 };

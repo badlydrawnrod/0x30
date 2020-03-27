@@ -8,9 +8,9 @@
 
 
 Menu::Menu(je::Batch& batch, Textures& textures) :
-    batch{ batch },
-    textures{ textures },
-    textRenderer{ textures.textTiles, batch }
+    batch_{ batch },
+    textures_{ textures },
+    textRenderer_{ textures.textTiles, batch }
 {
 }
 
@@ -36,6 +36,6 @@ void Menu::Draw()
     // Draw some text.
     const float x = VIRTUAL_WIDTH / 2.0f - 40.0f;
     const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
-    textRenderer.Draw(x + 1.0f, y + 1.0f, "PRESS START", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer.Draw(x, y, "PRESS START");
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS START", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "PRESS START");
 }

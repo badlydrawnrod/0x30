@@ -6,7 +6,7 @@
 
 
 Playing::Playing(je::Batch& batch, Textures& textures, std::function<int(int, int)>& rnd) :
-    batch{ batch },
+    batch_{ batch },
     textures{ textures },
     pit{ rnd },
     pitRenderer{ pit, textures, batch },
@@ -205,8 +205,8 @@ Screens Playing::Update()
         flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
 
         // Draw some stats.
-        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
-        batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
+        batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
+        batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
         timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, elapsed);
         scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
         speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
@@ -219,9 +219,9 @@ Screens Playing::Update()
 void Playing::Draw()
 {
     // Draw the backdrop.
-    batch.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
+    batch_.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
 
-    batch.AddVertices(je::quads::Create(textures.blankTile, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
+    batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
     pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
 
     if (!pit.IsImpacted())
@@ -229,8 +229,8 @@ void Playing::Draw()
         // We're still playing, so draw the cursor.
         float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
         float cursorY = topLeft.y + cursorTileY * tileSize - 1.0f - internalTileScroll;
-        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
-        batch.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
+        batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
+        batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
     }
     else
     {
@@ -250,7 +250,7 @@ void Playing::Draw()
     {
         if (flyup.IsAlive())
         {
-            flyup.Draw(batch);
+            flyup.Draw(batch_);
         }
     }
 }

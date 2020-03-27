@@ -34,7 +34,7 @@ private:
 
     const float tileSize = 16.0f;
 
-    je::Batch& batch;
+    je::Batch& batch_;
     Textures& textures;
     Pit pit;
     PitRenderer pitRenderer;
