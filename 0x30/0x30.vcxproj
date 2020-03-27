@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Assets.cpp" />
+    <ClCompile Include="Dedication.cpp" />
     <ClCompile Include="Flyup.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -171,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="Assets.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Dedication.h" />
     <ClInclude Include="Flyup.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Menu.h" />

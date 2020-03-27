@@ -1,5 +1,6 @@
 #include "Assets.h"
 #include "Constants.h"
+#include "Dedication.h"
 #include "Input.h"
 #include "Menu.h"
 #include "Pit.h"
@@ -29,7 +30,6 @@
 #include <iomanip>
 #include <random>
 #include <sstream>
-
 
 
 // Show / hide the Windows console.
@@ -77,10 +77,11 @@ int main()
 
     Textures textures;
     Playing playing(batch, textures, Rnd);
+    Dedication dedication(batch, textures);
     Menu menu(batch, textures);
 
     // Loop.
-    Screens currentScreen{ Screens::Menu };
+    Screens currentScreen{ Screens::Dedication };
     while (!glfwWindowShouldClose(context.Window()))
     {
         input::UpdateInputState();
@@ -92,6 +93,9 @@ int main()
         Screens newScreen = currentScreen;
         switch (currentScreen)
         {
+        case Screens::Dedication:
+            newScreen = dedication.Update();
+            break;
         case Screens::Menu:
             newScreen = menu.Update();
             break;
@@ -120,6 +124,9 @@ int main()
         batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         switch (currentScreen)
         {
+        case Screens::Dedication:
+            dedication.Draw();
+            break;
         case Screens::Menu:
             menu.Draw();
             break;
