@@ -43,6 +43,7 @@ private:
     ScoreRenderer scoreRenderer;
     SpeedRenderer speedRenderer;
     double startTime{ je::GetTime() };
+    double elapsed_;
 
     const je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };
     const float bottomRow{ topLeft.y + (Pit::rows - 1) * tileSize };

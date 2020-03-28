@@ -150,7 +150,7 @@ Screens Playing::Update()
     }
 
     double now = je::GetTime();
-    double elapsed = now - startTime;
+    elapsed_ = now - startTime;
 
     if (!pit.IsImpacted())
     {
@@ -203,13 +203,6 @@ Screens Playing::Update()
 
         // Remove dead fly-ups.
         flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
-
-        // Draw some stats.
-        batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
-        batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
-        timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, elapsed);
-        scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-        speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
     }
 
     return Screens::Playing;
@@ -221,8 +214,16 @@ void Playing::Draw()
     // Draw the backdrop.
     batch_.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
 
+    // Draw a translucent texture over the pit area, then draw the pit itself.
     batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
     pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
+
+    // Draw some stats.
+    batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
+    batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
+    timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, elapsed_);
+    scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
+    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
 
     if (!pit.IsImpacted())
     {
