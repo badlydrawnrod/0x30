@@ -13,7 +13,8 @@ Playing::Playing(je::Batch& batch, Textures& textures, std::function<int(int, in
     textRenderer{ textures.textTiles, batch },
     timeRenderer{ textRenderer },
     scoreRenderer{ textRenderer },
-    speedRenderer{ textRenderer }
+    speedRenderer{ textRenderer },
+    state_{ State::PLAYING }
 {
 }
 
@@ -144,15 +145,10 @@ void Playing::UpdateScore(const Pit& pit, uint64_t& score)
 
 Screens Playing::Update()
 {
-    if (input::wasMenuPressed && !input::menuPressed)
-    {
-        return Screens::Menu;
-    }
-
     double now = je::GetTime();
     elapsed_ = now - startTime;
 
-    if (!pit.IsImpacted())
+    if (state_ == State::PLAYING)
     {
         // Scroll the contents of the pit up.
         internalTileScroll += input::fillHeld ? 1.0f : scrollRate;
@@ -201,9 +197,40 @@ Screens Playing::Update()
             AddFlyupsForChains(run);
         }
 
-        // Remove dead fly-ups.
-        flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
+        // Check for paused.
+        if (!input::menuPressed && input::wasMenuPressed)
+        {
+            state_ = State::PAUSED;
+        }
+
+        // Check for game over.
+        if (pit.IsImpacted())
+        {
+            state_ = State::GAME_OVER;
+        }
+
     }
+    else if (state_ == State::GAME_OVER)
+    {
+        if (input::wasMenuPressed && !input::menuPressed)
+        {
+            return Screens::Menu;
+        }
+    }
+    else if (state_ == State::PAUSED)
+    {
+        if (input::wasMenuPressed && !input::menuPressed)
+        {
+            return Screens::Menu;
+        }
+        if (input::wasSwapPressed && !input::swapPressed)
+        {
+            state_ = State::PLAYING;
+        }
+    }
+
+    // Remove dead fly-ups.
+    flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
 
     return Screens::Playing;
 }
@@ -225,7 +252,7 @@ void Playing::Draw()
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
     speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
 
-    if (!pit.IsImpacted())
+    if (state_ == State::PLAYING)
     {
         // We're still playing, so draw the cursor.
         float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
@@ -233,7 +260,7 @@ void Playing::Draw()
         batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
         batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
     }
-    else
+    else if (state_ == State::GAME_OVER)
     {
         // It's game over, so tell the player.
         if (counter % 60 < 40)
@@ -244,6 +271,13 @@ void Playing::Draw()
             textRenderer.Draw(x, y, "GAME OVER!");
         }
         counter++;
+    }
+    else if (state_ == State::PAUSED)
+    {
+        const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
+        const float y = VIRTUAL_HEIGHT / 3.0f;
+        textRenderer.Draw(x + 1.0f, y + 1.0f, "Paused", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer.Draw(x, y, "Paused");
     }
 
     // Draw fly-ups.

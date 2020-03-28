@@ -28,6 +28,9 @@ public:
     void Draw();
 
 private:
+
+    enum class State { PLAYING, PAUSED, GAME_OVER };
+
     void AddFlyupsForRun(const Pit::RunInfo& run);
     void AddFlyupsForChains(const Pit::RunInfo& run);
     void UpdateScore(const Pit& pit, uint64_t& score);
@@ -44,6 +47,7 @@ private:
     SpeedRenderer speedRenderer;
     double startTime{ je::GetTime() };
     double elapsed_;
+    State state_;
 
     const je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };
     const float bottomRow{ topLeft.y + (Pit::rows - 1) * tileSize };
