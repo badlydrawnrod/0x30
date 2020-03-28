@@ -14,7 +14,8 @@ Playing::Playing(je::Batch& batch, Textures& textures, std::function<int(int, in
     timeRenderer{ textRenderer },
     scoreRenderer{ textRenderer },
     speedRenderer{ textRenderer },
-    state_{ State::PLAYING }
+    state_{ State::PLAYING },
+    elapsed_{ 0 }
 {
 }
 
@@ -25,7 +26,7 @@ void Playing::AddFlyupsForRun(const Pit::RunInfo& run)
     if (run.runSize >= 4 && run.runSize < 10)
     {
         float runFlyupDuration = 1.0f;
-        je::TextureRegion texture;
+        je::TextureRegion texture{};
 
         switch (run.runSize)
         {
@@ -49,11 +50,14 @@ void Playing::AddFlyupsForRun(const Pit::RunInfo& run)
             break;
         }
 
-        for (auto i = 0; i < run.runSize; i++)
+        if (run.runSize >= 4 && run.runSize <= 9)
         {
-            float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
-            float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
-            flyups.emplace_back(texture, x, y, runFlyupDuration);
+            for (auto i = 0; i < run.runSize; i++)
+            {
+                float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
+                float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
+                flyups.emplace_back(texture, x, y, runFlyupDuration);
+            }
         }
     }
 }
@@ -65,7 +69,7 @@ void Playing::AddFlyupsForChains(const Pit::RunInfo& run)
     if (const auto chains = run.chainLength + 1; chains >= 2 && chains < 7)
     {
         const float chainFlyupDuration = 1.5f;
-        je::TextureRegion texture;
+        je::TextureRegion texture{};
         switch (chains)
         {
         case 2:
@@ -84,12 +88,14 @@ void Playing::AddFlyupsForChains(const Pit::RunInfo& run)
             texture = textures.chain6;
             break;
         }
-
-        for (auto i = 0; i < run.runSize; i++)
+        if (chains >= 2 && chains <= 6)
         {
-            float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
-            float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll - tileSize;
-            flyups.emplace_back(texture, x, y, chainFlyupDuration);
+            for (auto i = 0; i < run.runSize; i++)
+            {
+                float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
+                float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll - tileSize;
+                flyups.emplace_back(texture, x, y, chainFlyupDuration);
+            }
         }
     }
 }
