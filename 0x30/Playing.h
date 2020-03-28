@@ -45,7 +45,7 @@ private:
     TimeRenderer timeRenderer;
     ScoreRenderer scoreRenderer;
     SpeedRenderer speedRenderer;
-    double startTime{ je::GetTime() };
+    double lastTime_{ je::GetTime() };
     double elapsed_;
     State state_;
 

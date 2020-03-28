@@ -151,8 +151,12 @@ void Playing::UpdateScore(const Pit& pit, uint64_t& score)
 
 Screens Playing::Update()
 {
+    // Update elapsed time only when playing.
+    double multiplier = (state_ == State::PLAYING) ? 1.0 : 0.0;
     double now = je::GetTime();
-    elapsed_ = now - startTime;
+    double delta = (now - lastTime_) * multiplier;
+    lastTime_ = now;
+    elapsed_ += delta;
 
     if (state_ == State::PLAYING)
     {
