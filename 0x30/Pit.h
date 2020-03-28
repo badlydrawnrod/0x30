@@ -67,6 +67,7 @@ public:
 public:
     Pit(std::function<int(int, int)>& rnd);
 
+    void Reset();
     void Update();
     void ScrollOne();
     void Swap(size_t x, size_t y);

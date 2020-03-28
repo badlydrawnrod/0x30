@@ -110,6 +110,10 @@ int main()
         {
             // TODO: exit the last screen.
             currentScreen = newScreen;
+            if (currentScreen == Screens::Playing)
+            {
+                playing.Start();
+            }
             // TODO: enter the new screen.
         }
 

@@ -25,7 +25,16 @@ inline void Pit::MoveDown(size_t x, size_t y)
 Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, run_{ 0 }
 {
     std::fill(tiles_.begin(), tiles_.end(), Tile());
+}
+
+
+void Pit::Reset()
+{
+    std::fill(tiles_.begin(), tiles_.end(), Tile());
     RefillRows(rows / 2);
+    run_ = 0;
+    impacted_ = false;
+    runInfo_.clear();
 }
 
 

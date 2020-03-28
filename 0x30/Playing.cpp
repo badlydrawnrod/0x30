@@ -20,6 +20,16 @@ Playing::Playing(je::Batch& batch, Textures& textures, std::function<int(int, in
 }
 
 
+void Playing::Start()
+{
+    pit.Reset();
+    state_ = State::PLAYING;
+    score = 0;
+    elapsed_ = 0;
+    flyups.clear();
+}
+
+
 void Playing::AddFlyupsForRun(const Pit::RunInfo& run)
 {
     // Add fly-ups for runs of 4-9.
