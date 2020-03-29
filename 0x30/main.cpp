@@ -121,7 +121,7 @@ void Game::Update(double t, double dt)
         currentScreen = newScreen;
         if (currentScreen == Screens::Playing)
         {
-            playing.Start();
+            playing.Start(t);
         }
         // TODO: enter the new screen.
     }

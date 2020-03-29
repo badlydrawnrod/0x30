@@ -20,12 +20,16 @@ Playing::Playing(je::Batch& batch, Textures& textures, std::function<int(int, in
 }
 
 
-void Playing::Start()
+void Playing::Start(double t)
 {
     pit.Reset();
     state_ = State::PLAYING;
     score = 0;
     elapsed_ = 0;
+    lastTime_ = t;
+    scrollRate = 0.025f;
+    cursorTileX = (Pit::cols / 2) - 1;
+    cursorTileY = Pit::rows / 2;
     flyups.clear();
 }
 
