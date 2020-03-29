@@ -56,7 +56,7 @@ class Game
 public:
     Game(std::function<int(int, int)>& rnd);
     bool ShouldQuit();
-    void Update();
+    void Update(double t, double dt);
     void Draw();
 
 private:
@@ -77,7 +77,7 @@ Game::Game(std::function<int(int, int)>& rnd) :
     shader{ je::Shader() },
     batch{ shader.Program() },
     playing{ batch, textures, rnd },
-    dedication{batch, textures},
+    dedication{ batch, textures },
     menu{ batch, textures }
 {
     LOG("Shader program " << shader.Program());
@@ -91,7 +91,7 @@ bool Game::ShouldQuit()
 }
 
 
-void Game::Update()
+void Game::Update(double t, double dt)
 {
     input::UpdateInputState();
     if (input::wasViewPressed && !input::viewPressed)
@@ -103,13 +103,13 @@ void Game::Update()
     switch (currentScreen)
     {
     case Screens::Dedication:
-        newScreen = dedication.Update();
+        newScreen = dedication.Update(t, dt);
         break;
     case Screens::Menu:
-        newScreen = menu.Update();
+        newScreen = menu.Update(t, dt);
         break;
     case Screens::Playing:
-        newScreen = playing.Update();
+        newScreen = playing.Update(t, dt);
         break;
     case Screens::Quit:
         glfwSetWindowShouldClose(context.Window(), GL_TRUE);
@@ -162,10 +162,28 @@ int main()
     };
     Game game(Rnd);
 
-    // Loop.
+    double t = 0.0;
+    double dt = 1.0 / UPDATE_FPS;
+    double lastTime = je::GetTime();
+    double accumulator = 0.0;
+
     while (!game.ShouldQuit())
     {
-        game.Update();
+        // Update using: https://gafferongames.com/post/fix_your_timestep/
+        double now = je::GetTime();
+        double delta = now - lastTime;
+        if (delta >= 0.1)
+        {
+            delta = 0.1;
+        }
+        lastTime = now;
+        accumulator += delta;
+        while (accumulator >= dt)
+        {
+            game.Update(t, dt);
+            t += dt;
+            accumulator -= dt;
+        }
 
         // Clear the colour buffer.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

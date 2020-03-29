@@ -15,7 +15,7 @@ Menu::Menu(je::Batch& batch, Textures& textures) :
 }
 
 
-Screens Menu::Update()
+Screens Menu::Update(double t, double dt)
 {
     if (input::wasSwapPressed && !input::swapPressed)
     {

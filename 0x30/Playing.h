@@ -25,7 +25,7 @@ public:
     Playing(je::Batch& batch, Textures& textures, std::function<int(int, int)>& rnd);
 
     void Start();
-    Screens Update();
+    Screens Update(double t, double dt);
     void Draw();
 
 private:

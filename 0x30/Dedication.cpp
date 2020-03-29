@@ -16,9 +16,9 @@ Dedication::Dedication(je::Batch& batch, Textures& textures) :
 }
 
 
-Screens Dedication::Update()
+Screens Dedication::Update(double t, double dt)
 {
-    if (je::GetTime() >= startTime_ + 2.0)
+    if (t >= startTime_ + 2.0)
     {
         return Screens::Menu;
     }

@@ -12,7 +12,7 @@ class Dedication
 public:
     Dedication(je::Batch& batch, Textures& textures);
 
-    Screens Update();
+    Screens Update(double t, double dt);
     void Draw();
 
 private:
