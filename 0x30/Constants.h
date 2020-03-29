@@ -11,8 +11,9 @@ const GLsizei VIRTUAL_HEIGHT = 240;
 const GLuint WIDTH = VIRTUAL_WIDTH * 3;
 const GLuint HEIGHT = VIRTUAL_HEIGHT * 3;
 
-// Update rate.
+// Update rates.
 const double UPDATE_FPS = 60.0;
+const double RENDER_FPS = 60.0;
 
 const char* const TITLE = "The Mysterious 0x30";
 

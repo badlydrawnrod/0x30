@@ -167,6 +167,9 @@ int main()
     double lastTime = je::GetTime();
     double accumulator = 0.0;
 
+    double lastDrawTime = je::GetTime();
+    const double minDrawInterval = 1.0 / RENDER_FPS;
+
     while (!game.ShouldQuit())
     {
         // Update using: https://gafferongames.com/post/fix_your_timestep/
@@ -185,15 +188,22 @@ int main()
             accumulator -= dt;
         }
 
-        // Clear the colour buffer.
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // Draw, potentially capping the frame rate.
+        now = je::GetTime();
+        double drawInterval = now - lastDrawTime;
+        if (drawInterval >= minDrawInterval)
+        {
+            lastDrawTime = now;
+            // Clear the colour buffer.
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-        // Set the viewport position and size.
-        glViewport(0, 0, WIDTH, HEIGHT);
+            // Set the viewport position and size.
+            glViewport(0, 0, WIDTH, HEIGHT);
 
-        // Make like a gunslinger.
-        game.Draw();
+            // Make like a gunslinger.
+            game.Draw();
+        }
     }
 
     return 0;
