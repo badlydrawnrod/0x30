@@ -51,22 +51,108 @@ void ToggleConsole()
 }
 
 
-int main()
+class Game
 {
-    je::Context context(WIDTH, HEIGHT, TITLE);
-    if (!context.Window())
+public:
+    Game(std::function<int(int, int)>& rnd);
+    bool ShouldQuit();
+    void Update();
+    void Draw();
+
+private:
+    je::Context context;
+    je::Shader shader;
+    je::Batch batch;
+    Textures textures;
+    Playing playing;
+    Dedication dedication;
+    Menu menu;
+
+    Screens currentScreen{ Screens::Dedication };
+};
+
+
+Game::Game(std::function<int(int, int)>& rnd) :
+    context{ je::Context(WIDTH, HEIGHT, TITLE) },
+    shader{ je::Shader() },
+    batch{ shader.Program() },
+    playing{ batch, textures, rnd },
+    dedication{batch, textures},
+    menu{ batch, textures }
+{
+    LOG("Shader program " << shader.Program());
+    input::Initialise(context);
+}
+
+
+bool Game::ShouldQuit()
+{
+    return glfwWindowShouldClose(context.Window());
+}
+
+
+void Game::Update()
+{
+    input::UpdateInputState();
+    if (input::wasViewPressed && !input::viewPressed)
     {
-        return -1;
+        ToggleConsole();
     }
 
-    // Create a shader program.
-    je::Shader shader;
-    LOG("Shader program " << shader.Program());
+    Screens newScreen = currentScreen;
+    switch (currentScreen)
+    {
+    case Screens::Dedication:
+        newScreen = dedication.Update();
+        break;
+    case Screens::Menu:
+        newScreen = menu.Update();
+        break;
+    case Screens::Playing:
+        newScreen = playing.Update();
+        break;
+    case Screens::Quit:
+        glfwSetWindowShouldClose(context.Window(), GL_TRUE);
+        break;
+    }
+    if (newScreen != currentScreen)
+    {
+        // TODO: exit the last screen.
+        currentScreen = newScreen;
+        if (currentScreen == Screens::Playing)
+        {
+            playing.Start();
+        }
+        // TODO: enter the new screen.
+    }
+}
 
-    input::Initialise(context);
 
-    je::Batch batch(shader.Program());
+void Game::Draw()
+{
+    batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+    switch (currentScreen)
+    {
+    case Screens::Dedication:
+        dedication.Draw();
+        break;
+    case Screens::Menu:
+        menu.Draw();
+        break;
+    case Screens::Playing:
+        playing.Draw();
+        break;
+    }
+    batch.End();
 
+    // Swap buffers.
+    // TODO: does this belong here?
+    glfwSwapBuffers(context.Window());
+}
+
+
+int main()
+{
     // Make a function to create random integers in a closed range.
     std::random_device randomDevice;
     std::mt19937 generator(randomDevice());
@@ -74,48 +160,12 @@ int main()
         std::uniform_int_distribution<int> distribution(lo, hi);
         return distribution(generator);
     };
-
-    Textures textures;
-    Playing playing(batch, textures, Rnd);
-    Dedication dedication(batch, textures);
-    Menu menu(batch, textures);
+    Game game(Rnd);
 
     // Loop.
-    Screens currentScreen{ Screens::Dedication };
-    while (!glfwWindowShouldClose(context.Window()))
+    while (!game.ShouldQuit())
     {
-        input::UpdateInputState();
-        if (input::wasViewPressed && !input::viewPressed)
-        {
-            ToggleConsole();
-        }
-
-        Screens newScreen = currentScreen;
-        switch (currentScreen)
-        {
-        case Screens::Dedication:
-            newScreen = dedication.Update();
-            break;
-        case Screens::Menu:
-            newScreen = menu.Update();
-            break;
-        case Screens::Playing:
-            newScreen = playing.Update();
-            break;
-        case Screens::Quit:
-            glfwSetWindowShouldClose(context.Window(), GL_TRUE);
-            break;
-        }
-        if (newScreen != currentScreen)
-        {
-            // TODO: exit the last screen.
-            currentScreen = newScreen;
-            if (currentScreen == Screens::Playing)
-            {
-                playing.Start();
-            }
-            // TODO: enter the new screen.
-        }
+        game.Update();
 
         // Clear the colour buffer.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -124,24 +174,8 @@ int main()
         // Set the viewport position and size.
         glViewport(0, 0, WIDTH, HEIGHT);
 
-        // Draw the batch.
-        batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        switch (currentScreen)
-        {
-        case Screens::Dedication:
-            dedication.Draw();
-            break;
-        case Screens::Menu:
-            menu.Draw();
-            break;
-        case Screens::Playing:
-            playing.Draw();
-            break;
-        }
-        batch.End();
-
-        // Swap buffers.
-        glfwSwapBuffers(context.Window());
+        // Make like a gunslinger.
+        game.Draw();
     }
 
     return 0;

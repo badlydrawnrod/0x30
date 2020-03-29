@@ -294,6 +294,7 @@ void Playing::Draw()
     }
     else if (state_ == State::PAUSED)
     {
+        // The game is currently paused.
         const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
         const float y = VIRTUAL_HEIGHT / 3.0f;
         textRenderer.Draw(x + 1.0f, y + 1.0f, "Paused", { 0x00, 0x00, 0x00, 0xff });
