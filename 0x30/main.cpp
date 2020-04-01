@@ -13,6 +13,7 @@
 #include "je/Logger.h"
 #include "je/QuadHelpers.h"
 #include "je/Shaders.h"
+#include "je/Sound.h"
 #include "je/Textures.h"
 #include "je/Time.h"
 #include "je/Types.h"
@@ -160,6 +161,18 @@ int main()
         std::uniform_int_distribution<int> distribution(lo, hi);
         return distribution(generator);
     };
+
+    je::InitOpenAl();
+    
+    // TODO: clean this up.
+    // Quick hack to check that we can load and play sounds.
+    // See: https://github.com/kcat/openal-soft/blob/master/examples/alplay.c for more info.
+    ALuint soundBuf = je::LoadSound("../assets/sounds/bloop.wav");
+    ALuint source = 0;
+    alGenSources(1, &source);
+    alSourcei(source, AL_BUFFER, (ALint)soundBuf);
+    alSourcePlay(source);
+
     Game game(Rnd);
 
     double t = 0.0;
@@ -205,6 +218,13 @@ int main()
             game.Draw();
         }
     }
+
+    // TODO: clean this up.
+    // Quick hack to remove sounds and sources.
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &soundBuf);
+
+    je::TearDownOpenAl();
 
     return 0;
 }

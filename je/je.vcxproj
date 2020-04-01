@@ -146,12 +146,14 @@
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="Batch.cpp" />
+    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Textures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Batch.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="QuadHelpers.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="Textures.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transforms.h" />

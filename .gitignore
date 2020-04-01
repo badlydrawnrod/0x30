@@ -341,3 +341,4 @@ healthchecksdb
 
 # Ignore backdrops for now as I don't want them uploaded to github.
 /assets/backdrops
+/assets/sounds
