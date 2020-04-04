@@ -2,21 +2,19 @@
 
 #include "Logger.h"
 
-#include "sndfile.hh"   // Apparently "A lightweight C++ wrapper for the libsndfile API"
+#include "sndfile.hh"
 
 #include <string>
-
-
-static ALCdevice* device = nullptr;
-static ALCcontext* context = nullptr;
-static ALenum error;
-static bool isInitialised = false;
 
 
 namespace je
 {
     namespace
     {
+        ALCdevice* device = nullptr;
+        ALCcontext* context = nullptr;
+        bool isInitialised = false;
+
         // This is more or less cribbed from C some proof-of-concept code that I wrote and put on Bitbucket.
         void InitOpenAl()
         {
