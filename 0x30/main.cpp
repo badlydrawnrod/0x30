@@ -62,6 +62,8 @@ public:
 
 private:
     je::Context context;
+    je::SoundSystem soundSystem;
+
     je::Shader shader;
     je::Batch batch;
     Textures textures;
@@ -162,18 +164,13 @@ int main()
         return distribution(generator);
     };
 
-    je::InitOpenAl();
-    
-    // TODO: clean this up.
+    Game game(Rnd);
+
     // Quick hack to check that we can load and play sounds.
     // See: https://github.com/kcat/openal-soft/blob/master/examples/alplay.c for more info.
-    ALuint soundBuf = je::LoadSound("../assets/sounds/bloop.wav");
-    ALuint source = 0;
-    alGenSources(1, &source);
-    alSourcei(source, AL_BUFFER, (ALint)soundBuf);
-    alSourcePlay(source);
-
-    Game game(Rnd);
+    je::SoundBuffer soundBuf(je::LoadSound("../assets/sounds/bloop.wav"));
+    je::SoundSource soundSource;
+    je::Play(soundBuf, soundSource);
 
     double t = 0.0;
     double dt = 1.0 / UPDATE_FPS;
@@ -218,13 +215,6 @@ int main()
             game.Draw();
         }
     }
-
-    // TODO: clean this up.
-    // Quick hack to remove sounds and sources.
-    alDeleteSources(1, &source);
-    alDeleteBuffers(1, &soundBuf);
-
-    je::TearDownOpenAl();
 
     return 0;
 }

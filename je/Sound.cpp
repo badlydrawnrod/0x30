@@ -15,70 +15,143 @@ static bool isInitialised = false;
 
 namespace je
 {
-    // TODO: Make this more C++ like, or at least add some RAII.
-    // This is more or less cribbed from C some proof-of-concept code that I wrote and put on Bitbucket.
-    void InitOpenAl()
+    namespace
     {
-        if (isInitialised)
+        // This is more or less cribbed from C some proof-of-concept code that I wrote and put on Bitbucket.
+        void InitOpenAl()
         {
-            LOG("OpenAL is already initialised");
-            return;
+            if (isInitialised)
+            {
+                LOG("OpenAL is already initialised");
+                return;
+            }
+
+            device = alcOpenDevice(nullptr);
+            if (!device)
+            {
+                LOG("alcOpenDevice() failed");
+                return;
+            }
+
+            context = alcCreateContext(device, nullptr);
+            if (!context)
+            {
+                LOG("alcCreateContext() failed");
+                alcCloseDevice(device);
+                return;
+            }
+
+            alcMakeContextCurrent(context);
+            if (auto error = alGetError(); error != AL_NO_ERROR)
+            {
+                LOG("alcMakeContextCurrent() failed with OpenAL Error " << alGetString(error));
+                alcDestroyContext(context);
+                alcCloseDevice(device);
+                return;
+            }
+
+            isInitialised = true;
+
+            int major;
+            int minor;
+            alcGetIntegerv(nullptr, ALC_MAJOR_VERSION, 1, &major);
+            alcGetIntegerv(nullptr, ALC_MINOR_VERSION, 1, &minor);
+
+            LOG("ALC version: " << major << "." << minor);
+            LOG("Default device: " << alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER));
+
+            LOG("OpenAL version: " << alGetString(AL_VERSION));
+            LOG("OpenAL vendor: " << alGetString(AL_VENDOR));
+            LOG("OpenAL renderer: " << alGetString(AL_RENDERER));
+
+            // Create a listener.
+            ALfloat listenerPos[] = { 0.0, 0.0, 1.0 };
+            ALfloat listenerVel[] = { 0.0, 0.0, 0.0 };
+            ALfloat listenerOri[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
+
+            alListenerfv(AL_POSITION, listenerPos);
+            if (auto error = alGetError(); error != AL_NO_ERROR)
+            {
+                LOG("alListenerfv(AL_POSITION) failed with OpenAL Error " << alGetString(error));
+                alcDestroyContext(context);
+                alcCloseDevice(device);
+            }
+
+            alListenerfv(AL_VELOCITY, listenerVel);
+            if (auto error = alGetError(); error != AL_NO_ERROR)
+            {
+                LOG("alListenerfv(AL_VELOCITY) failed with OpenAL Error " << alGetString(error));
+                alcDestroyContext(context);
+                alcCloseDevice(device);
+            }
+
+            alListenerfv(AL_ORIENTATION, listenerOri);
+            if (auto error = alGetError(); error != AL_NO_ERROR)
+            {
+                LOG("alListenerfv(AL_ORIENTATION) failed with OpenAL Error " << alGetString(error));
+                alcDestroyContext(context);
+                alcCloseDevice(device);
+            }
+
+            // Set the global gain (volume).
+            alListenerf(AL_GAIN, 1.0); // reset gain (volume) to default
+            if (auto error = alGetError(); error != AL_NO_ERROR)
+            {
+                LOG("alListenerf(AL_GAIN) failed with OpenAL Error " << alGetString(error));
+                alcDestroyContext(context);
+                alcCloseDevice(device);
+            }
+
+            ALfloat volume;
+            alGetListenerf(AL_GAIN, &volume);
+            LOG("Volume is " << volume);
         }
 
-        device = alcOpenDevice(nullptr);
-        if (!device)
+        
+        void TearDownOpenAl()
         {
-            LOG("alcOpenDevice() failed");
-            return;
-        }
+            if (!isInitialised)
+            {
+                return;
+            }
 
-        context = alcCreateContext(device, nullptr);
-        if (!context)
-        {
-            LOG("alcCreateContext() failed");
-            alcCloseDevice(device);
-            return;
-        }
+            alGetError();
 
-        alcMakeContextCurrent(context);
-        error = alGetError();
-        if (error != AL_NO_ERROR)
-        {
-            LOG("alcMakeContextCurrent() failed");
+            // Remove the context.
+            device = alcGetContextsDevice(context);
+            alcMakeContextCurrent(nullptr);
             alcDestroyContext(context);
             alcCloseDevice(device);
         }
 
-        isInitialised = true;
 
-        int major;
-        int minor;
-        alcGetIntegerv(nullptr, ALC_MAJOR_VERSION, 1, &major);
-        alcGetIntegerv(nullptr, ALC_MINOR_VERSION, 1, &minor);
+        ALuint MakeSource()
+        {
+            ALuint source = 0;
+            alGenSources(1, &source);
+            return source;
+        }
 
-        LOG("ALC version: " << major << "." << minor);
-        LOG("Default device: " << alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER));
 
-        LOG("OpenAL version: " << alGetString(AL_VERSION));
-        LOG("OpenAL vendor: " << alGetString(AL_VENDOR));
-        LOG("OpenAL renderer: " << alGetString(AL_RENDERER));
-
-        ALfloat listenerPos[] = { 0.0, 0.0, 1.0 };
-        ALfloat listenerVel[] = { 0.0, 0.0, 0.0 };
-        ALfloat listenerOri[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
-
-        alListenerfv(AL_POSITION, listenerPos);
-        alListenerfv(AL_VELOCITY, listenerVel);
-        alListenerfv(AL_ORIENTATION, listenerOri);
-
-        // Set the global gain (volume).
-        alListenerf(AL_GAIN, 1.0); // reset gain (volume) to default
-        ALfloat volume;
-        alGetListenerf(AL_GAIN, &volume);
-        LOG("Volume is " << volume);
+        ALuint MakeBuffer()
+        {
+            ALuint buffer{ 0 };
+            alGenBuffers(1, &buffer);
+            return buffer;
+        }
     }
 
-    
+
+    SoundSystem::SoundSystem()
+    {
+        InitOpenAl();
+    }
+
+    SoundSystem::~SoundSystem()
+    {
+        TearDownOpenAl();
+    }
+
     ALuint LoadSound(const std::string& filename)
     {
         SndfileHandle sndFile(filename);
@@ -132,20 +205,41 @@ namespace je
         return buffer;
     }
 
-
-    void TearDownOpenAl()
+    void PlayBufferToSource(ALuint buffer, ALuint source)
     {
-        if (!isInitialised)
-        {
-            return;
-        }
+    }
 
-        alGetError();
+    SoundSource::SoundSource() : source_ { MakeSource() }
+    {
+    }
 
-        // Remove the context.
-        device = alcGetContextsDevice(context);
-        alcMakeContextCurrent(nullptr);
-        alcDestroyContext(context);
-        alcCloseDevice(device);
+    SoundSource::SoundSource(ALuint source) : source_{ source }
+    {
+    }
+
+    SoundSource::~SoundSource()
+    {
+        alDeleteSources(1, &source_);
+        source_ = 0;
+    }
+
+    SoundBuffer::SoundBuffer() : buffer_{ MakeBuffer() }
+    {
+    }
+
+    SoundBuffer::SoundBuffer(ALuint buffer) : buffer_{ buffer }
+    {
+    }
+
+    SoundBuffer::~SoundBuffer()
+    {
+        alDeleteBuffers(1, &buffer_);
+        buffer_ = 0;
+    }
+
+    void Play(SoundBuffer& buffer, SoundSource& source)
+    {
+        alSourcei(source.Get(), AL_BUFFER, (ALint)buffer.Get());
+        alSourcePlay(source.Get());
     }
 }
