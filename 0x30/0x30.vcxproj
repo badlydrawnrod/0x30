@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sounds.cpp" />
     <ClCompile Include="Textures.cpp" />
     <ClCompile Include="Dedication.cpp" />
     <ClCompile Include="Flyup.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="TimeRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sounds.h" />
     <ClInclude Include="Textures.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Dedication.h" />
