@@ -5,9 +5,10 @@
 #include "je/Logger.h"
 
 
-Playing::Playing(je::Batch& batch, Textures& textures, std::function<int(int, int)>& rnd) :
+Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
     batch_{ batch },
     textures{ textures },
+    sounds_{ sounds },
     pit{ rnd },
     pitRenderer{ pit, textures, batch },
     textRenderer{ textures.textTiles, batch },
@@ -208,6 +209,7 @@ Screens Playing::Update(double t, double dt)
         if (input::swapPressed && !input::wasSwapPressed)
         {
             pit.Swap(cursorTileX, cursorTileY);
+            je::Play(sounds_.blocksSwapping, blocksSwappingSource_);
         }
 
         pit.Update();

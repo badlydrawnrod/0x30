@@ -5,6 +5,7 @@
 #include "Pit.h"
 #include "PitRenderer.h"
 #include "ScoreRenderer.h"
+#include "Sounds.h"
 #include "SpeedRenderer.h"
 #include "TextRenderer.h"
 #include "Textures.h"
@@ -22,7 +23,7 @@
 class Playing
 {
 public:
-    Playing(je::Batch& batch, Textures& textures, std::function<int(int, int)>& rnd);
+    Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
     void Start(double t);
     Screens Update(double t, double dt);
@@ -40,6 +41,8 @@ private:
 
     je::Batch& batch_;
     Textures& textures;
+    Sounds& sounds_;
+    je::SoundSource blocksSwappingSource_;
     Pit pit;
     PitRenderer pitRenderer;
     TextRenderer textRenderer;

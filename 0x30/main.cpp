@@ -67,6 +67,7 @@ private:
     je::Shader shader;
     je::Batch batch;
     Textures textures;
+    Sounds sounds;
     Playing playing;
     Dedication dedication;
     Menu menu;
@@ -79,8 +80,8 @@ Game::Game(std::function<int(int, int)>& rnd) :
     context{ je::Context(WIDTH, HEIGHT, TITLE) },
     shader{ je::Shader() },
     batch{ shader.Program() },
-    playing{ batch, textures, rnd },
-    dedication{ batch, textures },
+    playing{ batch, textures, sounds, rnd },
+    dedication{ batch, textures, sounds },
     menu{ batch, textures }
 {
     LOG("Shader program " << shader.Program());
@@ -168,9 +169,6 @@ int main()
 
     // Quick hack to check that we can load and play sounds.
     // See: https://github.com/kcat/openal-soft/blob/master/examples/alplay.c for more info.
-    je::SoundBuffer soundBuf(je::LoadSound("../assets/sounds/bloop.wav"));
-    je::SoundSource soundSource;
-    je::Play(soundBuf, soundSource);
 
     double t = 0.0;
     double dt = 1.0 / UPDATE_FPS;

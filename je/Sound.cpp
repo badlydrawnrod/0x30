@@ -237,6 +237,7 @@ namespace je
 
     void Play(SoundBuffer& buffer, SoundSource& source)
     {
+        alSourceStop(source.Get());
         alSourcei(source.Get(), AL_BUFFER, (ALint)buffer.Get());
         alSourcePlay(source.Get());
     }

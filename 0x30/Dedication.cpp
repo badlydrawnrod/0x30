@@ -7,9 +7,10 @@
 #include "je/Time.h"
 
 
-Dedication::Dedication(je::Batch& batch, Textures& textures) :
+Dedication::Dedication(je::Batch& batch, Textures& textures, Sounds& sounds) :
     batch_{ batch },
     textures_{ textures },
+    sounds_{ sounds },
     textRenderer_{ textures.textTiles, batch },
     startTime_{ je::GetTime() }
 {
@@ -25,6 +26,7 @@ Screens Dedication::Update(double t, double dt)
 
     if (input::wasSwapPressed && !input::swapPressed)
     {
+        je::Play(sounds_.menuSelect, source_);
         return Screens::Menu;
     }
 
