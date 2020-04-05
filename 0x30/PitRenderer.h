@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Assets.h"
 #include "Pit.h"
+#include "Textures.h"
 
 #include "je/Batch.h"
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Assets.h"
 #include "Constants.h"  // TODO: (re)move Screens.
 #include "TextRenderer.h"
+#include "Textures.h"
 
 #include "je/Batch.h"
 

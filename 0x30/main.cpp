@@ -1,4 +1,3 @@
-#include "Assets.h"
 #include "Constants.h"
 #include "Dedication.h"
 #include "Input.h"
@@ -7,6 +6,7 @@
 #include "PitRenderer.h"
 #include "Playing.h"
 #include "TextRenderer.h"
+#include "Textures.h"
 
 #include "je/Batch.h"
 #include "je/Context.h"

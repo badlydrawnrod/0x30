@@ -21,9 +21,6 @@
     <ClCompile Include="Pit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Assets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PitRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,12 +51,12 @@
     <ClCompile Include="Dedication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Textures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Assets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PitRenderer.h">
@@ -93,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dedication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Assets.h"
 #include "Constants.h"
 #include "Flyup.h"
 #include "Pit.h"
@@ -8,6 +7,7 @@
 #include "ScoreRenderer.h"
 #include "SpeedRenderer.h"
 #include "TextRenderer.h"
+#include "Textures.h"
 #include "TimeRenderer.h"
 
 #include "je/Batch.h"
