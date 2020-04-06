@@ -83,6 +83,7 @@ public:
     }
 
     bool IsImpacted() const { return impacted_; }
+    bool Landed() const { return landed_; }
     const std::vector<RunInfo>& Runs() const { return runInfo_; }
 
 private:
@@ -143,7 +144,7 @@ private:
         return TileAt(x, y).IsDescended();
     }
 
-    void LowerHeight(size_t x, size_t y);
+    int LowerHeight(size_t x, size_t y);
     void MoveDown(size_t x, size_t y);
 
     void ApplyGravity();
@@ -165,9 +166,10 @@ private:
     bool CheckForHorizontalRuns();
 
     std::array<Tile, cols * rows> tiles_;
-    size_t firstRow_ = 0;
+    size_t firstRow_{ 0 };
     std::function<int(int, int)>& rnd_;
     bool impacted_;
     size_t run_;
     std::vector<RunInfo> runInfo_;
+    bool landed_{ false };
 };

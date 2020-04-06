@@ -43,6 +43,8 @@ private:
     Textures& textures;
     Sounds& sounds_;
     je::SoundSource blocksSwappingSource_;
+    je::SoundSource blocksLandingSource_;
+    je::SoundSource blocksPoppingSource_;
     Pit pit;
     PitRenderer pitRenderer;
     TextRenderer textRenderer;

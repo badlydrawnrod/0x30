@@ -8,10 +8,10 @@
 #define TILE_HEIGHT 15
 
 
-void Pit::LowerHeight(size_t x, size_t y)
+int Pit::LowerHeight(size_t x, size_t y)
 {
     auto& tile = TileAt(x, y);
-    --tile.height;
+    return --tile.height;
 }
 
 
@@ -34,6 +34,7 @@ void Pit::Reset()
     RefillRows(rows / 2);
     run_ = 0;
     impacted_ = false;
+    landed_ = false;
     runInfo_.clear();
 }
 
@@ -124,6 +125,7 @@ void Pit::Update()
 
 void Pit::ApplyGravity()
 {
+    bool landed = false;
     for (size_t y = rows - 2; y != 0; y--)
     {
         for (size_t x = 0; x < cols; x++)
@@ -139,12 +141,21 @@ void Pit::ApplyGravity()
             }
 
             // If a tile is not fully descended then bring it down.
-            if (IsMovableType(x, y) && !IsDescended(x, y))
+            if (!IsEmpty(x, y) && IsMovableType(x, y) && !IsDescended(x, y))
             {
-                LowerHeight(x, y);
+                // Did the tile just fully descend onto a non-empty tile?
+                if (LowerHeight(x, y) == 0 && !IsEmpty(x, y + 1))
+                {
+                    // If the non-empty tile is either not movable, or is descended itself, then the tile just landed.
+                    if (!IsMovableType(x, y + 1) || IsDescended(x, y + 1))
+                    {
+                        landed = true;
+                    }
+                }
             }
         }
     }
+    landed_ = landed;
 }
 
 

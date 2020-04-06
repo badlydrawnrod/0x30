@@ -214,6 +214,15 @@ Screens Playing::Update(double t, double dt)
 
         pit.Update();
 
+        if (pit.Landed())
+        {
+            je::Play(sounds_.blocksLanding, blocksLandingSource_);
+        }
+        if (auto runs = pit.Runs(); runs.size() > 0)
+        {
+            je::Play(sounds_.blocksPopping, blocksPoppingSource_);
+        }
+
         UpdateScore(pit, score);
 
         // Add fly-ups.
