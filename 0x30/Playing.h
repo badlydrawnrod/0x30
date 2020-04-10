@@ -53,7 +53,7 @@ private:
     ScoreRenderer scoreRenderer;
     SpeedRenderer speedRenderer;
     double lastTime_{ je::GetTime() };
-    double elapsed_;
+    double remaining_;
     State state_;
 
     const je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };

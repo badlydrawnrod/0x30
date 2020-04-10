@@ -16,7 +16,7 @@ Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::func
     scoreRenderer{ textRenderer },
     speedRenderer{ textRenderer },
     state_{ State::PLAYING },
-    elapsed_{ 0 }
+    remaining_{ 0 }
 {
 }
 
@@ -26,7 +26,7 @@ void Playing::Start(double t)
     pit.Reset();
     state_ = State::PLAYING;
     score = 0;
-    elapsed_ = 0;
+    remaining_ = 60.0;
     lastTime_ = t;
     scrollRate = 0.025f;
     cursorTileX = (Pit::cols / 2) - 1;
@@ -171,7 +171,15 @@ Screens Playing::Update(double t, double dt)
     double now = t;
     double delta = (now - lastTime_) * multiplier;
     lastTime_ = now;
-    elapsed_ += delta;
+    remaining_ -= delta;
+    if (remaining_ < 0.0)
+    {
+        if (state_ == State::PLAYING)
+        {
+            state_ = State::GAME_OVER;
+        }
+        remaining_ = 0.0;
+    }
 
     if (state_ == State::PLAYING)
     {
@@ -291,7 +299,7 @@ void Playing::Draw()
     // Draw some stats.
     batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
     batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
-    timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, elapsed_);
+    timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
     speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
 
@@ -308,10 +316,19 @@ void Playing::Draw()
         // It's game over, so tell the player.
         if (counter % 60 < 40)
         {
-            const float x = VIRTUAL_WIDTH / 2.0f - 40.0f;
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "GAME OVER!", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "GAME OVER!");
+            if (pit.IsImpacted())
+            {
+                const float x = VIRTUAL_WIDTH / 2.0f - 5.0 * 8.0f;
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "GAME OVER!", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "GAME OVER!");
+            }
+            else
+            {
+                const float x = VIRTUAL_WIDTH / 2.0f - 4.0 * 8.0f;
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "TIME UP!", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "TIME UP!");
+            }
         }
         counter++;
     }
