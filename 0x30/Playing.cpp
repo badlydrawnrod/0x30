@@ -330,6 +330,34 @@ void Playing::Draw()
                 textRenderer.Draw(x, y, "TIME UP!");
             }
         }
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
+            if (pit.IsImpacted())
+            {
+                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] retry", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "[X] retry");
+            }
+            else
+            {
+                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] replay", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "[X] replay");
+            }
+        }
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "[B] back", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "[B] back");
+        }
+        if (!pit.IsImpacted())
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "[A] next level", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "[A] next level");
+        }
         counter++;
     }
     else if (state_ == State::PAUSED)
