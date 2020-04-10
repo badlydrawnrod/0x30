@@ -271,10 +271,18 @@ Screens Playing::Update(double t, double dt)
 }
 
 
+void Playing::DrawBackdrop()
+{
+    if (!textures.backdrops.empty())
+    {
+        batch_.AddVertices(je::quads::Create(textures.backdrops[0], 0.0f, 0.0f));
+    }
+}
+
 void Playing::Draw()
 {
     // Draw the backdrop.
-    batch_.AddVertices(je::quads::Create(textures.backdrops[3], 0.0f, 0.0f));
+    DrawBackdrop();
 
     // Draw a translucent texture over the pit area, then draw the pit itself.
     batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));

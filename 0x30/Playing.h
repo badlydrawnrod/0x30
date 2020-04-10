@@ -36,6 +36,7 @@ private:
     void AddFlyupsForRun(const Pit::RunInfo& run);
     void AddFlyupsForChains(const Pit::RunInfo& run);
     void UpdateScore(const Pit& pit, uint64_t& score);
+    void DrawBackdrop();
 
     const float tileSize = 16.0f;
 
