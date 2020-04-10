@@ -132,6 +132,8 @@ namespace input
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
         glfwPollEvents();
 
+        fillHeld = keyboardFillHeld;
+
         // Poll the first gamepad.
         GLFWgamepadstate state;
         if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
