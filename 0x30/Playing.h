@@ -25,7 +25,7 @@ class Playing
 public:
     Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
-    void Start(double t);
+    void Start(double t, int level = 1);
     Screens Update(double t, double dt);
     void Draw();
 
@@ -68,5 +68,6 @@ private:
 
     size_t counter{ 0 };
     uint64_t score{ 0 };
+    int level_{ 0 };
     std::vector<Flyup> flyups;
 };

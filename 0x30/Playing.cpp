@@ -1,7 +1,6 @@
 #include "Playing.h"
 
 #include "Input.h"
-
 #include "je/Logger.h"
 
 
@@ -21,14 +20,15 @@ Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::func
 }
 
 
-void Playing::Start(double t)
+void Playing::Start(const double t, const int level)
 {
     pit.Reset();
     state_ = State::PLAYING;
     score = 0;
-    remaining_ = 60.0;
+    remaining_ = 61.0;  // Let's be generous and give them a fraction more than 60 seconds.
     lastTime_ = t;
-    scrollRate = 0.025f;
+    level_ = level;
+    scrollRate = 0.025f + (0.005f * (level - 1));
     cursorTileX = (Pit::cols / 2) - 1;
     cursorTileY = Pit::rows / 2;
     flyups.clear();
@@ -259,6 +259,14 @@ Screens Playing::Update(double t, double dt)
         {
             return Screens::Menu;
         }
+        if (input::wasUpPressed && !input::upPressed)
+        {
+            Start(t);
+        }
+        if (input::wasSwapPressed && !input::swapPressed && !pit.IsImpacted())
+        {
+            Start(t, level_ + 1);
+        }
     }
     else if (state_ == State::PAUSED)
     {
@@ -301,7 +309,7 @@ void Playing::Draw()
     batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
     timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 });
+    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, level_);
 
     if (state_ == State::PLAYING)
     {
