@@ -29,7 +29,7 @@ namespace
     bool wasXPressed = false;
 
     bool isXHeld = false;
-    bool isKeyboardFillHeld = false;
+    bool isKeyboardXHeld = false;
 
     // Left stick binary states.
     bool leftActivated = false;
@@ -84,7 +84,7 @@ namespace
         case GLFW_KEY_C:
             // Button [X].
             isXPressed = isPress;
-            isKeyboardFillHeld = isPressOrRepeat;
+            isKeyboardXHeld = isPressOrRepeat;
             break;
         case GLFW_KEY_P:
             // Button [Back].
@@ -189,7 +189,7 @@ namespace input
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
         glfwPollEvents();
 
-        isXHeld = isKeyboardFillHeld;
+        isXHeld = isKeyboardXHeld;
 
         // Poll the first gamepad.
         GLFWgamepadstate state;
@@ -204,7 +204,7 @@ namespace input
             isAPressed = isAPressed || state.buttons[GLFW_GAMEPAD_BUTTON_A];
             isBPressed = isBPressed || state.buttons[GLFW_GAMEPAD_BUTTON_B];
             isXPressed = isXPressed || state.buttons[GLFW_GAMEPAD_BUTTON_X];
-            isXHeld = isKeyboardFillHeld || state.buttons[GLFW_GAMEPAD_BUTTON_X];
+            isXHeld = isKeyboardXHeld || state.buttons[GLFW_GAMEPAD_BUTTON_X];
 
             joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
             joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
