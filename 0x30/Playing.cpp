@@ -202,7 +202,7 @@ Screens Playing::Update(double t, double dt)
     if (state_ == State::PLAYING)
     {
         // Scroll the contents of the pit up.
-        internalTileScroll += input::fillHeld ? 1.0f : scrollRate;
+        internalTileScroll += input::IsXHeld() ? 1.0f : scrollRate;
         if (internalTileScroll >= tileSize)
         {
             pit.ScrollOne();
@@ -214,25 +214,25 @@ Screens Playing::Update(double t, double dt)
         }
 
         // Move the player.
-        if (input::leftPressed && !input::wasLeftPressed && cursorTileX > 0)
+        if (input::IsLeftPressed() && !input::WasLeftPressed() && cursorTileX > 0)
         {
             --cursorTileX;
         }
-        if (input::rightPressed && !input::wasRightPressed && cursorTileX < Pit::cols - 2)
+        if (input::IsRightPressed() && !input::WasRightPressed() && cursorTileX < Pit::cols - 2)
         {
             ++cursorTileX;
         }
-        if (input::upPressed && !input::wasUpPressed && cursorTileY > 1)
+        if (input::IsUpPressed() && !input::WasUpPressed() && cursorTileY > 1)
         {
             --cursorTileY;
         }
-        if (input::downPressed && !input::wasDownPressed && cursorTileY < Pit::rows - 2)
+        if (input::IsDownPressed() && !input::WasDownPressed() && cursorTileY < Pit::rows - 2)
         {
             ++cursorTileY;
         }
 
         // Swap tiles.
-        if (input::swapPressed && !input::wasSwapPressed)
+        if (input::IsAPressed() && !input::WasAPressed())
         {
             pit.Swap(cursorTileX, cursorTileY);
             je::Play(sounds_.blocksSwapping, blocksSwappingSource_);
@@ -259,7 +259,7 @@ Screens Playing::Update(double t, double dt)
         }
 
         // Check for paused.
-        if (!input::menuPressed && input::wasMenuPressed)
+        if (!input::IsStartPressed() && input::WasStartPressed())
         {
             state_ = State::PAUSED;
         }
@@ -273,15 +273,15 @@ Screens Playing::Update(double t, double dt)
     }
     else if (state_ == State::GAME_OVER)
     {
-        if (input::wasMenuPressed && !input::menuPressed)
+        if (input::WasStartPressed() && !input::IsStartPressed())
         {
             return Screens::Menu;
         }
-        if (input::wasUpPressed && !input::upPressed)
+        if (input::WasUpPressed() && !input::IsUpPressed())
         {
             Start(t, lastPlayed_);
         }
-        if (input::wasSwapPressed && !input::swapPressed && !pit.IsImpacted())
+        if (input::WasAPressed() && !input::IsAPressed() && !pit.IsImpacted())
         {
             // Go on to the next level.
             Start(t, level_);
@@ -289,11 +289,11 @@ Screens Playing::Update(double t, double dt)
     }
     else if (state_ == State::PAUSED)
     {
-        if (input::wasMenuPressed && !input::menuPressed)
+        if (input::WasStartPressed() && !input::IsStartPressed())
         {
             return Screens::Menu;
         }
-        if (input::wasSwapPressed && !input::swapPressed)
+        if (input::WasAPressed() && !input::IsAPressed())
         {
             state_ = State::PLAYING;
         }

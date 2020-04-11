@@ -98,7 +98,7 @@ bool Game::ShouldQuit()
 void Game::Update(double t, double dt)
 {
     input::UpdateInputState();
-    if (input::wasViewPressed && !input::viewPressed)
+    if (input::WasBackPressed() && !input::IsBackPressed())
     {
         ToggleConsole();
     }

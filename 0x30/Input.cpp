@@ -3,27 +3,27 @@
 #include "je/Logger.h"
 
 
-namespace input
+namespace
 {
     // Input states.
-    bool viewPressed = false;
-    bool menuPressed = false;
+    bool backPressed = false;
+    bool startPressed = false;
     bool leftPressed = false;
     bool rightPressed = false;
     bool upPressed = false;
     bool downPressed = false;
-    bool swapPressed = false;
+    bool aPressed = false;
     bool fillHeld = false;
 
     bool keyboardFillHeld = false;
 
-    bool wasViewPressed = false;
-    bool wasMenuPressed = false;
+    bool wasBackPressed = false;
+    bool wasStartPressed = false;
     bool wasLeftPressed = false;
     bool wasRightPressed = false;
     bool wasUpPressed = false;
     bool wasDownPressed = false;
-    bool wasSwapPressed = false;
+    bool wasAPressed = false;
 
     bool leftActivated = false;
     bool rightActivated = false;
@@ -39,6 +39,7 @@ namespace input
     float joystickY = 0.0f;
     float oldJoystickX = 0.0f;
     float oldJoystickY = 0.0f;
+
 
     // Called by GLFW whenever a key is pressed or released.
     void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -68,17 +69,17 @@ namespace input
         case GLFW_KEY_Z:
         case GLFW_KEY_X:
         case GLFW_KEY_C:
-            swapPressed = isPress;
+            aPressed = isPress;
             break;
         case GLFW_KEY_LEFT_CONTROL:
         case GLFW_KEY_RIGHT_CONTROL:
             keyboardFillHeld = isPressOrRepeat;
             break;
         case GLFW_KEY_F12:
-            viewPressed = isPress;
+            backPressed = isPress;
             break;
         case GLFW_KEY_ESCAPE:
-            menuPressed = isPress;
+            startPressed = isPress;
             break;
         default:
             break;
@@ -101,18 +102,45 @@ namespace input
             }
         }
     }
+}
+
+namespace input
+{
+
+    bool IsBackPressed() { return backPressed; }
+    bool WasBackPressed() { return wasBackPressed; }
+
+    bool IsStartPressed() { return startPressed; }
+    bool WasStartPressed() { return wasStartPressed; }
+
+    bool IsLeftPressed() { return leftPressed; }
+    bool WasLeftPressed() { return wasLeftPressed; }
+
+    bool IsRightPressed() { return rightPressed; }
+    bool WasRightPressed() { return wasRightPressed; }
+
+    bool IsUpPressed() { return upPressed; }
+    bool WasUpPressed() { return wasUpPressed; }
+
+    bool IsDownPressed() { return downPressed; }
+    bool WasDownPressed() { return wasDownPressed; }
+
+    bool IsAPressed() { return aPressed; }
+    bool WasAPressed() { return wasAPressed; }
+
+    bool IsXHeld() { return fillHeld; }
 
 
     void UpdateInputState()
     {
         // Copy the current state.
-        wasViewPressed = viewPressed;
-        wasMenuPressed = menuPressed;
+        wasBackPressed = backPressed;
+        wasStartPressed = startPressed;
         wasLeftPressed = leftPressed;
         wasRightPressed = rightPressed;
         wasUpPressed = upPressed;
         wasDownPressed = downPressed;
-        wasSwapPressed = swapPressed;
+        wasAPressed = aPressed;
         oldJoystickX = joystickX;
         oldJoystickY = joystickY;
         wasLeftActivated = leftActivated;
@@ -121,13 +149,13 @@ namespace input
         wasDownActivated = downActivated;
 
         // Reset the state.
-        viewPressed = false;
-        menuPressed = false;
+        backPressed = false;
+        startPressed = false;
         leftPressed = false;
         rightPressed = false;
         upPressed = false;
         downPressed = false;
-        swapPressed = false;
+        aPressed = false;
 
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
         glfwPollEvents();
@@ -138,13 +166,13 @@ namespace input
         GLFWgamepadstate state;
         if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
         {
-            viewPressed = viewPressed || state.buttons[GLFW_GAMEPAD_BUTTON_BACK];
-            menuPressed = menuPressed || state.buttons[GLFW_GAMEPAD_BUTTON_START];
+            backPressed = backPressed || state.buttons[GLFW_GAMEPAD_BUTTON_BACK];
+            startPressed = startPressed || state.buttons[GLFW_GAMEPAD_BUTTON_START];
             leftPressed = leftPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT];
             rightPressed = rightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
             upPressed = upPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
             downPressed = downPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
-            swapPressed = swapPressed || state.buttons[GLFW_GAMEPAD_BUTTON_A];
+            aPressed = aPressed || state.buttons[GLFW_GAMEPAD_BUTTON_A];
             fillHeld = keyboardFillHeld || state.buttons[GLFW_GAMEPAD_BUTTON_X];
 
             joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];

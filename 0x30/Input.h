@@ -5,40 +5,29 @@
 
 namespace input
 {
-    // Input states.
-    extern bool viewPressed;
-    extern bool menuPressed;
-    extern bool leftPressed;
-    extern bool rightPressed;
-    extern bool upPressed;
-    extern bool downPressed;
-    extern bool swapPressed;
-    extern bool fillHeld;
+    // Input states. Names refer to XBox controller names, even if keys are mapped to them.
+    bool IsBackPressed();
+    bool WasBackPressed();
 
-    extern bool keyboardFillHeld;
+    bool IsStartPressed();
+    bool WasStartPressed();
 
-    extern bool wasViewPressed;
-    extern bool wasMenuPressed;
-    extern bool wasLeftPressed;
-    extern bool wasRightPressed;
-    extern bool wasUpPressed;
-    extern bool wasDownPressed;
-    extern bool wasSwapPressed;
+    bool IsLeftPressed();
+    bool WasLeftPressed();
 
-    extern bool leftActivated;
-    extern bool rightActivated;
-    extern bool upActivated;
-    extern bool downActivated;
+    bool IsRightPressed();
+    bool WasRightPressed();
 
-    extern bool wasLeftActivated;
-    extern bool wasRightActivated;
-    extern bool wasUpActivated;
-    extern bool wasDownActivated;
+    bool IsUpPressed();
+    bool WasUpPressed();
 
-    extern float joystickX;
-    extern float joystickY;
-    extern float oldJoystickX;
-    extern float oldJoystickY;
+    bool IsDownPressed();
+    bool WasDownPressed();
+
+    bool IsAPressed();
+    bool WasAPressed();
+
+    bool IsXHeld();
 
     void Initialise(je::Context& context);
     void UpdateInputState();

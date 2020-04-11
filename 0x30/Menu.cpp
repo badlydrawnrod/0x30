@@ -17,12 +17,12 @@ Menu::Menu(je::Batch& batch, Textures& textures) :
 
 Screens Menu::Update(double t, double dt)
 {
-    if (input::wasSwapPressed && !input::swapPressed)
+    if (input::WasAPressed() && !input::IsAPressed())
     {
         return Screens::Playing;
     }
     
-    if (input::wasMenuPressed && !input::menuPressed)
+    if (input::WasStartPressed() && !input::IsStartPressed())
     {
         return Screens::Quit;
     }

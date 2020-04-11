@@ -24,7 +24,7 @@ Screens Dedication::Update(double t, double dt)
         return Screens::Menu;
     }
 
-    if (input::wasSwapPressed && !input::swapPressed)
+    if (input::WasAPressed() && !input::IsAPressed())
     {
         je::Play(sounds_.menuSelect, source_);
         return Screens::Menu;
