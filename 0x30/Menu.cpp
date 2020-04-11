@@ -22,7 +22,7 @@ Screens Menu::Update(double t, double dt)
         return Screens::Playing;
     }
     
-    if (input::WasStartPressed() && !input::IsStartPressed())
+    if (input::WasBPressed() && !input::IsBPressed())
     {
         return Screens::Quit;
     }

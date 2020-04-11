@@ -5,7 +5,10 @@
 
 namespace input
 {
-    // Input states. Names refer to XBox controller names, even if keys are mapped to them.
+    // Input states.
+    bool IsDebugPressed();
+    bool WasDebugPressed();
+
     bool IsBackPressed();
     bool WasBackPressed();
 
@@ -27,6 +30,11 @@ namespace input
     bool IsAPressed();
     bool WasAPressed();
 
+    bool IsBPressed();
+    bool WasBPressed();
+
+    bool IsXPressed();
+    bool WasXPressed();
     bool IsXHeld();
 
     void Initialise(je::Context& context);

@@ -259,7 +259,7 @@ Screens Playing::Update(double t, double dt)
         }
 
         // Check for paused.
-        if (!input::IsStartPressed() && input::WasStartPressed())
+        if (!input::IsBackPressed() && input::WasBackPressed())
         {
             state_ = State::PAUSED;
         }
@@ -273,11 +273,11 @@ Screens Playing::Update(double t, double dt)
     }
     else if (state_ == State::GAME_OVER)
     {
-        if (input::WasStartPressed() && !input::IsStartPressed())
+        if (input::WasBPressed() && !input::IsBPressed())
         {
             return Screens::Menu;
         }
-        if (input::WasUpPressed() && !input::IsUpPressed())
+        if (input::WasXPressed() && !input::IsXPressed())
         {
             Start(t, lastPlayed_);
         }
@@ -289,7 +289,7 @@ Screens Playing::Update(double t, double dt)
     }
     else if (state_ == State::PAUSED)
     {
-        if (input::WasStartPressed() && !input::IsStartPressed())
+        if (input::WasBPressed() && !input::IsBPressed())
         {
             return Screens::Menu;
         }
