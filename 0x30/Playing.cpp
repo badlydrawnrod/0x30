@@ -3,6 +3,8 @@
 #include "Input.h"
 #include "je/Logger.h"
 
+#include <algorithm>
+
 
 Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
     batch_{ batch },
@@ -15,8 +17,22 @@ Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::func
     scoreRenderer{ textRenderer },
     speedRenderer{ textRenderer },
     state_{ State::PLAYING },
-    remaining_{ 0 }
+    remaining_{ 0 },
+    lastTime_{ 0 }
 {
+}
+
+
+void Playing::SetLevel(int level)
+{
+    level_ = level;
+    maxLevel_ = std::max(level_, maxLevel_);
+}
+
+
+void Playing::Start(const double t)
+{
+    Start(t, level_);
 }
 
 
@@ -27,7 +43,8 @@ void Playing::Start(const double t, const int level)
     score = 0;
     remaining_ = 61.0;  // Let's be generous and give them a fraction more than 60 seconds.
     lastTime_ = t;
-    level_ = level;
+    SetLevel(level);
+    lastPlayed_ = level;
     scrollRate = 0.025f + (0.005f * (level - 1));
     cursorTileX = (Pit::cols / 2) - 1;
     cursorTileY = Pit::rows / 2;
@@ -177,6 +194,7 @@ Screens Playing::Update(double t, double dt)
         if (state_ == State::PLAYING)
         {
             state_ = State::GAME_OVER;
+            SetLevel(level_ + 1);
         }
         remaining_ = 0.0;
     }
@@ -261,11 +279,12 @@ Screens Playing::Update(double t, double dt)
         }
         if (input::wasUpPressed && !input::upPressed)
         {
-            Start(t);
+            Start(t, lastPlayed_);
         }
         if (input::wasSwapPressed && !input::swapPressed && !pit.IsImpacted())
         {
-            Start(t, level_ + 1);
+            // Go on to the next level.
+            Start(t, level_);
         }
     }
     else if (state_ == State::PAUSED)
@@ -309,7 +328,7 @@ void Playing::Draw()
     batch_.AddVertices(je::quads::Create(textures.blankTile, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
     timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, level_);
+    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, lastPlayed_);
 
     if (state_ == State::PLAYING)
     {

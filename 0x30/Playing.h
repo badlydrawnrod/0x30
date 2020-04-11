@@ -25,9 +25,12 @@ class Playing
 public:
     Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
-    void Start(double t, int level = 1);
+    void Start(double t);
+    void Start(double t, int level);
     Screens Update(double t, double dt);
     void Draw();
+
+    int MaxLevel() const { return maxLevel_; }
 
 private:
 
@@ -37,6 +40,8 @@ private:
     void AddFlyupsForChains(const Pit::RunInfo& run);
     void UpdateScore(const Pit& pit, uint64_t& score);
     void DrawBackdrop();
+
+    void SetLevel(int level);
 
     const float tileSize = 16.0f;
 
@@ -52,7 +57,7 @@ private:
     TimeRenderer timeRenderer;
     ScoreRenderer scoreRenderer;
     SpeedRenderer speedRenderer;
-    double lastTime_{ je::GetTime() };
+    double lastTime_;
     double remaining_;
     State state_;
 
@@ -68,6 +73,8 @@ private:
 
     size_t counter{ 0 };
     uint64_t score{ 0 };
-    int level_{ 0 };
+    int level_{ 1 };
+    int lastPlayed_{ 1 };
+    int maxLevel_{ 1 };
     std::vector<Flyup> flyups;
 };
