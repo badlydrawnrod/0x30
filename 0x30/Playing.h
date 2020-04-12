@@ -42,7 +42,7 @@ private:
     void DrawBackdrop();
 
     void SetLevel(int level);
-    void SetState(State state);
+    void SetState(State state, double t);
 
     const float tileSize = 16.0f;
 
@@ -61,6 +61,7 @@ private:
     double lastTime_;
     double remaining_;
     State state_;
+    double stateStartTime_{ 0.0 };
 
     const je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };
     const float bottomRow{ topLeft.y + (Pit::rows - 1) * tileSize };

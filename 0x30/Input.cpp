@@ -1,6 +1,7 @@
 #include "Input.h"
 
 #include "je/Logger.h"
+#include "je/Time.h"
 
 
 namespace input
@@ -18,18 +19,16 @@ namespace input
     constexpr ButtonBit bBit = 1 << static_cast<uint32_t>(ButtonId::b);
     constexpr ButtonBit xBit = 1 << static_cast<uint32_t>(ButtonId::x);
 
-    void ButtonStates::Reset()
-    {
-        buttons_ = 0;
-        prevButtons_ = 0;
-        buttonUps_ = 0;
-        buttonDowns_ = 0;
-    }
-
     bool ButtonStates::IsPressed(ButtonId id)
     {
         const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
         return (buttons_ & idBit) == idBit;
+    }
+
+    bool ButtonStates::IsReleased(ButtonId id)
+    {
+        const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
+        return (buttons_ & idBit) == 0;
     }
 
     bool ButtonStates::JustPressed(ButtonId id)
@@ -38,12 +37,30 @@ namespace input
         return (buttonDowns_ & idBit) == idBit;
     }
 
+    bool ButtonStates::JustReleased(ButtonId id)
+    {
+        const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
+        return (buttonUps_ & idBit) == idBit;
+    }
+
+    double ButtonStates::LastPressed(ButtonId id)
+    {
+        size_t i = static_cast<size_t>(id);
+        return buttonDownTimes_[i];
+    }
+
+    double ButtonStates::LastReleased(ButtonId id)
+    {
+        size_t i = static_cast<size_t>(id);
+        return buttonUpTimes_[i];
+    }
+
     void ButtonStates::Update()
     {
         prevButtons_ = buttons_;
     }
 
-    void ButtonStates::DetectTransitions()
+    void ButtonStates::DetectTransitions(double t)
     {
         Buttons changes = prevButtons_ ^ buttons_;
 
@@ -52,11 +69,27 @@ namespace input
 
         if (buttonDowns_)
         {
-            LOG("Button downs: 0x" << std::hex << buttonDowns_ << std::dec);
+            uint32_t mask = 1;
+            for (size_t id = 0; id < numButtons; id++)
+            {
+                if ((buttonDowns_ & mask) == mask)
+                {
+                    buttonDownTimes_[id] = t;
+                }
+                mask = mask << 1;
+            }
         }
         if (buttonUps_)
         {
-            LOG("Button ups: 0x" << std::hex << buttonUps_ << std::dec);
+            uint32_t mask = 1;
+            for (size_t id = 0; id < numButtons; id++)
+            {
+                if ((buttonUps_ & mask) == mask)
+                {
+                    buttonUpTimes_[id] = t;
+                }
+                mask = mask << 1;
+            }
         }
     }
 
@@ -225,7 +258,7 @@ namespace
 
 namespace input
 {
-    void UpdateInputState()
+    void UpdateInputState(double t)
     {
         // Copy the current joystick state.
         oldJoystickX = joystickX;
@@ -272,7 +305,7 @@ namespace input
         //    isDownPressed = isDownPressed || (downActivated && !wasDownActivated);
         //}
 
-        buttons.DetectTransitions();
+        buttons.DetectTransitions(t);
     }
 
     void Initialise(je::Context& context)

@@ -30,10 +30,10 @@ void Playing::SetLevel(int level)
 }
 
 
-void Playing::SetState(State state)
+void Playing::SetState(State state, double t)
 {
-    input::buttons.Reset();
     state_ = state;
+    stateStartTime_ = t;
 }
 
 
@@ -46,7 +46,7 @@ void Playing::Start(const double t)
 void Playing::Start(const double t, const int level)
 {
     pit.Reset();
-    SetState(State::PLAYING);
+    SetState(State::PLAYING, t);
     score = 0;
     remaining_ = 61.0;  // Let's be generous and give them a fraction more than 60 seconds.
     lastTime_ = t;
@@ -200,7 +200,7 @@ Screens Playing::Update(double t, double dt)
     {
         if (state_ == State::PLAYING)
         {
-            SetState(State::GAME_OVER);
+            SetState(State::GAME_OVER, t);
             SetLevel(level_ + 1);
         }
         remaining_ = 0.0;
@@ -209,7 +209,9 @@ Screens Playing::Update(double t, double dt)
     if (state_ == State::PLAYING)
     {
         // Scroll the contents of the pit up.
-        internalTileScroll += input::buttons.IsPressed(input::ButtonId::x) ? 1.0f : scrollRate;
+        internalTileScroll += (input::buttons.IsPressed(input::ButtonId::x) && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
+            ? 1.0f 
+            : scrollRate;
         if (internalTileScroll >= tileSize)
         {
             pit.ScrollOne();
@@ -266,29 +268,29 @@ Screens Playing::Update(double t, double dt)
         }
 
         // Check for paused.
-        if (input::buttons.JustPressed(input::ButtonId::back))
+        if (input::buttons.JustPressed(input::ButtonId::back))// && input::buttons.LastPressed(input::ButtonId::back) > stateStartTime_)
         {
-            SetState(State::PAUSED);
+            SetState(State::PAUSED, t);
         }
 
         // Check for game over.
         if (pit.IsImpacted())
         {
-            SetState(State::GAME_OVER);
+            SetState(State::GAME_OVER, t);
         }
 
     }
     else if (state_ == State::GAME_OVER)
     {
-        if (input::buttons.JustPressed(input::ButtonId::b))
+        if (input::buttons.JustPressed(input::ButtonId::b))// && input::buttons.LastPressed(input::ButtonId::b) > stateStartTime_)
         {
             return Screens::Menu;
         }
-        if (input::buttons.JustPressed(input::ButtonId::x))
+        if (input::buttons.JustPressed(input::ButtonId::x))// && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
         {
             Start(t, lastPlayed_);
         }
-        if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
+        if (input::buttons.JustPressed(input::ButtonId::a))// && input::buttons.LastPressed(input::ButtonId::a) > stateStartTime_ && !pit.IsImpacted())
         {
             // Go on to the next level.
             Start(t, level_);
@@ -302,7 +304,7 @@ Screens Playing::Update(double t, double dt)
         }
         if (input::buttons.JustPressed(input::ButtonId::a))
         {
-            SetState(State::PLAYING);
+            SetState(State::PLAYING, t);
         }
     }
 
