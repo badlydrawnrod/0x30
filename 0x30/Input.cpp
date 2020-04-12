@@ -14,15 +14,15 @@ namespace
 
 
     constexpr ButtonBit debugBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit backBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit startBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit leftBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit rightBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit upBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit downBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit aBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit bBit = 1 << static_cast<uint32_t>(ButtonId::debug);
-    constexpr ButtonBit xBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit backBit = 1 << static_cast<uint32_t>(ButtonId::back);
+    constexpr ButtonBit startBit = 1 << static_cast<uint32_t>(ButtonId::start);
+    constexpr ButtonBit leftBit = 1 << static_cast<uint32_t>(ButtonId::left);
+    constexpr ButtonBit rightBit = 1 << static_cast<uint32_t>(ButtonId::right);
+    constexpr ButtonBit upBit = 1 << static_cast<uint32_t>(ButtonId::up);
+    constexpr ButtonBit downBit = 1 << static_cast<uint32_t>(ButtonId::down);
+    constexpr ButtonBit aBit = 1 << static_cast<uint32_t>(ButtonId::a);
+    constexpr ButtonBit bBit = 1 << static_cast<uint32_t>(ButtonId::b);
+    constexpr ButtonBit xBit = 1 << static_cast<uint32_t>(ButtonId::x);
 
     class ButtonStates
     {
