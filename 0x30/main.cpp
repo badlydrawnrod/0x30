@@ -98,7 +98,7 @@ bool Game::ShouldQuit()
 void Game::Update(double t, double dt)
 {
     input::UpdateInputState();
-    if (input::WasDebugPressed() && !input::IsDebugPressed())
+    if (input::buttons.JustPressed(input::ButtonId::debug))
     {
         ToggleConsole();
     }

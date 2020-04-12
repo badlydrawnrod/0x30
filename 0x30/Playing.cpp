@@ -30,6 +30,13 @@ void Playing::SetLevel(int level)
 }
 
 
+void Playing::SetState(State state)
+{
+    input::buttons.Reset();
+    state_ = state;
+}
+
+
 void Playing::Start(const double t)
 {
     Start(t, level_);
@@ -39,7 +46,7 @@ void Playing::Start(const double t)
 void Playing::Start(const double t, const int level)
 {
     pit.Reset();
-    state_ = State::PLAYING;
+    SetState(State::PLAYING);
     score = 0;
     remaining_ = 61.0;  // Let's be generous and give them a fraction more than 60 seconds.
     lastTime_ = t;
@@ -193,7 +200,7 @@ Screens Playing::Update(double t, double dt)
     {
         if (state_ == State::PLAYING)
         {
-            state_ = State::GAME_OVER;
+            SetState(State::GAME_OVER);
             SetLevel(level_ + 1);
         }
         remaining_ = 0.0;
@@ -202,7 +209,7 @@ Screens Playing::Update(double t, double dt)
     if (state_ == State::PLAYING)
     {
         // Scroll the contents of the pit up.
-        internalTileScroll += input::IsXHeld() ? 1.0f : scrollRate;
+        internalTileScroll += input::buttons.IsPressed(input::ButtonId::x) ? 1.0f : scrollRate;
         if (internalTileScroll >= tileSize)
         {
             pit.ScrollOne();
@@ -214,25 +221,25 @@ Screens Playing::Update(double t, double dt)
         }
 
         // Move the player.
-        if (input::IsLeftPressed() && !input::WasLeftPressed() && cursorTileX > 0)
+        if (input::buttons.JustPressed(input::ButtonId::left) && cursorTileX > 0)
         {
             --cursorTileX;
         }
-        if (input::IsRightPressed() && !input::WasRightPressed() && cursorTileX < Pit::cols - 2)
+        if (input::buttons.JustPressed(input::ButtonId::right) && cursorTileX < Pit::cols - 2)
         {
             ++cursorTileX;
         }
-        if (input::IsUpPressed() && !input::WasUpPressed() && cursorTileY > 1)
+        if (input::buttons.JustPressed(input::ButtonId::up) && cursorTileY > 1)
         {
             --cursorTileY;
         }
-        if (input::IsDownPressed() && !input::WasDownPressed() && cursorTileY < Pit::rows - 2)
+        if (input::buttons.JustPressed(input::ButtonId::down) && cursorTileY < Pit::rows - 2)
         {
             ++cursorTileY;
         }
 
         // Swap tiles.
-        if (input::IsAPressed() && !input::WasAPressed())
+        if (input::buttons.JustPressed(input::ButtonId::a))
         {
             pit.Swap(cursorTileX, cursorTileY);
             je::Play(sounds_.blocksSwapping, blocksSwappingSource_);
@@ -259,29 +266,29 @@ Screens Playing::Update(double t, double dt)
         }
 
         // Check for paused.
-        if (!input::IsBackPressed() && input::WasBackPressed())
+        if (input::buttons.JustPressed(input::ButtonId::back))
         {
-            state_ = State::PAUSED;
+            SetState(State::PAUSED);
         }
 
         // Check for game over.
         if (pit.IsImpacted())
         {
-            state_ = State::GAME_OVER;
+            SetState(State::GAME_OVER);
         }
 
     }
     else if (state_ == State::GAME_OVER)
     {
-        if (input::WasBPressed() && !input::IsBPressed())
+        if (input::buttons.JustPressed(input::ButtonId::b))
         {
             return Screens::Menu;
         }
-        if (input::WasXPressed() && !input::IsXPressed())
+        if (input::buttons.JustPressed(input::ButtonId::x))
         {
             Start(t, lastPlayed_);
         }
-        if (input::WasAPressed() && !input::IsAPressed() && !pit.IsImpacted())
+        if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
         {
             // Go on to the next level.
             Start(t, level_);
@@ -289,13 +296,13 @@ Screens Playing::Update(double t, double dt)
     }
     else if (state_ == State::PAUSED)
     {
-        if (input::WasBPressed() && !input::IsBPressed())
+        if (input::buttons.JustPressed(input::ButtonId::b))
         {
             return Screens::Menu;
         }
-        if (input::WasAPressed() && !input::IsAPressed())
+        if (input::buttons.JustPressed(input::ButtonId::a))
         {
-            state_ = State::PLAYING;
+            SetState(State::PLAYING);
         }
     }
 

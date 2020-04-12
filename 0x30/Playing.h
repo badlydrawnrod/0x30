@@ -42,6 +42,7 @@ private:
     void DrawBackdrop();
 
     void SetLevel(int level);
+    void SetState(State state);
 
     const float tileSize = 16.0f;
 

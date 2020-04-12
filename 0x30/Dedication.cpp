@@ -24,7 +24,7 @@ Screens Dedication::Update(double t, double dt)
         return Screens::Menu;
     }
 
-    if (input::WasAPressed() && !input::IsAPressed())
+    if (input::buttons.JustPressed(input::ButtonId::a))
     {
         je::Play(sounds_.menuSelect, source_);
         return Screens::Menu;

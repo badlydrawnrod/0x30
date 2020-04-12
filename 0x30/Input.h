@@ -5,37 +5,30 @@
 
 namespace input
 {
-    // Input states.
-    bool IsDebugPressed();
-    bool WasDebugPressed();
+    enum class ButtonId : uint32_t { debug, back, start, left, right, up, down, a, b, x };
 
-    bool IsBackPressed();
-    bool WasBackPressed();
+    class ButtonStates
+    {
+    public:
+        void Reset();
+        void Update();
+        bool IsPressed(ButtonId id);
+        bool JustPressed(ButtonId id);
 
-    bool IsStartPressed();
-    bool WasStartPressed();
+        void DetectTransitions();
+        void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode);
+        void OnJoystickEvent(int joystickId, int event);
 
-    bool IsLeftPressed();
-    bool WasLeftPressed();
+    private:
+        using Buttons = uint32_t;
 
-    bool IsRightPressed();
-    bool WasRightPressed();
+        Buttons prevButtons_{ 0 };
+        Buttons buttons_{ 0 };
+        Buttons buttonDowns_{ 0 };
+        Buttons buttonUps_{ 0 };
+    };
 
-    bool IsUpPressed();
-    bool WasUpPressed();
-
-    bool IsDownPressed();
-    bool WasDownPressed();
-
-    bool IsAPressed();
-    bool WasAPressed();
-
-    bool IsBPressed();
-    bool WasBPressed();
-
-    bool IsXPressed();
-    bool WasXPressed();
-    bool IsXHeld();
+    extern ButtonStates buttons;
 
     void Initialise(je::Context& context);
     void UpdateInputState();
