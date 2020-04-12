@@ -5,6 +5,184 @@
 
 namespace
 {
+    using GameTime = double;
+
+    enum class ButtonId : uint32_t { debug, back, start, left, right, up, down, a, b, x };
+
+    using ButtonBit = uint32_t;
+    using Buttons = uint32_t;
+
+
+    constexpr ButtonBit debugBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit backBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit startBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit leftBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit rightBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit upBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit downBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit aBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit bBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+    constexpr ButtonBit xBit = 1 << static_cast<uint32_t>(ButtonId::debug);
+
+    class ButtonStates
+    {
+    public:
+        void Update();
+        void DetectTransitions();
+
+        bool JustPressed(ButtonId id);
+
+        void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode);
+        void OnJoystickEvent(int joystickId, int event);
+
+    private:
+        Buttons prevButtons_{ 0 };
+        Buttons buttons_{ 0 };
+        Buttons buttonDowns_{ 0 };
+        Buttons buttonUps_{ 0 };
+    };
+
+    void ButtonStates::Update()
+    {
+        prevButtons_ = buttons_;
+    }
+
+    void ButtonStates::DetectTransitions()
+    {
+        Buttons changes = prevButtons_ ^ buttons_;
+
+        buttonDowns_ = changes & buttons_;
+        buttonUps_ = changes & (~buttons_);
+
+        if (buttonDowns_)
+        {
+            LOG("Button downs: 0x" << std::hex << buttonDowns_ << std::dec);
+        }
+        if (buttonUps_)
+        {
+            LOG("Button ups: 0x" << std::hex << buttonUps_ << std::dec);
+        }
+    }
+
+    void ButtonStates::OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
+    {
+        bool isPress = (action == GLFW_PRESS);
+        bool isPressOrRepeat = (action == GLFW_PRESS || action == GLFW_REPEAT);
+        switch (key)
+        {
+        case GLFW_KEY_LEFT:
+            // Left.
+            if (isPressOrRepeat)
+            {
+                buttons_ |= leftBit;
+            }
+            else
+            {
+                buttons_ &= ~leftBit;
+            }
+            break;
+        case GLFW_KEY_RIGHT:
+            // Right.
+            if (isPressOrRepeat)
+            {
+                buttons_ |= rightBit;
+            }
+            else
+            {
+                buttons_ &= ~rightBit;
+            }
+            break;
+        case GLFW_KEY_UP:
+            // Up.
+            if (isPressOrRepeat)
+            {
+                buttons_ |= upBit;
+            }
+            else
+            {
+                buttons_ &= ~upBit;
+            }
+            break;
+        case GLFW_KEY_DOWN:
+            // Down.
+            if (isPressOrRepeat)
+            {
+                buttons_ |= downBit;
+            }
+            else
+            {
+                buttons_ &= ~downBit;
+            }
+            break;
+        case GLFW_KEY_SPACE:
+        case GLFW_KEY_X:
+            // Button [A].
+            if (isPressOrRepeat)
+            {
+                buttons_ |= aBit;
+            }
+            else
+            {
+                buttons_ &= ~aBit;
+            }
+            break;
+        case GLFW_KEY_ESCAPE:
+            // Button [B].
+            if (isPressOrRepeat)
+            {
+                buttons_ |= bBit;
+            }
+            else
+            {
+                buttons_ &= ~bBit;
+            }
+            break;
+        case GLFW_KEY_LEFT_CONTROL:
+        case GLFW_KEY_RIGHT_CONTROL:
+        case GLFW_KEY_C:
+            // Button [X].
+            if (isPressOrRepeat)
+            {
+                buttons_ |= xBit;
+            }
+            else
+            {
+                buttons_ &= ~xBit;
+            }
+            break;
+        case GLFW_KEY_P:
+            // Button [Back].
+            if (isPressOrRepeat)
+            {
+                buttons_ |= backBit;
+            }
+            else
+            {
+                buttons_ &= ~backBit;
+            }
+            break;
+        case GLFW_KEY_F12:
+            // Debug.
+            if (isPressOrRepeat)
+            {
+                buttons_ |= debugBit;
+            }
+            else
+            {
+                buttons_ &= ~debugBit;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    void ButtonStates::OnJoystickEvent(int joystickId, int event)
+    {
+    }
+
+    ButtonStates buttons;
+
     // Input states.
     bool isDebugPressed = false;
     bool isBackPressed = false;
@@ -50,6 +228,8 @@ namespace
     // Called by GLFW whenever a key is pressed or released.
     void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
     {
+        buttons.OnKeyEvent(window, key, scancode, action, mode);
+
         bool isPress = (action == GLFW_PRESS);
         bool isPressOrRepeat = (action == GLFW_PRESS || action == GLFW_REPEAT);
         switch (key)
@@ -187,6 +367,7 @@ namespace input
         isXPressed = false;
 
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
+        buttons.Update();
         glfwPollEvents();
 
         isXHeld = isKeyboardXHeld;
@@ -221,6 +402,8 @@ namespace input
             isUpPressed = isUpPressed || (upActivated && !wasUpActivated);
             isDownPressed = isDownPressed || (downActivated && !wasDownActivated);
         }
+
+        buttons.DetectTransitions();
     }
 
     void Initialise(je::Context& context)
