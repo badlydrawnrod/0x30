@@ -127,6 +127,10 @@ void Game::Update(double t, double dt)
         {
             playing.Start(t);
         }
+        else if (currentScreen == Screens::Menu)
+        {
+            menu.Start(t, playing.MaxLevel());
+        }
         // TODO: enter the new screen.
     }
 }

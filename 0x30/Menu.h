@@ -12,6 +12,7 @@ class Menu
 public:
     Menu(je::Batch& batch, Textures& textures);
 
+    void Start(double t, int maxLevel);
     Screens Update(double t, double dt);
     void Draw();
 
@@ -19,4 +20,7 @@ private:
     je::Batch& batch_;
     Textures& textures_;
     TextRenderer textRenderer_;
+
+    double screenStartTime_{ 0 };
+    int maxLevel_{ 0 };
 };

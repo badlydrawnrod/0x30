@@ -15,6 +15,13 @@ Menu::Menu(je::Batch& batch, Textures& textures) :
 }
 
 
+void Menu::Start(double t, int maxLevel)
+{
+    screenStartTime_ = t;
+    maxLevel_ = maxLevel;
+}
+
+
 Screens Menu::Update(double t, double dt)
 {
     if (input::buttons.JustPressed(input::ButtonId::a))
