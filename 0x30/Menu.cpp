@@ -76,7 +76,7 @@ void Menu::Draw()
 
     // Draw the level selection cursor.
     y += 16.0f;
-    batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x, y + 12.0f * currentSelection_ - 2.0f, 104.0f, 8.0f + 4.0f, { 0x00, 0x7f, 0x7f, 0xff }));
+    batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * currentSelection_ - 2.0f, 120.0f, 8.0f + 4.0f, { 0x00, 0x7f, 0x7f, 0xff }));
 
     // Draw the scores for each level.
     for (auto i = 0; i < scores_.size(); i++)

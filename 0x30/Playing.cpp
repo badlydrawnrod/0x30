@@ -14,7 +14,8 @@ Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::func
     pitRenderer{ pit, textures, batch },
     textRenderer{ textures.textTiles, batch },
     timeRenderer{ textRenderer },
-    scoreRenderer{ textRenderer },
+    scoreRenderer{ textRenderer, "SCORE" },
+    highScoreRenderer{ textRenderer, " HIGH" },
     speedRenderer{ textRenderer },
     state_{ State::PLAYING },
     remaining_{ 0 },
@@ -322,7 +323,7 @@ void Playing::DrawBackdrop()
 {
     if (!textures.backdrops.empty())
     {
-        batch_.AddVertices(je::quads::Create(textures.backdrops[0], 0.0f, 0.0f));
+        batch_.AddVertices(je::quads::Create(textures.backdrops[(lastPlayed_ - 1) % textures.backdrops.size() ], 0.0f, 0.0f));
     }
 }
 
@@ -337,10 +338,11 @@ void Playing::Draw()
 
     // Draw some stats.
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 4));
+    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 6));
     timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, lastPlayed_);
+    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, scores_[lastPlayed_-1]);
+    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 6 }, lastPlayed_);
 
     if (state_ == State::PLAYING)
     {

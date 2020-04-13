@@ -17,8 +17,8 @@ void SpeedRenderer::Draw(je::Vec2f position, int speed)
     textRenderer_.Draw(1.0f + position.x, 1.0f + position.y, "SPEED", blackColour);
     textRenderer_.Draw(position.x, position.y, "SPEED", textColour);
     std::ostringstream speedString;
-    speedString << std::setw(1) << speed;
+    speedString << std::setw(2) << speed;
 
-    textRenderer_.Draw(1.0f + position.x + 32.0f, 1.0f + position.y + 10.0f, speedString.str(), blackColour);
-    textRenderer_.Draw(position.x + 32.0f, position.y + 10.0f, speedString.str(), speedColour);
+    textRenderer_.Draw(1.0f + position.x + 24.0f, 1.0f + position.y + 10.0f, speedString.str(), blackColour);
+    textRenderer_.Draw(position.x + 24.0f, position.y + 10.0f, speedString.str(), speedColour);
 }

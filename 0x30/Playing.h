@@ -59,6 +59,7 @@ private:
     TextRenderer textRenderer;
     TimeRenderer timeRenderer;
     ScoreRenderer scoreRenderer;
+    ScoreRenderer highScoreRenderer;
     SpeedRenderer speedRenderer;
     double lastTime_;
     double remaining_;
