@@ -15,6 +15,7 @@ public:
     void Start(double t, int maxLevel, const std::array<uint64_t, 10>& scores);
     Screens Update(double t, double dt);
     void Draw();
+    int SelectedLevel() const { return currentSelection_ + 1; }
 
 private:
     je::Batch& batch_;
@@ -24,4 +25,5 @@ private:
     std::array<uint64_t, 10> scores_;
     double screenStartTime_{ 0 };
     int maxLevel_{ 0 };
+    int currentSelection_{ 0 };
 };

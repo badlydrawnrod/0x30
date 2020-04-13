@@ -125,7 +125,7 @@ void Game::Update(double t, double dt)
         currentScreen = newScreen;
         if (currentScreen == Screens::Playing)
         {
-            playing.Start(t);
+            playing.Start(t, menu.SelectedLevel());
         }
         else if (currentScreen == Screens::Menu)
         {

@@ -12,7 +12,8 @@ struct Textures
     je::Texture texture;
     std::vector<je::Texture> backdrops;
 
-    je::TextureRegion blankTile;
+    je::TextureRegion blankSquare;
+    je::TextureRegion whiteSquare;
 
     je::TextureRegion redTile;
     je::TextureRegion greenTile;

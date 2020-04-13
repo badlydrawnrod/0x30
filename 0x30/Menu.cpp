@@ -4,6 +4,7 @@
 #include "Input.h"
 
 #include "je/Logger.h"
+#include "je/QuadHelpers.h"
 #include "je/Time.h"
 
 #include <iomanip>
@@ -45,25 +46,39 @@ Screens Menu::Update(double t, double dt)
         return Screens::Quit;
     }
 
+    if (input::buttons.JustPressed(input::ButtonId::up) && currentSelection_ > 0)
+    {
+        --currentSelection_;
+    }
+
+    if (input::buttons.JustPressed(input::ButtonId::down) && currentSelection_ + 1 < maxLevel_)
+    {
+        ++currentSelection_;
+    }
+
     return Screens::Menu;
 }
 
 
 void Menu::Draw()
 {
-    // Draw some text.
+    // Tell the player what to do.
     float x = VIRTUAL_WIDTH / 2.0f - 64.0f;
     float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
     textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS [A] TO START", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "PRESS [A] TO START");
 
-    // Draw the scores for each level.
+    // Draw the game mode's name.
     x += 16.0f;
     y += 24.0f;
     textRenderer_.Draw(x + 1.0f, y + 1.0f, "Just a ninute", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff });
 
+    // Draw the level selection cursor.
     y += 16.0f;
+    batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x, y + 12.0f * currentSelection_ - 2.0f, 104.0f, 8.0f + 4.0f, { 0x00, 0x7f, 0x7f, 0xff }));
+
+    // Draw the scores for each level.
     for (auto i = 0; i < scores_.size(); i++)
     {
         std::stringstream text;

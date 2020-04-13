@@ -10,7 +10,8 @@ Textures::Textures()
 {
     texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
 
-    blankTile = je::TextureRegion{ texture, 0, 32.0f, tileSize, tileSize };
+    blankSquare = je::TextureRegion{ texture, 0.0f, 32.0f, tileSize, tileSize };
+    whiteSquare = je::TextureRegion{ texture, 16.0f, 32.0f, tileSize, tileSize };
 
     redTile = je::TextureRegion{ texture, 0 * tileSize, 48.0f, tileSize, tileSize };
     greenTile = je::TextureRegion{ texture, 1 * tileSize, 48.0f, tileSize, tileSize };
