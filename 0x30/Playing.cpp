@@ -20,6 +20,7 @@ Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::func
     remaining_{ 0 },
     lastTime_{ 0 }
 {
+    scores_.fill(100);
 }
 
 
@@ -50,9 +51,10 @@ void Playing::Start(const double t, const int level)
     score = 0;
     remaining_ = 61.0;  // Let's be generous and give them a fraction more than 60 seconds.
     lastTime_ = t;
-    SetLevel(level);
-    lastPlayed_ = level;
-    scrollRate = 0.025f + (0.005f * (level - 1));
+    int actualLevel = level < numLevels ? level : numLevels;
+    SetLevel(actualLevel);
+    lastPlayed_ = actualLevel;
+    scrollRate = 0.025f + (0.005f * (actualLevel - 1));
     cursorTileX = (Pit::cols / 2) - 1;
     cursorTileY = Pit::rows / 2;
     flyups.clear();
@@ -183,7 +185,8 @@ void Playing::UpdateScore(const Pit& pit, uint64_t& score)
             LOG("Run score: " << runScore << " * chain length " << (runInfo.chainLength + 1) << " * multiplier " << multiplier << " = " << scoreChange);
             score += scoreChange;
         }
-        LOG("Score: " << score);
+        scores_[lastPlayed_ - 1] = std::max(score, scores_[lastPlayed_ - 1]);
+        LOG("Score: " << score << " High: " << scores_[lastPlayed_ - 1]);
     }
 }
 
@@ -210,7 +213,7 @@ Screens Playing::Update(double t, double dt)
     {
         // Scroll the contents of the pit up.
         internalTileScroll += (input::buttons.IsPressed(input::ButtonId::x) && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
-            ? 1.0f 
+            ? 1.0f
             : scrollRate;
         if (internalTileScroll >= tileSize)
         {

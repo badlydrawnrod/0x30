@@ -15,6 +15,7 @@
 #include "je/QuadHelpers.h"
 #include "je/Time.h"
 
+#include <array>
 #include <functional>
 #include <iomanip>
 #include <sstream>
@@ -31,6 +32,7 @@ public:
     void Draw();
 
     int MaxLevel() const { return maxLevel_; }
+    std::array<uint64_t, 10> Scores() const { return scores_; }
 
 private:
 
@@ -78,5 +80,8 @@ private:
     int level_{ 1 };
     int lastPlayed_{ 1 };
     int maxLevel_{ 1 };
+    static constexpr size_t numLevels = 10;
+    std::array<uint64_t, numLevels> scores_{};
+
     std::vector<Flyup> flyups;
 };

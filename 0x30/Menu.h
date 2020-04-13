@@ -12,7 +12,7 @@ class Menu
 public:
     Menu(je::Batch& batch, Textures& textures);
 
-    void Start(double t, int maxLevel);
+    void Start(double t, int maxLevel, const std::array<uint64_t, 10>& scores);
     Screens Update(double t, double dt);
     void Draw();
 
@@ -21,6 +21,7 @@ private:
     Textures& textures_;
     TextRenderer textRenderer_;
 
+    std::array<uint64_t, 10> scores_;
     double screenStartTime_{ 0 };
     int maxLevel_{ 0 };
 };

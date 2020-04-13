@@ -129,7 +129,7 @@ void Game::Update(double t, double dt)
         }
         else if (currentScreen == Screens::Menu)
         {
-            menu.Start(t, playing.MaxLevel());
+            menu.Start(t, playing.MaxLevel(), playing.Scores());
         }
         // TODO: enter the new screen.
     }
@@ -170,9 +170,6 @@ int main()
     };
 
     Game game(Rnd);
-
-    // Quick hack to check that we can load and play sounds.
-    // See: https://github.com/kcat/openal-soft/blob/master/examples/alplay.c for more info.
 
     double t = 0.0;
     double dt = 1.0 / UPDATE_FPS;
