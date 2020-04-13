@@ -60,6 +60,79 @@ namespace input
         prevButtons_ = buttons_;
     }
 
+    void ButtonStates::UpdateButton(bool isPressOrRepeat, uint32_t bit)
+    {
+        if (isPressOrRepeat)
+        {
+            buttons_ |= bit;
+        }
+        else
+        {
+            buttons_ &= ~bit;
+        }
+    }
+
+    void ButtonStates::PollGamepadButton(const GLFWgamepadstate& state, int button, uint32_t bit)
+    {
+        if (state.buttons[button] && !prevGamepadState_.buttons[button])
+        {
+            buttons_ |= bit;
+        }
+        else if (!state.buttons[button] && prevGamepadState_.buttons[button])
+        {
+            buttons_ &= ~bit;
+        }
+    }
+
+    void ButtonStates::PollGamepad()
+    {
+        GLFWgamepadstate state;
+        if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
+        {
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_BACK, backBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_START, startBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_LEFT, leftBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_RIGHT, rightBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_UP, upBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_DOWN, downBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_A, aBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_B, bBit);
+            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_X, xBit);
+            prevGamepadState_ = state;
+
+            const float joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+            const float joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+
+            const float threshold = 0.5f;
+            const bool isLeftActivated = joystickX < -threshold;
+            const bool isRightActivated = joystickX > threshold;
+            const bool isUpActivated = joystickY < -threshold;
+            const bool isDownActivated = joystickY > threshold;
+
+            if (isLeftActivated != wasLeftActivated_)
+            {
+                UpdateButton(isLeftActivated, leftBit);
+            }
+            if (isRightActivated != wasRightActivated_)
+            {
+                UpdateButton(isRightActivated, rightBit);
+            }
+            if (isUpActivated != wasUpActivated_)
+            {
+                UpdateButton(isUpActivated, upBit);
+            }
+            if (isDownActivated != wasDownActivated_)
+            {
+                UpdateButton(isDownActivated, downBit);
+            }
+
+            wasLeftActivated_ = isLeftActivated;
+            wasRightActivated_ = isRightActivated;
+            wasUpActivated_ = isUpActivated;
+            wasDownActivated_ = isDownActivated;
+        }
+    }
+
     void ButtonStates::DetectTransitions(double t)
     {
         Buttons changes = prevButtons_ ^ buttons_;
@@ -101,105 +174,42 @@ namespace input
         {
         case GLFW_KEY_LEFT:
             // Left.
-            if (isPressOrRepeat)
-            {
-                buttons_ |= leftBit;
-            }
-            else
-            {
-                buttons_ &= ~leftBit;
-            }
+            UpdateButton(isPressOrRepeat, leftBit);
             break;
         case GLFW_KEY_RIGHT:
             // Right.
-            if (isPressOrRepeat)
-            {
-                buttons_ |= rightBit;
-            }
-            else
-            {
-                buttons_ &= ~rightBit;
-            }
+            UpdateButton(isPressOrRepeat, rightBit);
             break;
         case GLFW_KEY_UP:
             // Up.
-            if (isPressOrRepeat)
-            {
-                buttons_ |= upBit;
-            }
-            else
-            {
-                buttons_ &= ~upBit;
-            }
+            UpdateButton(isPressOrRepeat, upBit);
             break;
         case GLFW_KEY_DOWN:
             // Down.
-            if (isPressOrRepeat)
-            {
-                buttons_ |= downBit;
-            }
-            else
-            {
-                buttons_ &= ~downBit;
-            }
+            UpdateButton(isPressOrRepeat, downBit);
             break;
         case GLFW_KEY_SPACE:
         case GLFW_KEY_X:
             // Button [A].
-            if (isPressOrRepeat)
-            {
-                buttons_ |= aBit;
-            }
-            else
-            {
-                buttons_ &= ~aBit;
-            }
+            UpdateButton(isPressOrRepeat, aBit);
             break;
         case GLFW_KEY_ESCAPE:
             // Button [B].
-            if (isPressOrRepeat)
-            {
-                buttons_ |= bBit;
-            }
-            else
-            {
-                buttons_ &= ~bBit;
-            }
+            UpdateButton(isPressOrRepeat, bBit);
             break;
         case GLFW_KEY_LEFT_CONTROL:
         case GLFW_KEY_RIGHT_CONTROL:
         case GLFW_KEY_C:
             // Button [X].
-            if (isPressOrRepeat)
-            {
-                buttons_ |= xBit;
-            }
-            else
-            {
-                buttons_ &= ~xBit;
-            }
+            UpdateButton(isPressOrRepeat, xBit);
             break;
         case GLFW_KEY_P:
             // Button [Back].
-            if (isPressOrRepeat)
-            {
-                buttons_ |= backBit;
-            }
-            else
-            {
-                buttons_ &= ~backBit;
-            }
+            UpdateButton(isPressOrRepeat, backBit);
             break;
         case GLFW_KEY_F12:
             // Debug.
-            if (isPressOrRepeat)
-            {
-                buttons_ |= debugBit;
-            }
-            else
-            {
-                buttons_ &= ~debugBit;
-            }
+            UpdateButton(isPressOrRepeat, debugBit);
             break;
         default:
             break;
@@ -213,25 +223,8 @@ namespace input
     ButtonStates buttons;
 }
 
-
 namespace
 {
-    // Left stick binary states.
-    bool leftActivated = false;
-    bool rightActivated = false;
-    bool upActivated = false;
-    bool downActivated = false;
-    bool wasLeftActivated = false;
-    bool wasRightActivated = false;
-    bool wasUpActivated = false;
-    bool wasDownActivated = false;
-
-    // Left stick positions.
-    float joystickX = 0.0f;
-    float joystickY = 0.0f;
-    float oldJoystickX = 0.0f;
-    float oldJoystickY = 0.0f;
-
     // Called by GLFW whenever a key is pressed or released.
     void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
     {
@@ -260,51 +253,10 @@ namespace input
 {
     void UpdateInputState(double t)
     {
-        // Copy the current joystick state.
-        oldJoystickX = joystickX;
-        oldJoystickY = joystickY;
-        wasLeftActivated = leftActivated;
-        wasRightActivated = rightActivated;
-        wasUpActivated = upActivated;
-        wasDownActivated = downActivated;
-
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
         buttons.Update();
         glfwPollEvents();
-
-        // TODO: I've forgotten to pack the blueberry pie, er, raise a ticket.
-        //
-        // Poll the first gamepad.
-        //GLFWgamepadstate state;
-        //if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
-        //{
-        //    isBackPressed = isBackPressed || state.buttons[GLFW_GAMEPAD_BUTTON_BACK];
-        //    isStartPressed = isStartPressed || state.buttons[GLFW_GAMEPAD_BUTTON_START];
-        //    isLeftPressed = isLeftPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT];
-        //    isRightPressed = isRightPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
-        //    isUpPressed = isUpPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
-        //    isDownPressed = isDownPressed || state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
-        //    isAPressed = isAPressed || state.buttons[GLFW_GAMEPAD_BUTTON_A];
-        //    isBPressed = isBPressed || state.buttons[GLFW_GAMEPAD_BUTTON_B];
-        //    isXPressed = isXPressed || state.buttons[GLFW_GAMEPAD_BUTTON_X];
-        //    isXHeld = isKeyboardXHeld || state.buttons[GLFW_GAMEPAD_BUTTON_X];
-
-        //    joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
-        //    joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
-
-        //    // Binary activations on the stick.
-        //    const float threshold = 0.5f;
-        //    leftActivated = joystickX < -threshold;
-        //    rightActivated = joystickX > threshold;
-        //    upActivated = joystickY < -threshold;
-        //    downActivated = joystickY > threshold;
-
-        //    isLeftPressed = isLeftPressed || (leftActivated && !wasLeftActivated);
-        //    isRightPressed = isRightPressed || (rightActivated && !wasRightActivated);
-        //    isUpPressed = isUpPressed || (upActivated && !wasUpActivated);
-        //    isDownPressed = isDownPressed || (downActivated && !wasDownActivated);
-        //}
-
+        buttons.PollGamepad();
         buttons.DetectTransitions(t);
     }
 

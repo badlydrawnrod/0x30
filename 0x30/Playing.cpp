@@ -268,7 +268,7 @@ Screens Playing::Update(double t, double dt)
         }
 
         // Check for paused.
-        if (input::buttons.JustPressed(input::ButtonId::back))// && input::buttons.LastPressed(input::ButtonId::back) > stateStartTime_)
+        if (input::buttons.JustPressed(input::ButtonId::back))
         {
             SetState(State::PAUSED, t);
         }
@@ -282,15 +282,15 @@ Screens Playing::Update(double t, double dt)
     }
     else if (state_ == State::GAME_OVER)
     {
-        if (input::buttons.JustPressed(input::ButtonId::b))// && input::buttons.LastPressed(input::ButtonId::b) > stateStartTime_)
+        if (input::buttons.JustPressed(input::ButtonId::b))
         {
             return Screens::Menu;
         }
-        if (input::buttons.JustPressed(input::ButtonId::x))// && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
+        if (input::buttons.JustPressed(input::ButtonId::x))
         {
             Start(t, lastPlayed_);
         }
-        if (input::buttons.JustPressed(input::ButtonId::a))// && input::buttons.LastPressed(input::ButtonId::a) > stateStartTime_ && !pit.IsImpacted())
+        if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
         {
             // Go on to the next level.
             Start(t, level_);
