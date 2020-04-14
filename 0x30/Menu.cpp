@@ -60,7 +60,7 @@ Screens Menu::Update(double t, double dt)
 }
 
 
-void Menu::Draw()
+void Menu::Draw(double t)
 {
     // Tell the player what to do.
     float x = VIRTUAL_WIDTH / 2.0f - 64.0f;

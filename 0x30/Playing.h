@@ -29,7 +29,7 @@ public:
     void Start(double t);
     void Start(double t, int level);
     Screens Update(double t, double dt);
-    void Draw();
+    void Draw(double t);
 
     int MaxLevel() const { return maxLevel_; }
     std::array<uint64_t, 10> Scores() const { return scores_; }
@@ -65,6 +65,7 @@ private:
     double remaining_;
     State state_;
     double stateStartTime_{ 0.0 };
+    bool actionsEnabled_{ false };
 
     const je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };
     const float bottomRow{ topLeft.y + (Pit::rows - 1) * tileSize };
@@ -76,7 +77,6 @@ private:
     int cursorTileX{ (Pit::cols / 2) - 1 };
     int cursorTileY{ Pit::rows / 2 };
 
-    size_t counter{ 0 };
     uint64_t score{ 0 };
     int level_{ 1 };
     int lastPlayed_{ 1 };

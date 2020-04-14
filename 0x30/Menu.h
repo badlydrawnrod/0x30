@@ -14,7 +14,7 @@ public:
 
     void Start(double t, int maxLevel, const std::array<uint64_t, 10>& scores);
     Screens Update(double t, double dt);
-    void Draw();
+    void Draw(double t);
     int SelectedLevel() const { return currentSelection_ + 1; }
 
 private:

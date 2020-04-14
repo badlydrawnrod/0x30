@@ -14,7 +14,7 @@ public:
     Dedication(je::Batch& batch, Textures& textures, Sounds& sounds);
 
     Screens Update(double t, double dt);
-    void Draw();
+    void Draw(double t);
 
 private:
     je::Batch& batch_;

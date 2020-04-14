@@ -58,7 +58,7 @@ public:
     Game(std::function<int(int, int)>& rnd);
     bool ShouldQuit();
     void Update(double t, double dt);
-    void Draw();
+    void Draw(double t);
 
 private:
     je::Context context;
@@ -136,19 +136,19 @@ void Game::Update(double t, double dt)
 }
 
 
-void Game::Draw()
+void Game::Draw(double t)
 {
     batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
     switch (currentScreen)
     {
     case Screens::Dedication:
-        dedication.Draw();
+        dedication.Draw(t);
         break;
     case Screens::Menu:
-        menu.Draw();
+        menu.Draw(t);
         break;
     case Screens::Playing:
-        playing.Draw();
+        playing.Draw(t);
         break;
     }
     batch.End();
@@ -211,7 +211,7 @@ int main()
             glViewport(0, 0, WIDTH, HEIGHT);
 
             // Make like a gunslinger.
-            game.Draw();
+            game.Draw(t);
         }
     }
 

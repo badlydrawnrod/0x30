@@ -34,7 +34,7 @@ Screens Dedication::Update(double t, double dt)
 }
 
 
-void Dedication::Draw()
+void Dedication::Draw(double t)
 {
     // Draw some text.
     const float x = VIRTUAL_WIDTH / 2.0f - 7 * 8.0f;

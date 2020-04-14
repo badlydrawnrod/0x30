@@ -4,6 +4,7 @@
 #include "je/Logger.h"
 
 #include <algorithm>
+#include <cmath>
 
 
 Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
@@ -206,6 +207,7 @@ Screens Playing::Update(double t, double dt)
         {
             SetState(State::GAME_OVER, t);
             SetLevel(level_ + 1);
+            actionsEnabled_ = false;
         }
         remaining_ = 0.0;
     }
@@ -281,23 +283,30 @@ Screens Playing::Update(double t, double dt)
         if (pit.IsImpacted())
         {
             SetState(State::GAME_OVER, t);
+            actionsEnabled_ = false;
         }
 
     }
     else if (state_ == State::GAME_OVER)
     {
-        if (input::buttons.JustPressed(input::ButtonId::b))
+        // Don't allow the player to do anything for a short time to prevent them from taking accidental actions.
+        const double delay = 2.0;
+        actionsEnabled_ = t - stateStartTime_ >= delay;
+        if (actionsEnabled_)
         {
-            return Screens::Menu;
-        }
-        if (input::buttons.JustPressed(input::ButtonId::x))
-        {
-            Start(t, lastPlayed_);
-        }
-        if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
-        {
-            // Go on to the next level.
-            Start(t, level_);
+            if (input::buttons.JustPressed(input::ButtonId::b))
+            {
+                return Screens::Menu;
+            }
+            if (input::buttons.JustPressed(input::ButtonId::x))
+            {
+                Start(t, lastPlayed_);
+            }
+            if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
+            {
+                // Go on to the next level.
+                Start(t, level_);
+            }
         }
     }
     else if (state_ == State::PAUSED)
@@ -323,11 +332,11 @@ void Playing::DrawBackdrop()
 {
     if (!textures.backdrops.empty())
     {
-        batch_.AddVertices(je::quads::Create(textures.backdrops[(lastPlayed_ - 1) % textures.backdrops.size() ], 0.0f, 0.0f));
+        batch_.AddVertices(je::quads::Create(textures.backdrops[(lastPlayed_ - 1) % textures.backdrops.size()], 0.0f, 0.0f));
     }
 }
 
-void Playing::Draw()
+void Playing::Draw(double t)
 {
     // Draw the backdrop.
     DrawBackdrop();
@@ -341,7 +350,7 @@ void Playing::Draw()
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 6));
     timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, scores_[lastPlayed_-1]);
+    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, scores_[lastPlayed_ - 1]);
     speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 6 }, lastPlayed_);
 
     if (state_ == State::PLAYING)
@@ -355,7 +364,7 @@ void Playing::Draw()
     else if (state_ == State::GAME_OVER)
     {
         // It's game over, so tell the player.
-        if (counter % 60 < 40)
+        if (std::fmod(t - stateStartTime_, 1.0) < 0.6)
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
             if (pit.IsImpacted())
@@ -371,35 +380,37 @@ void Playing::Draw()
                 textRenderer.Draw(x, y, "TIME UP!");
             }
         }
+        if (actionsEnabled_)
         {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
-            if (pit.IsImpacted())
             {
-                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] retry", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "[X] retry");
+                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
+                if (pit.IsImpacted())
+                {
+                    const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] retry", { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.Draw(x, y, "[X] retry");
+                }
+                else
+                {
+                    const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] replay", { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.Draw(x, y, "[X] replay");
+                }
             }
-            else
             {
+                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] replay", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "[X] replay");
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "[B] back", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "[B] back");
+            }
+            if (!pit.IsImpacted())
+            {
+                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "[A] next level", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "[A] next level");
             }
         }
-        {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
-            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "[B] back", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "[B] back");
-        }
-        if (!pit.IsImpacted())
-        {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
-            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "[A] next level", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "[A] next level");
-        }
-        counter++;
     }
     else if (state_ == State::PAUSED)
     {
