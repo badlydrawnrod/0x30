@@ -1,6 +1,8 @@
 #include "Playing.h"
 
 #include "Input.h"
+#include "Types.h"
+
 #include "je/Logger.h"
 
 #include <algorithm>

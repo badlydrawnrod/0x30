@@ -2,6 +2,7 @@
 
 #include "Constants.h"
 #include "Input.h"
+#include "Types.h"
 
 #include "je/Logger.h"
 #include "je/QuadHelpers.h"

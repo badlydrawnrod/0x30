@@ -16,6 +16,3 @@ const double UPDATE_FPS = 60.0;
 const double RENDER_FPS = 60.0;
 
 const char* const TITLE = "The Mysterious 0x30";
-
-// Screens.
-enum class Screens { Quit, Dedication, Menu, Playing };

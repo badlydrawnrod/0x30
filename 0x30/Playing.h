@@ -10,6 +10,7 @@
 #include "TextRenderer.h"
 #include "Textures.h"
 #include "TimeRenderer.h"
+#include "Types.h"
 
 #include "je/Batch.h"
 #include "je/QuadHelpers.h"

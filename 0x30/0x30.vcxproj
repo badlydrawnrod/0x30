@@ -185,6 +185,7 @@
     <ClInclude Include="SpeedRenderer.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="TimeRenderer.h" />
+    <ClInclude Include="Types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
