@@ -21,7 +21,7 @@ Menu::Menu(je::Batch& batch, Textures& textures) :
 }
 
 
-void Menu::Start(double t, int maxLevel, const std::array<uint64_t, 10>& scores)
+void Menu::Start(double t, int maxLevel, const Scores& scores)
 {
     screenStartTime_ = t;
     maxLevel_ = maxLevel;
