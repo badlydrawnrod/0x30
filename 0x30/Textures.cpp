@@ -8,7 +8,7 @@ static constexpr float tileSize = 16.0f;
 
 Textures::Textures()
 {
-    texture = je::LoadTextureFromFile("../assets/sprite_tiles.png");
+    texture = je::LoadTextureFromFile("assets/sprite_tiles.png");
 
     blankSquare = je::TextureRegion{ texture, 0.0f, 32.0f, tileSize, tileSize };
     whiteSquare = je::TextureRegion{ texture, 16.0f, 32.0f, tileSize, tileSize };
@@ -52,7 +52,7 @@ Textures::Textures()
     chain5 = je::TextureRegion{ texture,  88.0f, 24.0f, 12.0f, 8.0f };
     chain6 = je::TextureRegion{ texture, 104.0f, 24.0f, 12.0f, 8.0f };
 
-    std::filesystem::path backdropsDir{ "../assets/backdrops" };
+    std::filesystem::path backdropsDir{ "assets/backdrops" };
     for (auto& entry : std::filesystem::directory_iterator(backdropsDir))
     {
         std::filesystem::path path = entry.path();
