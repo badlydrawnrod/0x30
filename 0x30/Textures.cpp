@@ -52,7 +52,7 @@ Textures::Textures()
     chain5 = je::TextureRegion{ texture,  88.0f, 24.0f, 12.0f, 8.0f };
     chain6 = je::TextureRegion{ texture, 104.0f, 24.0f, 12.0f, 8.0f };
 
-    std::filesystem::path backdropsDir{ "assets/backdrops" };
+    const std::filesystem::path backdropsDir{ "assets/backdrops" };
     for (auto& entry : std::filesystem::directory_iterator(backdropsDir))
     {
         std::filesystem::path path = entry.path();

@@ -15,10 +15,13 @@ Flyup::Flyup(const Flyup& other) : texture_{ other.texture_ }, x_{ other.x_ }, y
 
 Flyup& Flyup::operator=(const Flyup& other)
 {
-    texture_ = other.texture_;
-    x_ = other.x_;
-    y_ = other.y_;
-    endTime_ = other.endTime_;
+    if (&other != this)
+    {
+        texture_ = other.texture_;
+        x_ = other.x_;
+        y_ = other.y_;
+        endTime_ = other.endTime_;
+    }
 
     return *this;
 }

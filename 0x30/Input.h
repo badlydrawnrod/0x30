@@ -13,10 +13,10 @@ namespace input
     {
     public:
         void Update();
-        bool IsPressed(ButtonId id);
-        bool IsReleased(ButtonId id);
-        bool JustPressed(ButtonId id);
-        bool JustReleased(ButtonId id);
+        bool IsPressed(ButtonId id) const;
+        bool IsReleased(ButtonId id) const;
+        bool JustPressed(ButtonId id) const;
+        bool JustReleased(ButtonId id) const;
         double LastPressed(ButtonId id);
         double LastReleased(ButtonId id);
 

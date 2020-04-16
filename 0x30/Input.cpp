@@ -19,25 +19,25 @@ namespace input
     constexpr ButtonBit bBit = 1 << static_cast<uint32_t>(ButtonId::b);
     constexpr ButtonBit xBit = 1 << static_cast<uint32_t>(ButtonId::x);
 
-    bool ButtonStates::IsPressed(ButtonId id)
+    bool ButtonStates::IsPressed(ButtonId id) const
     {
         const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
         return (buttons_ & idBit) == idBit;
     }
 
-    bool ButtonStates::IsReleased(ButtonId id)
+    bool ButtonStates::IsReleased(ButtonId id) const
     {
         const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
         return (buttons_ & idBit) == 0;
     }
 
-    bool ButtonStates::JustPressed(ButtonId id)
+    bool ButtonStates::JustPressed(ButtonId id) const
     {
         const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
         return (buttonDowns_ & idBit) == idBit;
     }
 
-    bool ButtonStates::JustReleased(ButtonId id)
+    bool ButtonStates::JustReleased(ButtonId id) const
     {
         const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
         return (buttonUps_ & idBit) == idBit;
