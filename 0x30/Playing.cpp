@@ -303,15 +303,18 @@ Screens Playing::Update(double t, double dt)
         {
             if (input::buttons.JustPressed(input::ButtonId::b))
             {
+                progress_.SaveScores(); // TODO: dedup.
                 return Screens::Menu;
             }
             if (input::buttons.JustPressed(input::ButtonId::x))
             {
+                progress_.SaveScores(); // TODO: dedup.
                 Start(t, lastPlayed_);
             }
             if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
             {
                 // Go on to the next level.
+                progress_.SaveScores(); // TODO: dedup.
                 Start(t, level_);
             }
         }

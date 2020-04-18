@@ -3,12 +3,17 @@
 #include "Types.h"
 
 #include <algorithm>
+#include <fstream>
+
 
 
 class Progress
 {
 public:
     Progress();
+
+    void LoadScores();
+    void SaveScores();
 
     void UpdateMaxLevel(int level) { maxLevel_ = std::max(level, maxLevel_); }
     int MaxLevel() const { return maxLevel_; }

@@ -6,7 +6,7 @@ enum class Screens { Quit, Dedication, Menu, Playing };
 
 struct ScoreRecord
 {
-    uint64_t score;
+    uint64_t score{ 0 };
     std::string name;
 };
 
