@@ -196,6 +196,7 @@ xcopy /q/y/s/e/i $(TargetPath) $(SolutionDir)\output</Command>
     <CustomBuildStep />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Sounds.cpp" />
     <ClCompile Include="Textures.cpp" />
     <ClCompile Include="Dedication.cpp" />
@@ -212,6 +213,7 @@ xcopy /q/y/s/e/i $(TargetPath) $(SolutionDir)\output</Command>
     <ClCompile Include="TimeRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Progress.h" />
     <ClInclude Include="Sounds.h" />
     <ClInclude Include="Textures.h" />
     <ClInclude Include="Constants.h" />

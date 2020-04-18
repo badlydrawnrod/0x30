@@ -5,6 +5,7 @@
 #include "Pit.h"
 #include "PitRenderer.h"
 #include "Playing.h"
+#include "Progress.h"
 #include "TextRenderer.h"
 #include "Textures.h"
 
@@ -66,6 +67,7 @@ private:
 
     je::Shader shader;
     je::Batch batch;
+    Progress progress;
     Textures textures;
     Sounds sounds;
     Playing playing;
