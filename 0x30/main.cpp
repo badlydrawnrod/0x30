@@ -82,7 +82,7 @@ Game::Game(std::function<int(int, int)>& rnd) :
     context{ je::Context(WIDTH, HEIGHT, TITLE) },
     shader{ je::Shader() },
     batch{ shader.Program() },
-    playing{ batch, textures, sounds, rnd },
+    playing{ progress, batch, textures, sounds, rnd },
     dedication{ batch, textures, sounds },
     menu{ batch, textures }
 {

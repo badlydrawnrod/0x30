@@ -4,6 +4,7 @@
 #include "Flyup.h"
 #include "Pit.h"
 #include "PitRenderer.h"
+#include "Progress.h"
 #include "ScoreRenderer.h"
 #include "Sounds.h"
 #include "SpeedRenderer.h"
@@ -25,7 +26,7 @@
 class Playing
 {
 public:
-    Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
+    Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
     void Start(double t);
     void Start(double t, int level);
@@ -49,6 +50,7 @@ private:
 
     const float tileSize = 16.0f;
 
+    Progress& progress_;
     je::Batch& batch_;
     Textures& textures;
     Sounds& sounds_;

@@ -9,9 +9,10 @@
 #include <cmath>
 
 
-Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
+Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
     batch_{ batch },
     textures{ textures },
+    progress_{ progress },
     sounds_{ sounds },
     pit{ rnd },
     pitRenderer{ pit, textures, batch },
