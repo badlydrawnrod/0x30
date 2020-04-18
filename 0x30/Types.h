@@ -4,4 +4,10 @@
 
 enum class Screens { Quit, Dedication, Menu, Playing };
 
-using Scores = std::array<uint64_t, 10>;
+struct ScoreRecord
+{
+    uint64_t score;
+    std::string name;
+};
+
+using Scores = std::array<ScoreRecord, 10>;

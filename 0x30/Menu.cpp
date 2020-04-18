@@ -30,7 +30,7 @@ void Menu::Start(double t, int maxLevel, const Scores& scores)
     // What are the scores for each level?
     for (auto i = 0; i < scores_.size(); i++)
     {
-        LOG("Level: " << (i + 1) << " Score: " << scores_[i]);
+        LOG("Level: " << (i + 1) << " Score: " << scores_[i].score << " Player: " << scores[i].name);
     }
 }
 
@@ -72,7 +72,7 @@ void Menu::Draw(double t)
     // Draw the game mode's name.
     x += 16.0f;
     y += 24.0f;
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "Just a ninute", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "Just a minute", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff });
 
     // Draw the level selection cursor.
@@ -83,7 +83,7 @@ void Menu::Draw(double t)
     for (auto i = 0; i < scores_.size(); i++)
     {
         std::stringstream text;
-        text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores_[i];
+        text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores_[i].score; // TODO: display the name.
         textRenderer_.Draw(x + 1.0f, y + 1.0f, text.str(), { 0x00, 0x00, 0x00, 0xff });
         if (i + 1 <= maxLevel_)
         {

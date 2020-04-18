@@ -24,7 +24,7 @@ Playing::Playing(je::Batch& batch, Textures& textures, Sounds& sounds, std::func
     remaining_{ 0 },
     lastTime_{ 0 }
 {
-    scores_.fill(100);
+    scores_.fill({ 100, "Rod" });
 }
 
 
@@ -189,8 +189,8 @@ void Playing::UpdateScore(const Pit& pit, uint64_t& score)
             LOG("Run score: " << runScore << " * chain length " << (runInfo.chainLength + 1) << " * multiplier " << multiplier << " = " << scoreChange);
             score += scoreChange;
         }
-        scores_[lastPlayed_ - 1] = std::max(score, scores_[lastPlayed_ - 1]);
-        LOG("Score: " << score << " High: " << scores_[lastPlayed_ - 1]);
+        scores_[lastPlayed_ - 1].score = std::max(score, scores_[lastPlayed_ - 1].score);
+        LOG("Score: " << score << " High: " << scores_[lastPlayed_ - 1].score);
     }
 }
 
@@ -352,7 +352,7 @@ void Playing::Draw(double t)
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 6));
     timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, scores_[lastPlayed_ - 1]);
+    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, scores_[lastPlayed_ - 1].score);
     speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 6 }, lastPlayed_);
 
     if (state_ == State::PLAYING)
