@@ -25,20 +25,23 @@ Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sound
     remaining_{ 0 },
     lastTime_{ 0 }
 {
-    scores_.fill({ 100, "Rod" });
 }
 
 
 void Playing::SetLevel(int level)
 {
     level_ = level;
-    maxLevel_ = std::max(level_, maxLevel_);
+    progress_.UpdateMaxLevel(level_);
 }
 
 
 void Playing::SetState(State state, double t)
 {
     state_ = state;
+    if (state_ == State::GAME_OVER)
+    {
+        progress_.UpdateHighScore(level_, highScore_);
+    }
     stateStartTime_ = t;
 }
 
@@ -58,6 +61,7 @@ void Playing::Start(const double t, const int level)
     lastTime_ = t;
     int actualLevel = level < numLevels ? level : numLevels;
     SetLevel(actualLevel);
+    highScore_ = progress_.HighScore(level_);
     lastPlayed_ = actualLevel;
     scrollRate = 0.025f + (0.005f * (actualLevel - 1));
     cursorTileX = (Pit::cols / 2) - 1;
@@ -190,8 +194,8 @@ void Playing::UpdateScore(const Pit& pit, uint64_t& score)
             LOG("Run score: " << runScore << " * chain length " << (runInfo.chainLength + 1) << " * multiplier " << multiplier << " = " << scoreChange);
             score += scoreChange;
         }
-        scores_[lastPlayed_ - 1].score = std::max(score, scores_[lastPlayed_ - 1].score);
-        LOG("Score: " << score << " High: " << scores_[lastPlayed_ - 1].score);
+        highScore_ = std::max(score, highScore_);
+        LOG("Score: " << score << " High: " << highScore_);
     }
 }
 
@@ -353,7 +357,7 @@ void Playing::Draw(double t)
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 6));
     timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, scores_[lastPlayed_ - 1].score);
+    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, highScore_);
     speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 6 }, lastPlayed_);
 
     if (state_ == State::PLAYING)

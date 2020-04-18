@@ -12,25 +12,24 @@
 #include <sstream>
 
 
-Menu::Menu(je::Batch& batch, Textures& textures) :
+Menu::Menu(const Progress& progress, je::Batch& batch, Textures& textures) :
+    progress_{ progress },
     batch_{ batch },
     textures_{ textures },
-    textRenderer_{ textures.textTiles, batch },
-    scores_{}
+    textRenderer_{ textures.textTiles, batch }
 {
 }
 
 
-void Menu::Start(double t, int maxLevel, const Scores& scores)
+void Menu::Start(double t)
 {
     screenStartTime_ = t;
-    maxLevel_ = maxLevel;
-    scores_ = scores;
 
     // What are the scores for each level?
-    for (auto i = 0; i < scores_.size(); i++)
+    const Scores& scores = progress_.LevelScores();
+    for (auto i = 0; i < scores.size(); i++)
     {
-        LOG("Level: " << (i + 1) << " Score: " << scores_[i].score << " Player: " << scores[i].name);
+        LOG("Level: " << (i + 1) << " Score: " << scores[i].score << " Player: " << scores[i].name);
     }
 }
 
@@ -52,7 +51,7 @@ Screens Menu::Update(double t, double dt)
         --currentSelection_;
     }
 
-    if (input::buttons.JustPressed(input::ButtonId::down) && currentSelection_ + 1 < maxLevel_)
+    if (input::buttons.JustPressed(input::ButtonId::down) && currentSelection_ + 1 < progress_.MaxLevel())
     {
         ++currentSelection_;
     }
@@ -79,13 +78,16 @@ void Menu::Draw(double t)
     y += 16.0f;
     batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * currentSelection_ - 2.0f, 120.0f, 8.0f + 4.0f, { 0x00, 0x7f, 0x7f, 0xff }));
 
+    // TODO: add labels to make it clear that these are the best scores for each level, not a high score table.
     // Draw the scores for each level.
-    for (auto i = 0; i < scores_.size(); i++)
+    const Scores& scores = progress_.LevelScores();
+    const int maxLevel = progress_.MaxLevel();
+    for (auto i = 0; i < scores.size(); i++)
     {
         std::stringstream text;
-        text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores_[i].score; // TODO: display the name.
+        text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores[i].score; // TODO: display the name.
         textRenderer_.Draw(x + 1.0f, y + 1.0f, text.str(), { 0x00, 0x00, 0x00, 0xff });
-        if (i + 1 <= maxLevel_)
+        if (i + 1 <= maxLevel)
         {
             textRenderer_.Draw(x, y, text.str());
         }

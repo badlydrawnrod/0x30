@@ -67,7 +67,7 @@ private:
 
     je::Shader shader;
     je::Batch batch;
-    Progress progress;
+    Progress progress_;
     Textures textures;
     Sounds sounds;
     Playing playing;
@@ -82,9 +82,9 @@ Game::Game(std::function<int(int, int)>& rnd) :
     context{ je::Context(WIDTH, HEIGHT, TITLE) },
     shader{ je::Shader() },
     batch{ shader.Program() },
-    playing{ progress, batch, textures, sounds, rnd },
+    playing{ progress_, batch, textures, sounds, rnd },
     dedication{ batch, textures, sounds },
-    menu{ batch, textures }
+    menu{ progress_, batch, textures }
 {
     LOG("Shader program " << shader.Program());
     input::Initialise(context);
@@ -131,7 +131,7 @@ void Game::Update(double t, double dt)
         }
         else if (currentScreen == Screens::Menu)
         {
-            menu.Start(t, playing.MaxLevel(), playing.LevelScores());
+            menu.Start(t);
         }
         // TODO: enter the new screen.
     }

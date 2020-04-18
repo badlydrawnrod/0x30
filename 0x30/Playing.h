@@ -33,9 +33,6 @@ public:
     Screens Update(double t, double dt);
     void Draw(double t);
 
-    int MaxLevel() const { return maxLevel_; }
-    Scores LevelScores() const { return scores_; }
-
 private:
 
     enum class State { PLAYING, PAUSED, GAME_OVER };
@@ -81,11 +78,10 @@ private:
     int cursorTileY{ Pit::rows / 2 };
 
     uint64_t score{ 0 };
+    uint64_t highScore_{ 0 };
     int level_{ 1 };
     int lastPlayed_{ 1 };
-    int maxLevel_{ 1 };
     static constexpr size_t numLevels = 10;
-    Scores scores_{};
 
     std::vector<Flyup> flyups;
 };
