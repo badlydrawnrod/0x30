@@ -18,15 +18,10 @@ Textures::Textures()
     yellowTile = je::TextureRegion{ texture, 2 * tileSize, 48.0f, tileSize, tileSize };
     magentaTile = je::TextureRegion{ texture, 3 * tileSize, 48.0f, tileSize, tileSize };
     cyanTile = je::TextureRegion{ texture, 4 * tileSize, 48.0f, tileSize, tileSize };
+    blueTile = je::TextureRegion{ texture, 48.0f, 32.0f, tileSize, tileSize };
 
     wallTile = je::TextureRegion{ texture, 5 * tileSize, 48.0f, tileSize, tileSize };
     cursorTile = je::TextureRegion{ texture, 103.0f, 47.0f, 17.0f, 17.0f };
-
-    redTileRun = je::TextureRegion{ texture, 0 * tileSize, 64.0f, tileSize, tileSize };
-    greenTileRun = je::TextureRegion{ texture, 1 * tileSize, 64.0f, tileSize, tileSize };
-    yellowTileRun = je::TextureRegion{ texture, 2 * tileSize, 64.0f, tileSize, tileSize };
-    magentaTileRun = je::TextureRegion{ texture, 3 * tileSize, 64.0f, tileSize, tileSize };
-    cyanTileRun = je::TextureRegion{ texture, 4 * tileSize, 64.0f, tileSize, tileSize };
 
     textTiles = je::TextureRegion{ texture, 0.0f, 80.0f, static_cast<GLfloat>(texture.w), static_cast<GLfloat>(texture.h) - 80.0f };
 

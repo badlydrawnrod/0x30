@@ -28,8 +28,9 @@ Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, r
 }
 
 
-void Pit::Reset()
+void Pit::Reset(int level)
 {
+    level_ = level;
     std::fill(tiles_.begin(), tiles_.end(), Tile());
     RefillRows(rows / 2);
     run_ = 0;
@@ -41,12 +42,13 @@ void Pit::Reset()
 
 void Pit::Refill(size_t row)
 {
-    const std::array<TileType, 5> pieces = {
-        TileType::Cyan,
-        TileType::Green,
-        TileType::Magenta,
+    const std::array<TileType, 6> pieces = {
         TileType::Red,
-        TileType::Yellow
+        TileType::Yellow,
+        TileType::Cyan,
+        TileType::Magenta,
+        TileType::Green,
+        TileType::Blue
     };
 
     auto start = PitIndex(0, row);
@@ -54,14 +56,31 @@ void Pit::Refill(size_t row)
     auto above = PitIndex(0, row - 2);
 
     int lastTile = -1;
+    int maxTile = 0;
+    if (level_ == 1)            // Level 1 has just 3 tile types.
+    {
+        maxTile = 2;
+    }
+    else if (level_ < 5)        // Levels 2-4 have 4 tile types.
+    {
+        maxTile = 3;
+    }
+    else if (level_ < 9)        // Levels 5-8 have 5 tile types.
+    {
+        maxTile = 4;
+    }
+    else                        // Levels 9-10 have 6 tile types.
+    {
+        maxTile = 5;
+    }
     for (auto i = start; i <= end; i++, above++)
     {
         // Prevent adjacent tiles from being the same colour.
         const TileType tileAbove = tiles_[above].tileType;
-        int tile = rnd_(0, 4);
+        int tile = rnd_(0, maxTile);
         while (tile == lastTile || pieces[tile] == tileAbove)
         {
-            tile = rnd_(0, 4);
+            tile = rnd_(0, maxTile);
         }
         tiles_[i] = Tile(pieces[tile]);
         lastTile = tile;

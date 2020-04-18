@@ -97,6 +97,9 @@ const je::TextureRegion* PitRenderer::TileAt(size_t col, size_t row) const
     case Pit::TileType::Magenta:
         return &textures_.magentaTile;
 
+    case Pit::TileType::Blue:
+        return &textures_.blueTile;
+
     case Pit::TileType::Wall:
         return &textures_.wallTile;
 

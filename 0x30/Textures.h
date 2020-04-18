@@ -20,15 +20,10 @@ struct Textures
     je::TextureRegion yellowTile;
     je::TextureRegion magentaTile;
     je::TextureRegion cyanTile;
+    je::TextureRegion blueTile;
 
     je::TextureRegion wallTile;
     je::TextureRegion cursorTile;
-
-    je::TextureRegion redTileRun;
-    je::TextureRegion greenTileRun;
-    je::TextureRegion yellowTileRun;
-    je::TextureRegion magentaTileRun;
-    je::TextureRegion cyanTileRun;
 
     je::TextureRegion textTiles;
 

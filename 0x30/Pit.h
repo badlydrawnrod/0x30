@@ -10,7 +10,7 @@ public:
     static constexpr size_t cols = 6;
     static constexpr size_t rows = 13;  // Note, one more than is visible because of the wraparound.
 
-    enum class TileType { None, Red, Green, Yellow, Cyan, Magenta, Wall };
+    enum class TileType { None, Red, Green, Yellow, Cyan, Magenta, Blue, Wall };
 
     struct PitCoord
     {
@@ -67,7 +67,7 @@ public:
 public:
     Pit(std::function<int(int, int)>& rnd);
 
-    void Reset();
+    void Reset(int level);
     void Update();
     void ScrollOne();
     void Swap(size_t x, size_t y);
@@ -172,4 +172,5 @@ private:
     size_t run_;
     std::vector<RunInfo> runInfo_;
     bool landed_{ false };
+    int level_{ 1 };
 };

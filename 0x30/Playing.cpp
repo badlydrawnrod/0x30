@@ -54,14 +54,14 @@ void Playing::Start(const double t)
 
 void Playing::Start(const double t, const int level)
 {
-    pit.Reset();
+    int actualLevel = level < numLevels ? level : numLevels;
+    SetLevel(actualLevel);
+    highScore_ = progress_.HighScore(level_);
+    pit.Reset(actualLevel);
     SetState(State::PLAYING, t);
     score = 0;
     remaining_ = 61.0;  // Let's be generous and give them a fraction more than 60 seconds.
     lastTime_ = t;
-    int actualLevel = level < numLevels ? level : numLevels;
-    SetLevel(actualLevel);
-    highScore_ = progress_.HighScore(level_);
     lastPlayed_ = actualLevel;
     scrollRate = 0.025f + (0.005f * (actualLevel - 1));
     cursorTileX = (Pit::cols / 2) - 1;
