@@ -351,6 +351,14 @@ void Playing::Draw(double t)
     // Draw the backdrop.
     DrawBackdrop();
 
+    {
+        const float x = VIRTUAL_WIDTH / 2 - 6.5f * 8.0f;
+        const float y = 4.0f;
+        batch_.AddVertices(je::quads::Create(textures.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
+        textRenderer.Draw(x + 1.0f, y + 1.0f, "Just a minute", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer.Draw(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff });
+    }
+
     // Draw a translucent texture over the pit area, then draw the pit itself.
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
     pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
