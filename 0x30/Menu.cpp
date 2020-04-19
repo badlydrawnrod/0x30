@@ -83,7 +83,7 @@ void Menu::Draw(double t)
     textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the stack more quickly.", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "raise the stack more quickly.");
 
-    x = VIRTUAL_WIDTH / 2.0f - 64.0f;
+    x = VIRTUAL_WIDTH / 2.0f - 76.0f;
     y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 48.0f;
     if (std::fmod(t - screenStartTime_, 1.0f) < 0.6f)
     {
@@ -92,10 +92,11 @@ void Menu::Draw(double t)
     }
 
     // Draw the game mode's name.
-    x += 16.0f;
+    x = VIRTUAL_WIDTH / 2.0f - 64.0f;
     y += 24.0f;
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "Just a minute", { 0x7f, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "\"Just a minute\"", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "\"Just a minute\"", { 0xff, 0x00, 0x00, 0xff });
+    x += 8.0f;
 
     // Draw the level selection cursor.
     y += 16.0f;

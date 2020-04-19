@@ -171,6 +171,8 @@ int main()
         return distribution(generator);
     };
 
+    ToggleConsole();
+
     Game game(Rnd);
 
     double t = 0.0;
