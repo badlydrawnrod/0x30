@@ -63,8 +63,20 @@ Screens Menu::Update(double t, double dt)
 void Menu::Draw(double t)
 {
     // Tell the player what to do.
-    float x = VIRTUAL_WIDTH / 2.0f - 64.0f;
-    float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
+
+    float x = 4.0f;
+    float y = 4.0f;
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "Clear blocks and don't let them reach", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "Clear blocks and don't let them reach");
+    y += 12.0f;
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Use [A] to swap and [X] to", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "the top. Use [A] to swap and [X] to");
+    y += 12.0f;
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the stack more quickly.", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "raise the stack more quickly.");
+
+    x = VIRTUAL_WIDTH / 2.0f - 64.0f;
+    y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
     textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS [A] TO START", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "PRESS [A] TO START");
 
