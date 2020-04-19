@@ -64,26 +64,37 @@ void Menu::Draw(double t)
 {
     // Tell the player what to do.
 
-    float x = 4.0f;
+    float x = VIRTUAL_WIDTH / 2.0f - 5.5f * 8.0f;
     float y = 4.0f;
+
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "FORTY EIGHT", { 0x7f, 0x00, 0x3f, 0xff });
+    textRenderer_.Draw(x, y, "FORTY EIGHT", { 0xff, 0x00, 0x7f, 0xff });
+    y += 12.0f;
+
+    x = 10.0f;
     textRenderer_.Draw(x + 1.0f, y + 1.0f, "Clear blocks and don't let them reach", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "Clear blocks and don't let them reach");
     y += 12.0f;
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Use [A] to swap and [X] to", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "the top. Use [A] to swap and [X] to");
+
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press [A] to swap and [X] to", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "the top. Press [A] to swap and [X] to");
     y += 12.0f;
+
     textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the stack more quickly.", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "raise the stack more quickly.");
 
     x = VIRTUAL_WIDTH / 2.0f - 64.0f;
-    y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS [A] TO START", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "PRESS [A] TO START");
+    y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 48.0f;
+    if (std::fmod(t - screenStartTime_, 1.0f) < 0.6f)
+    {
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS [A] TO START", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "PRESS [A] TO START", { 0xff, 0xd7, 0x00, 0xff });
+    }
 
     // Draw the game mode's name.
     x += 16.0f;
     y += 24.0f;
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "Just a minute", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "Just a minute", { 0x7f, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff });
 
     // Draw the level selection cursor.
