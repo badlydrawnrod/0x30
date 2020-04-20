@@ -67,6 +67,7 @@ void Playing::Start(const double t, const int level)
     cursorTileX = (Pit::cols / 2) - 1;
     cursorTileY = Pit::rows / 2;
     flyups.clear();
+    musicSource_.Play(sounds_.musicMinuteWaltz);
 }
 
 
@@ -257,18 +258,18 @@ Screens Playing::Update(double t, double dt)
         if (input::buttons.JustPressed(input::ButtonId::a))
         {
             pit.Swap(cursorTileX, cursorTileY);
-            je::Play(sounds_.blocksSwapping, blocksSwappingSource_);
+            blocksSwappingSource_.Play(sounds_.blocksSwapping);
         }
 
         pit.Update();
 
         if (pit.Landed())
         {
-            je::Play(sounds_.blocksLanding, blocksLandingSource_);
+            blocksLandingSource_.Play(sounds_.blocksLanding);
         }
         if (auto runs = pit.Runs(); runs.size() > 0)
         {
-            je::Play(sounds_.blocksPopping, blocksPoppingSource_);
+            blocksPoppingSource_.Play(sounds_.blocksPopping);
         }
 
         UpdateScore(pit, score);

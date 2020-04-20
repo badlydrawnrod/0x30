@@ -221,6 +221,18 @@ namespace je
         source_ = 0;
     }
 
+    void SoundSource::Play(SoundBuffer& buffer)
+    {
+        Stop();
+        alSourcei(source_, AL_BUFFER, (ALint)buffer.Get());
+        alSourcePlay(source_);
+    }
+
+    void SoundSource::Stop()
+    {
+        alSourceStop(source_);
+    }
+
     SoundBuffer::SoundBuffer() : buffer_{ MakeBuffer() }
     {
     }
@@ -233,12 +245,5 @@ namespace je
     {
         alDeleteBuffers(1, &buffer_);
         buffer_ = 0;
-    }
-
-    void Play(SoundBuffer& buffer, SoundSource& source)
-    {
-        alSourceStop(source.Get());
-        alSourcei(source.Get(), AL_BUFFER, (ALint)buffer.Get());
-        alSourcePlay(source.Get());
     }
 }

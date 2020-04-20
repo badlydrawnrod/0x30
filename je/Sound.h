@@ -18,6 +18,8 @@ namespace je
     };
 
 
+    class SoundBuffer;
+
     class SoundSource
     {
     public:
@@ -26,6 +28,8 @@ namespace je
         ~SoundSource();
 
         ALuint Get() const { return source_; }
+        void Play(SoundBuffer& buffer);
+        void Stop();
 
     private:
         ALuint source_{ 0 };
@@ -43,6 +47,4 @@ namespace je
     private:
         ALuint buffer_{ 0 };
     };
-
-    void Play(SoundBuffer& buffer, SoundSource& source);
 }

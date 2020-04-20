@@ -54,6 +54,7 @@ private:
     je::SoundSource blocksSwappingSource_;
     je::SoundSource blocksLandingSource_;
     je::SoundSource blocksPoppingSource_;
+    je::SoundSource musicSource_;
     Pit pit;
     PitRenderer pitRenderer;
     TextRenderer textRenderer;

@@ -339,7 +339,8 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# Ignore backdrops for now as I don't want them uploaded to github.
+# Ignore things that I don't want to make public.
 /assets/backdrops
+/assets/music
 /assets/sounds
 /output
