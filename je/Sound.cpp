@@ -200,6 +200,7 @@ namespace je
             return 0;
         }
 
+        LOG("Loaded sound " << filename << " with buffer id " << buffer);
         return buffer;
     }
 
@@ -255,5 +256,11 @@ namespace je
     {
         alDeleteBuffers(1, &buffer_);
         buffer_ = 0;
+    }
+
+    void SoundBuffer::TakeOwnership(ALuint buffer)
+    {
+        alDeleteBuffers(1, &buffer_);
+        buffer_ = buffer;
     }
 }

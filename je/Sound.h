@@ -44,6 +44,7 @@ namespace je
         SoundBuffer(ALuint buffer);
         ~SoundBuffer();
 
+        void TakeOwnership(ALuint buffer);
         ALuint Get() const { return buffer_; }
 
     private:

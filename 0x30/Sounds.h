@@ -2,10 +2,13 @@
 
 #include "je/Sound.h"
 
+#include <future>
+
 
 struct Sounds
 {
-    Sounds();
+    void Load();
+    bool IsLoaded();
 
     je::SoundBuffer blocksSwapping;
     je::SoundBuffer blocksLanding;
@@ -15,4 +18,9 @@ struct Sounds
     je::SoundBuffer musicMinuteWaltz;
     je::SoundBuffer musicLAdieu;
     je::SoundBuffer musicHallelujah;
+
+private:
+    void LoaderTask();
+
+    std::future<void> loader_;
 };
