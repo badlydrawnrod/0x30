@@ -29,6 +29,8 @@ namespace je
 
         ALuint Get() const { return source_; }
         void Play(SoundBuffer& buffer);
+        void Pause();
+        void Resume();
         void Stop();
 
     private:

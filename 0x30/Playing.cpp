@@ -60,7 +60,7 @@ void Playing::Start(const double t, const int level)
     pit.Reset(actualLevel);
     SetState(State::PLAYING, t);
     score = 0;
-    remaining_ = 61.0;  // Let's be generous and give them a fraction more than 60 seconds.
+    remaining_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
     lastTime_ = t;
     lastPlayed_ = actualLevel;
     scrollRate = 0.025f + (0.005f * (actualLevel - 1));
@@ -213,6 +213,7 @@ Screens Playing::Update(double t, double dt)
     {
         if (state_ == State::PLAYING)
         {
+            musicSource_.Play(sounds_.musicHallelujah);
             SetState(State::GAME_OVER, t);
             SetLevel(level_ + 1);
             actionsEnabled_ = false;
@@ -284,12 +285,14 @@ Screens Playing::Update(double t, double dt)
         // Check for paused.
         if (input::buttons.JustPressed(input::ButtonId::back))
         {
+            musicSource_.Pause();
             SetState(State::PAUSED, t);
         }
 
         // Check for game over.
         if (pit.IsImpacted())
         {
+            musicSource_.Play(sounds_.musicLAdieu);
             SetState(State::GAME_OVER, t);
             actionsEnabled_ = false;
         }
@@ -304,17 +307,20 @@ Screens Playing::Update(double t, double dt)
         {
             if (input::buttons.JustPressed(input::ButtonId::b))
             {
+                musicSource_.Stop();
                 progress_.SaveScores(); // TODO: dedup.
                 return Screens::Menu;
             }
             if (input::buttons.JustPressed(input::ButtonId::x))
             {
+                musicSource_.Stop();
                 progress_.SaveScores(); // TODO: dedup.
                 Start(t, lastPlayed_);
             }
             if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
             {
                 // Go on to the next level.
+                musicSource_.Stop();
                 progress_.SaveScores(); // TODO: dedup.
                 Start(t, level_);
             }
@@ -324,10 +330,12 @@ Screens Playing::Update(double t, double dt)
     {
         if (input::buttons.JustPressed(input::ButtonId::b))
         {
+            musicSource_.Stop();
             return Screens::Menu;
         }
         if (input::buttons.JustPressed(input::ButtonId::a))
         {
+            musicSource_.Resume();
             SetState(State::PLAYING, t);
         }
     }

@@ -228,6 +228,16 @@ namespace je
         alSourcePlay(source_);
     }
 
+    void SoundSource::Pause()
+    {
+        alSourcePause(source_);
+    }
+
+    void SoundSource::Resume()
+    {
+        alSourcePlay(source_);
+    }
+
     void SoundSource::Stop()
     {
         alSourceStop(source_);
