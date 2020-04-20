@@ -88,6 +88,7 @@ Game::Game(std::function<int(int, int)>& rnd) :
 {
     LOG("Shader program " << shader.Program());
     input::Initialise(context);
+    sounds.Load();
 }
 
 

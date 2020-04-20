@@ -200,6 +200,7 @@ namespace je
             return 0;
         }
 
+        LOG("Loaded sound " << filename << " with buffer id " << buffer);
         return buffer;
     }
 
