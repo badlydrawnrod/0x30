@@ -108,7 +108,8 @@
     <PostBuildEvent>
       <Command>xcopy /q/y/s/e/i "$(SolutionDir)assets" "$(SolutionDir)output\assets"
 xcopy /q/y/s/e/i "$(TargetPath)" "$(SolutionDir)output"
-xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionDir)\output"</Command>
+xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionDir)\output"
+mkdir "$(SolutionDir)\output\data"</Command>
       <Message>Deploying</Message>
     </PostBuildEvent>
     <PostBuildEvent />
@@ -187,8 +188,10 @@ xcopy /q/y/s/e/i $(TargetPath) $(SolutionDir)\output</Command>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /q/y/s/e/i $(SolutionDir)\assets $(SolutionDir)\output\assets
-xcopy /q/y/s/e/i $(TargetPath) $(SolutionDir)\output</Command>
+      <Command>xcopy /q/y/s/e/i "$(SolutionDir)assets" "$(SolutionDir)output\assets"
+xcopy /q/y/s/e/i "$(TargetPath)" "$(SolutionDir)output"
+xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionDir)\output"
+mkdir "$(SolutionDir)\output\data"</Command>
       <Message>Deploying</Message>
     </PostBuildEvent>
     <PostBuildEvent />
