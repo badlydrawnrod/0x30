@@ -69,26 +69,26 @@ void Menu::Draw(double t)
 
     textRenderer_.Draw(x + 1.0f, y + 1.0f, TITLE, { 0x7f, 0x00, 0x3f, 0xff });
     textRenderer_.Draw(x, y, TITLE, { 0xff, 0x00, 0x7f, 0xff });
-    y += 12.0f;
+    y += 16.0f;
 
-    x = 10.0f;
+    x = 4.0f;
     textRenderer_.Draw(x + 1.0f, y + 1.0f, "Clear blocks and don't let them reach", { 0x00, 0x00, 0x00, 0xff });
     textRenderer_.Draw(x, y, "Clear blocks and don't let them reach");
     y += 12.0f;
 
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press [A] to swap and [X] to", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "the top. Press [A] to swap and [X] to");
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press (A) to swap and hold (X) to", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "the top. Press ({) to swap and hold (}) to");
     y += 12.0f;
 
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the stack more quickly.", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "raise the stack more quickly.");
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the blocks more quickly.", { 0x00, 0x00, 0x00, 0xff });
+    textRenderer_.Draw(x, y, "raise the blocks more quickly.");
 
     x = VIRTUAL_WIDTH / 2.0f - 76.0f;
     y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 48.0f;
     if (std::fmod(t - screenStartTime_, 1.0f) < 0.6f)
     {
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS [A] TO START", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "PRESS [A] TO START", { 0xff, 0xd7, 0x00, 0xff });
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS (A) TO START", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "PRESS ({) TO START", { 0xff, 0xff, 0xff, 0xff });
     }
 
     // Draw the game mode's name.

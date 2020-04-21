@@ -417,38 +417,55 @@ void Playing::Draw(double t)
                 if (pit.IsImpacted())
                 {
                     const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] retry", { 0x00, 0x00, 0x00, 0xff });
-                    textRenderer.Draw(x, y, "[X] retry");
+                    textRenderer.Draw(x + 1.0f, y + 1.0f, "(X) retry", { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.Draw(x, y, "(}) retry");
                 }
                 else
                 {
                     const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[X] replay", { 0x00, 0x00, 0x00, 0xff });
-                    textRenderer.Draw(x, y, "[X] replay");
+                    textRenderer.Draw(x + 1.0f, y + 1.0f, "(X) replay", { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.Draw(x, y, "(}) replay");
                 }
             }
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "[B] back", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "[B] back");
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "(B) back", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "(|) back");
             }
             if (!pit.IsImpacted())
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "[A] next", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "[A] next");
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) next", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "({) next");
             }
         }
     }
     else if (state_ == State::PAUSED)
     {
+        // Draw a translucent texture over the pit area again.
+        batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+
         // The game is currently paused.
-        const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
-        const float y = VIRTUAL_HEIGHT / 3.0f;
-        textRenderer.Draw(x + 1.0f, y + 1.0f, "Paused", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer.Draw(x, y, "Paused");
+        {
+            const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
+            const float y = VIRTUAL_HEIGHT / 3.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "Paused", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "Paused");
+        }
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "(B) quit", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "(|) quit");
+        }
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) resume", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "({) resume");
+        }
     }
 
     // Draw fly-ups.
