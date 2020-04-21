@@ -25,7 +25,12 @@ Screens Dedication::Update(double t, double dt)
         return Screens::Dedication;
     }
 
-    return Screens::Menu;
+    if (t - startTime_ >= 30.0 || input::buttons.JustPressed(input::ButtonId::a))
+    {
+        return Screens::Menu;
+    }
+
+    return Screens::Dedication;
 }
 
 
@@ -46,7 +51,7 @@ void Dedication::Draw(double t)
         textRenderer_.Draw(x, y, "A game", { 0xff, 0x00, 0x7f, 0xff });
     }
 
-    if (t - startTime_ >= 3.0)
+    if (t - startTime_ >= 2.0)
     {
         x = VIRTUAL_WIDTH / 2.0f - 7 * 8.0f;
         y = VIRTUAL_HEIGHT / 3.0f - 12.0f;
@@ -54,7 +59,7 @@ void Dedication::Draw(double t)
         textRenderer_.Draw(x, y, "made with love", { 0xff, 0x00, 0x7f, 0xff });
     }
 
-    if (t - startTime_ >= 5.0)
+    if (t - startTime_ >= 3.0)
     {
         x = VIRTUAL_WIDTH / 2.0f - 5.5 * 8.0f;
         y = VIRTUAL_HEIGHT / 3.0f;
@@ -62,12 +67,12 @@ void Dedication::Draw(double t)
         textRenderer_.Draw(x, y, "for Jessica", { 0xff, 0x00, 0x7f, 0xff });
     }
 
-    // Tell the player that it's loading.
-    if (t - startTime_ >= 8.0 && std::fmod(t - startTime_, 1.0) < 0.6)
+    // Tell the player that they can take an action.
+    if (t - startTime_ >= 4.0 && sounds_.IsLoaded() && std::fmod(t - startTime_, 1.0) <= 0.6)
     {
-        x = VIRTUAL_WIDTH / 2.0f - 3.5 * 8.0f;
+        x = VIRTUAL_WIDTH / 2.0f - 4.5 * 8.0f;
         y = 3 * VIRTUAL_HEIGHT / 4.0f;
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "Loading", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "Loading", { 0xff, 0xff, 0x00, 0xff });
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "Press [A]", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "Press [A]", { 0xff, 0xff, 0x00, 0xff });
     }
 }
