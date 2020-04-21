@@ -64,11 +64,11 @@ void Menu::Draw(double t)
 {
     // Tell the player what to do.
 
-    float x = VIRTUAL_WIDTH / 2.0f - 5.5f * 8.0f;
+    float x = VIRTUAL_WIDTH / 2.0f - (sizeof(TITLE) - 1) / 2.0f * 8.0f;
     float y = 4.0f;
 
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "FORTY EIGHT", { 0x7f, 0x00, 0x3f, 0xff });
-    textRenderer_.Draw(x, y, "FORTY EIGHT", { 0xff, 0x00, 0x7f, 0xff });
+    textRenderer_.Draw(x + 1.0f, y + 1.0f, TITLE, { 0x7f, 0x00, 0x3f, 0xff });
+    textRenderer_.Draw(x, y, TITLE, { 0xff, 0x00, 0x7f, 0xff });
     y += 12.0f;
 
     x = 10.0f;

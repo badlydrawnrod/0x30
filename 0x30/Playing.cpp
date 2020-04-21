@@ -369,7 +369,7 @@ void Playing::Draw(double t)
     }
 
     // Draw a translucent texture over the pit area, then draw the pit itself.
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * pit.rows));
+    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
     pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
 
     // Draw some stats.
@@ -390,6 +390,9 @@ void Playing::Draw(double t)
     }
     else if (state_ == State::GAME_OVER)
     {
+        // Draw a translucent texture over the pit area again.
+        batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+
         // It's game over, so tell the player.
         if (std::fmod(t - stateStartTime_, 1.0) < 0.6)
         {
@@ -403,8 +406,8 @@ void Playing::Draw(double t)
             else
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 4.0 * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "TIME UP!", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "TIME UP!");
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "YOU WIN!", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "YOU WIN!");
             }
         }
         if (actionsEnabled_)
@@ -434,8 +437,8 @@ void Playing::Draw(double t)
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "[A] next level", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "[A] next level");
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "[A] next", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "[A] next");
             }
         }
     }
