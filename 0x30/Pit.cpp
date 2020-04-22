@@ -57,19 +57,19 @@ void Pit::Refill(size_t row)
 
     int lastTile = -1;
     int maxTile = 0;
-    if (level_ == 1)            // Level 1 has just 3 tile types.
+    if (level_ <= 3)            // Levels 1-3 have 3 tile types.
     {
         maxTile = 2;
     }
-    else if (level_ < 5)        // Levels 2-4 have 4 tile types.
+    else if (level_ <= 8)       // Levels 4-8 have 4 tile types.
     {
         maxTile = 3;
     }
-    else if (level_ < 9)        // Levels 5-8 have 5 tile types.
+    else if (level_ <= 15)      // Levels 9-15 have 5 tile types.
     {
         maxTile = 4;
     }
-    else                        // Levels 9-10 have 6 tile types.
+    else                        // Levels 16-20 have 6 tile types.
     {
         maxTile = 5;
     }

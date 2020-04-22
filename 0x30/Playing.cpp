@@ -63,7 +63,24 @@ void Playing::Start(const double t, const int level)
     remaining_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
     lastTime_ = t;
     lastPlayed_ = actualLevel;
-    scrollRate = 0.025f + (0.005f * (actualLevel - 1));
+    
+    // The scroll rate is based on the level number, but doesn't increase when new blocks are introduced.
+    int speedMultiplier = actualLevel - 1;
+    if (actualLevel >= 16)
+    {
+        --speedMultiplier;
+    }
+    if (actualLevel >= 9)
+    {
+        --speedMultiplier;
+    }
+    if (actualLevel >= 4)
+    {
+        --speedMultiplier;
+    }
+    LOG("Level " << actualLevel << ", speed " << speedMultiplier);
+    scrollRate = 0.025f + (0.0025f * speedMultiplier);
+
     cursorTileX = (Pit::cols / 2) - 1;
     cursorTileY = Pit::rows / 2;
     flyups.clear();

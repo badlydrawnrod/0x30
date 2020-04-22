@@ -213,7 +213,7 @@ xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionD
     <ClCompile Include="PitRenderer.cpp" />
     <ClCompile Include="Playing.cpp" />
     <ClCompile Include="ScoreRenderer.cpp" />
-    <ClCompile Include="SpeedRenderer.cpp" />
+    <ClCompile Include="LevelRenderer.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="TimeRenderer.cpp" />
   </ItemGroup>
@@ -230,7 +230,7 @@ xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionD
     <ClInclude Include="PitRenderer.h" />
     <ClInclude Include="Playing.h" />
     <ClInclude Include="ScoreRenderer.h" />
-    <ClInclude Include="SpeedRenderer.h" />
+    <ClInclude Include="LevelRenderer.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="TimeRenderer.h" />
     <ClInclude Include="Types.h" />

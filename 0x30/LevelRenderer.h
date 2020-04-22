@@ -5,13 +5,13 @@
 #include "je/Types.h"
 
 
-class SpeedRenderer
+class LevelRenderer
 {
 
 public:
-    SpeedRenderer(TextRenderer& textRenderer);
+    LevelRenderer(TextRenderer& textRenderer);
 
-    void Draw(je::Vec2f position, int speed);
+    void Draw(je::Vec2f position, int level);
 
 private:
     TextRenderer textRenderer_;

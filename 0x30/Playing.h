@@ -2,12 +2,12 @@
 
 #include "Constants.h"
 #include "Flyup.h"
+#include "LevelRenderer.h"
 #include "Pit.h"
 #include "PitRenderer.h"
 #include "Progress.h"
 #include "ScoreRenderer.h"
 #include "Sounds.h"
-#include "SpeedRenderer.h"
 #include "TextRenderer.h"
 #include "Textures.h"
 #include "TimeRenderer.h"
@@ -61,7 +61,7 @@ private:
     TimeRenderer timeRenderer;
     ScoreRenderer scoreRenderer;
     ScoreRenderer highScoreRenderer;
-    SpeedRenderer speedRenderer;
+    LevelRenderer speedRenderer;
     double lastTime_;
     double remaining_;
     State state_;
@@ -82,7 +82,7 @@ private:
     uint64_t highScore_{ 0 };
     int level_{ 1 };
     int lastPlayed_{ 1 };
-    static constexpr size_t numLevels = 10;
+    static constexpr size_t numLevels = std::tuple_size<Scores>::value;
 
     std::vector<Flyup> flyups;
 };
