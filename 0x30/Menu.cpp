@@ -49,11 +49,16 @@ Screens Menu::Update(double t, double dt)
     if (input::buttons.JustPressed(input::ButtonId::up) && currentSelection_ > 0)
     {
         --currentSelection_;
+        firstVisibleLevel_ = std::min(currentSelection_, firstVisibleLevel_);
     }
 
     if (input::buttons.JustPressed(input::ButtonId::down) && currentSelection_ + 1 < progress_.MaxLevel())
     {
         ++currentSelection_;
+        if (currentSelection_ >= firstVisibleLevel_ + visibleLevels_)
+        {
+            ++firstVisibleLevel_;
+        }
     }
 
     return Screens::Menu;
@@ -100,13 +105,15 @@ void Menu::Draw(double t)
 
     // Draw the level selection cursor.
     y += 16.0f;
-    batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * currentSelection_ - 2.0f, 120.0f, 8.0f + 4.0f, { 0x00, 0x7f, 0x7f, 0xff }));
+    int cursorRow = currentSelection_ - firstVisibleLevel_;
+    batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * cursorRow - 2.0f, 120.0f, 8.0f + 4.0f, { 0x00, 0x7f, 0x7f, 0xff }));
 
     // TODO: add labels to make it clear that these are the best scores for each level, not a high score table.
     // Draw the scores for each level.
     const Scores& scores = progress_.LevelScores();
     const int maxLevel = progress_.MaxLevel();
-    for (auto i = 0; i < scores.size(); i++)
+    const int lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, static_cast<int>(scores.size()));
+    for (auto i = firstVisibleLevel_; i < lastVisibleLevel; i++)
     {
         std::stringstream text;
         text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores[i].score; // TODO: display the name.
