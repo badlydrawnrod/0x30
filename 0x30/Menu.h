@@ -27,5 +27,5 @@ private:
     double screenStartTime_{ 0 };
     int currentSelection_{ 0 };
     int firstVisibleLevel_{ 0 };
-    static constexpr int visibleLevels_{ 5 };
+    static constexpr int visibleLevels_{ 10 };
 };

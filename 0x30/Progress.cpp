@@ -10,16 +10,26 @@ namespace
     constexpr const char* scoresFile = "data/progress.json";
 
     Scores defaultScores{
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"},
-        ScoreRecord{1000, "Rod"}
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"},
+        ScoreRecord{500, "Rod"}
     };
 
     void ToJson(Json::Value& jsonProgress, const Scores& scores, int maxLevel)

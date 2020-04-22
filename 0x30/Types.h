@@ -10,4 +10,4 @@ struct ScoreRecord
     std::string name;
 };
 
-using Scores = std::array<ScoreRecord, 10>;
+using Scores = std::array<ScoreRecord, 20>;
