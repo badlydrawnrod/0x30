@@ -49,4 +49,5 @@ namespace input
 
     void Initialise(je::Context& context);
     void UpdateInputState(double t);
+    bool HasGamepad();
 }

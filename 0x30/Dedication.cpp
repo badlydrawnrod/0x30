@@ -70,9 +70,19 @@ void Dedication::Draw(double t)
     // Tell the player that they can take an action.
     if (t - startTime_ >= 4.0 && sounds_.IsLoaded() && std::fmod(t - startTime_, 1.0) <= 0.6)
     {
-        x = VIRTUAL_WIDTH / 2.0f - 4.5 * 8.0f;
-        y = 3 * VIRTUAL_HEIGHT / 4.0f;
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "Press A", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "Press ({)", { 0xff, 0xff, 0xff, 0xff });
+        if (input::HasGamepad())
+        {
+            x = VIRTUAL_WIDTH / 2.0f - 4.5 * 8.0f;
+            y = 3 * VIRTUAL_HEIGHT / 4.0f;
+            textRenderer_.Draw(x + 1.0f, y + 1.0f, "Press (A)", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer_.Draw(x, y, "Press ({)", { 0xff, 0xff, 0xff, 0xff });
+        }
+        else
+        {
+            x = VIRTUAL_WIDTH / 2.0f - 6.5 * 8.0f;
+            y = 3 * VIRTUAL_HEIGHT / 4.0f;
+            textRenderer_.Draw(x + 1.0f, y + 1.0f, "Press [SPACE]", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer_.Draw(x, y, "Press [SPACE]", { 0xff, 0xff, 0xff, 0xff });
+        }
     }
 }

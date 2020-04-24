@@ -225,6 +225,8 @@ namespace input
 
 namespace
 {
+    bool hasGamepad{ false };
+
     // Called by GLFW whenever a key is pressed or released.
     void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
     {
@@ -267,12 +269,20 @@ namespace input
         glfwSetJoystickCallback(OnJoystickEvent);
 
         // Enumerate the gamepads.
+        hasGamepad = false;
         for (int joystickId = GLFW_JOYSTICK_1; joystickId <= GLFW_JOYSTICK_LAST; joystickId++)
         {
             if (glfwJoystickIsGamepad(joystickId))
             {
+                hasGamepad = true;
                 LOG("Gamepad " << joystickId << " [" << glfwGetGamepadName(joystickId) << "] found");
             }
         }
+        LOG("Has gamepad = " << (hasGamepad ? "true" : "false"));
+    }
+
+    bool HasGamepad()
+    {
+        return hasGamepad;
     }
 }

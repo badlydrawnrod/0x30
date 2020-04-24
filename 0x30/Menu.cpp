@@ -81,19 +81,41 @@ void Menu::Draw(double t)
     textRenderer_.Draw(x, y, "Clear blocks and don't let them reach");
     y += 12.0f;
 
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press (A) to swap and hold (X) to", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "the top. Press ({) to swap and hold (}) to");
-    y += 12.0f;
+    if (input::HasGamepad())
+    {
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press (A) to swap and hold (X) to", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "the top. Press ({) to swap and hold (}) to");
+        y += 12.0f;
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the blocks more quickly.", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "raise the blocks more quickly.");
+    }
+    else
+    {
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press [SPACE] to swap blocks", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "the top. Press [SPACE] to swap blocks");
+        y += 12.0f;
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "and hold [CTRL] to raise the blocks", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "and hold [CTRL] to raise the blocks");
+        y += 12.0f;
+        textRenderer_.Draw(x + 1.0f, y + 1.0f, "more quickly.", { 0x00, 0x00, 0x00, 0xff });
+        textRenderer_.Draw(x, y, "more quickly.");
+    }
 
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the blocks more quickly.", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "raise the blocks more quickly.");
-
-    x = VIRTUAL_WIDTH / 2.0f - 76.0f;
-    y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 48.0f;
+    y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 40.0f;
     if (std::fmod(t - screenStartTime_, 1.0f) < 0.6f)
     {
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS (A) TO START", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "PRESS ({) TO START", { 0xff, 0xff, 0xff, 0xff });
+        if (input::HasGamepad())
+        {
+            x = VIRTUAL_WIDTH / 2.0f - 76.0f;
+            textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS (A) TO START", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer_.Draw(x, y, "PRESS ({) TO START", { 0xff, 0xff, 0xff, 0xff });
+        }
+        else
+        {
+            x = VIRTUAL_WIDTH / 2.0f - 22 * 0.5f * 8.0f;
+            textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS [SPACE] TO START", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer_.Draw(x, y, "PRESS [SPACE] TO START", { 0xff, 0xff, 0xff, 0xff });
+        }
     }
 
     // Draw the game mode's name.

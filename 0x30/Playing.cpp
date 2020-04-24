@@ -63,7 +63,7 @@ void Playing::Start(const double t, const int level)
     remaining_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
     lastTime_ = t;
     lastPlayed_ = actualLevel;
-    
+
     // The scroll rate is based on the level number, but doesn't increase when new blocks are introduced.
     int speedMultiplier = actualLevel - 1;
     if (actualLevel >= 16)
@@ -431,7 +431,7 @@ void Playing::Draw(double t)
         {
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
-                if (pit.IsImpacted())
+                if (input::HasGamepad())
                 {
                     const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
                     textRenderer.Draw(x + 1.0f, y + 1.0f, "(X) retry", { 0x00, 0x00, 0x00, 0xff });
@@ -439,23 +439,41 @@ void Playing::Draw(double t)
                 }
                 else
                 {
-                    const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.Draw(x + 1.0f, y + 1.0f, "(X) replay", { 0x00, 0x00, 0x00, 0xff });
-                    textRenderer.Draw(x, y, "(}) replay");
+                    const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[CTRL] retry", { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.Draw(x, y, "[CTRL] retry");
                 }
             }
+            if (input::HasGamepad())
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
                 textRenderer.Draw(x + 1.0f, y + 1.0f, "(B) back", { 0x00, 0x00, 0x00, 0xff });
                 textRenderer.Draw(x, y, "(|) back");
             }
+            else
+            {
+                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+                const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+                textRenderer.Draw(x + 1.0f, y + 1.0f, "[ESC]   back", { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.Draw(x, y, "[ESC]   back");
+            }
             if (!pit.IsImpacted())
             {
-                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
-                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) next", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "({) next");
+                if (input::HasGamepad())
+                {
+                    const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+                    const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                    textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) next", { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.Draw(x, y, "({) next");
+                }
+                else
+                {
+                    const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+                    const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[SPACE] next", { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.Draw(x, y, "[SPACE] next");
+                }
             }
         }
     }
@@ -471,17 +489,35 @@ void Playing::Draw(double t)
             textRenderer.Draw(x + 1.0f, y + 1.0f, "Paused", { 0x00, 0x00, 0x00, 0xff });
             textRenderer.Draw(x, y, "Paused");
         }
+
+        if (input::HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
             textRenderer.Draw(x + 1.0f, y + 1.0f, "(B) quit", { 0x00, 0x00, 0x00, 0xff });
             textRenderer.Draw(x, y, "(|) quit");
         }
+        else
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "[ESC]   quit", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "[ESC]   quit");
+        }
+
+        if (input::HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) resume", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "({) resume");
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) play", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "({) play");
+        }
+        else
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+            textRenderer.Draw(x + 1.0f, y + 1.0f, "[SPACE] play", { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.Draw(x, y, "[SPACE] play");
         }
     }
 
