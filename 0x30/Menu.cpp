@@ -1,5 +1,6 @@
 #include "Menu.h"
 
+#include "Colours.h"
 #include "Constants.h"
 #include "Input.h"
 #include "Types.h"
@@ -72,26 +73,26 @@ void Menu::Draw(double t)
     float x = VIRTUAL_WIDTH / 2.0f;
     float y = 4.0f;
 
-    textRenderer_.DrawCentred(x, y, TITLE, { 0xff, 0x00, 0x7f, 0xff }, { 0x7f, 0x00, 0x3f, 0xff });
+    textRenderer_.DrawCentred(x, y, TITLE, Colours::title, Colours::titleShadow);
     y += 16.0f;
 
     x = 4.0f;
-    textRenderer_.DrawLeft(x, y, "Clear blocks and don't let them reach", { 0xff, 0xff, 0xff, 0xff });
+    textRenderer_.DrawLeft(x, y, "Clear blocks and don't let them reach", Colours::white);
     y += 12.0f;
 
     if (input::HasGamepad())
     {
-        textRenderer_.DrawLeft(x, y, "the top. Press ({) to swap and hold (}) to", { 0xff, 0xff, 0xff, 0xff });
+        textRenderer_.DrawLeft(x, y, "the top. Press ({) to swap and hold (}) to", Colours::white);
         y += 12.0f;
-        textRenderer_.DrawLeft(x, y, "raise the blocks more quickly.", { 0xff, 0xff, 0xff, 0xff });
+        textRenderer_.DrawLeft(x, y, "raise the blocks more quickly.", Colours::white);
     }
     else
     {
-        textRenderer_.DrawLeft(x, y, "the top. Press [SPACE] to swap blocks", { 0xff, 0xff, 0xff, 0xff });
+        textRenderer_.DrawLeft(x, y, "the top. Press [SPACE] to swap blocks", Colours::white);
         y += 12.0f;
-        textRenderer_.DrawLeft(x, y, "and hold [CTRL] to raise the blocks", { 0xff, 0xff, 0xff, 0xff });
+        textRenderer_.DrawLeft(x, y, "and hold [CTRL] to raise the blocks", Colours::white);
         y += 12.0f;
-        textRenderer_.DrawLeft(x, y, "more quickly.", { 0xff, 0xff, 0xff, 0xff });
+        textRenderer_.DrawLeft(x, y, "more quickly.", Colours::white);
     }
 
     y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 40.0f;
@@ -100,25 +101,25 @@ void Menu::Draw(double t)
         if (input::HasGamepad())
         {
             x = VIRTUAL_WIDTH / 2.0f - 76.0f;
-            textRenderer_.DrawLeft(x, y, "PRESS ({) TO START", { 0xff, 0xff, 0xff, 0xff });
+            textRenderer_.DrawLeft(x, y, "PRESS ({) TO START", Colours::white);
         }
         else
         {
             x = VIRTUAL_WIDTH / 2.0f - 22 * 0.5f * 8.0f;
-            textRenderer_.DrawLeft(x, y, "PRESS [SPACE] TO START", { 0xff, 0xff, 0xff, 0xff });
+            textRenderer_.DrawLeft(x, y, "PRESS [SPACE] TO START", Colours::white);
         }
     }
 
     // Draw the game mode's name.
     x = VIRTUAL_WIDTH / 2.0f - 64.0f;
     y += 24.0f;
-    textRenderer_.DrawLeft(x, y, "\"Just a minute\"", { 0xff, 0x00, 0x00, 0xff });
+    textRenderer_.DrawLeft(x, y, "\"Just a minute\"", Colours::mode);
     x += 8.0f;
 
     // Draw the level selection cursor.
     y += 16.0f;
     int cursorRow = currentSelection_ - firstVisibleLevel_;
-    batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * cursorRow - 2.0f, 120.0f, 8.0f + 4.0f, { 0x00, 0x7f, 0x7f, 0xff }));
+    batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * cursorRow - 2.0f, 120.0f, 8.0f + 4.0f, Colours::cursorBackground));
 
     // TODO: add labels to make it clear that these are the best scores for each level, not a high score table.
     // Draw the scores for each level.
@@ -131,11 +132,11 @@ void Menu::Draw(double t)
         text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores[i].score; // TODO: display the name.
         if (i + 1 <= maxLevel)
         {
-            textRenderer_.DrawLeft(x, y, text.str(), { 0xff, 0xff, 0xff, 0xff });
+            textRenderer_.DrawLeft(x, y, text.str(), Colours::selectableLevel);
         }
         else
         {
-            textRenderer_.DrawLeft(x, y, text.str(), { 0x7f, 0x7f, 0x7f, 0xff });
+            textRenderer_.DrawLeft(x, y, text.str(), Colours::unselectableLevel);
         }
         y += 12.0f;
     }

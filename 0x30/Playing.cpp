@@ -1,5 +1,6 @@
 #include "Playing.h"
 
+#include "Colours.h"
 #include "Input.h"
 #include "Types.h"
 
@@ -381,7 +382,7 @@ void Playing::Draw(double t)
         const float x = VIRTUAL_WIDTH / 2;
         const float y = 4.0f;
         batch_.AddVertices(je::quads::Create(textures.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
-        textRenderer.DrawCentred(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+        textRenderer.DrawCentred(x, y, "Just a minute", Colours::mode, Colours::black);
     }
 
     // Draw a translucent texture over the pit area, then draw the pit itself.
@@ -416,12 +417,12 @@ void Playing::Draw(double t)
             if (pit.IsImpacted())
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0 * 8.0f;
-                textRenderer.DrawLeft(x, y, "GAME OVER!", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.DrawLeft(x, y, "GAME OVER!", Colours::white, Colours::black);
             }
             else
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 4.0 * 8.0f;
-                textRenderer.DrawLeft(x, y, "YOU WIN!", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.DrawLeft(x, y, "YOU WIN!", Colours::white, Colours::black);
             }
         }
         if (actionsEnabled_)
@@ -431,25 +432,25 @@ void Playing::Draw(double t)
                 if (input::HasGamepad())
                 {
                     const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "(}) retry", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.DrawLeft(x, y, "(}) retry", Colours::white, Colours::black);
                 }
                 else
                 {
                     const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "[CTRL] retry", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.DrawLeft(x, y, "[CTRL] retry", Colours::white, Colours::black);
                 }
             }
             if (input::HasGamepad())
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.DrawLeft(x, y, "(|) back", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.DrawLeft(x, y, "(|) back", Colours::white, Colours::black);
             }
             else
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                textRenderer.DrawLeft(x, y, "[ESC]   back", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                textRenderer.DrawLeft(x, y, "[ESC]   back", Colours::white, Colours::black);
             }
             if (!pit.IsImpacted())
             {
@@ -457,13 +458,13 @@ void Playing::Draw(double t)
                 {
                     const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                     const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "({) next", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.DrawLeft(x, y, "({) next", Colours::white, Colours::black);
                 }
                 else
                 {
                     const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                     const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "[SPACE] next", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+                    textRenderer.DrawLeft(x, y, "[SPACE] next", Colours::white, Colours::black);
                 }
             }
         }
@@ -477,33 +478,33 @@ void Playing::Draw(double t)
         {
             const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
             const float y = VIRTUAL_HEIGHT / 3.0f;
-            textRenderer.DrawLeft(x, y, "Paused", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.DrawLeft(x, y, "Paused", Colours::white, Colours::black);
         }
 
         if (input::HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.DrawLeft(x, y, "(|) quit", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.DrawLeft(x, y, "(|) quit", Colours::white, Colours::black);
         }
         else
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-            textRenderer.DrawLeft(x, y, "[ESC]   quit", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.DrawLeft(x, y, "[ESC]   quit", Colours::white, Colours::black);
         }
 
         if (input::HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.DrawLeft(x, y, "({) play", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.DrawLeft(x, y, "({) play", Colours::white, Colours::black);
         }
         else
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-            textRenderer.DrawLeft(x, y, "[SPACE] play", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
+            textRenderer.DrawLeft(x, y, "[SPACE] play", Colours::white, Colours::black);
         }
     }
 

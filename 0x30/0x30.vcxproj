@@ -205,6 +205,7 @@ xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionD
     <CustomBuildStep />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Colours.cpp" />
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Sounds.cpp" />
     <ClCompile Include="Textures.cpp" />
@@ -222,6 +223,7 @@ xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionD
     <ClCompile Include="TimeRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Colours.h" />
     <ClInclude Include="Progress.h" />
     <ClInclude Include="Sounds.h" />
     <ClInclude Include="Textures.h" />

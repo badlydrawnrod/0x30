@@ -1,5 +1,7 @@
 #include "TimeRenderer.h"
 
+#include "Colours.h"
+
 #include "je/Types.h"
 
 
@@ -23,10 +25,7 @@ void TimeRenderer::Draw(je::Vec2f position, double elapsed)
 
     // TODO: juice it up.
     // Draw "TIME" on one row, with the elapsed time on the following row, right-justified to "TIME".
-    je::Rgba4b blackColour{ 0x00, 0x00, 0x00, 0xff };
-    je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
-    je::Rgba4b timeColour{ 0xff, 0x1f, 0x1f, 0xff };
-    textRenderer_.DrawLeft(position.x, position.y, "TIME", textColour, blackColour);
+    textRenderer_.DrawLeft(position.x, position.y, "TIME", Colours::timeText, Colours::black);
     // TODO: lose the magic numbers.
-    textRenderer_.DrawLeft(position.x + 32.0f - 8.0f * numChars_, position.y + 10.0f, timeBuf_, timeColour, blackColour);
+    textRenderer_.DrawLeft(position.x + 32.0f - 8.0f * numChars_, position.y + 10.0f, timeBuf_, Colours::timeNumber, Colours::black);
 }
