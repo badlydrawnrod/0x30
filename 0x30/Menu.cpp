@@ -69,36 +69,29 @@ void Menu::Draw(double t)
 {
     // Tell the player what to do.
 
-    float x = VIRTUAL_WIDTH / 2.0f - (sizeof(TITLE) - 1) / 2.0f * 8.0f;
+    float x = VIRTUAL_WIDTH / 2.0f;
     float y = 4.0f;
 
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, TITLE, { 0x7f, 0x00, 0x3f, 0xff });
-    textRenderer_.Draw(x, y, TITLE, { 0xff, 0x00, 0x7f, 0xff });
+    textRenderer_.DrawCentred(x, y, TITLE, { 0xff, 0x00, 0x7f, 0xff }, { 0x7f, 0x00, 0x3f, 0xff });
     y += 16.0f;
 
     x = 4.0f;
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "Clear blocks and don't let them reach", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "Clear blocks and don't let them reach");
+    textRenderer_.DrawLeft(x, y, "Clear blocks and don't let them reach", { 0xff, 0xff, 0xff, 0xff });
     y += 12.0f;
 
     if (input::HasGamepad())
     {
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press (A) to swap and hold (X) to", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "the top. Press ({) to swap and hold (}) to");
+        textRenderer_.DrawLeft(x, y, "the top. Press ({) to swap and hold (}) to", { 0xff, 0xff, 0xff, 0xff });
         y += 12.0f;
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "raise the blocks more quickly.", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "raise the blocks more quickly.");
+        textRenderer_.DrawLeft(x, y, "raise the blocks more quickly.", { 0xff, 0xff, 0xff, 0xff });
     }
     else
     {
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "the top. Press [SPACE] to swap blocks", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "the top. Press [SPACE] to swap blocks");
+        textRenderer_.DrawLeft(x, y, "the top. Press [SPACE] to swap blocks", { 0xff, 0xff, 0xff, 0xff });
         y += 12.0f;
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "and hold [CTRL] to raise the blocks", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "and hold [CTRL] to raise the blocks");
+        textRenderer_.DrawLeft(x, y, "and hold [CTRL] to raise the blocks", { 0xff, 0xff, 0xff, 0xff });
         y += 12.0f;
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, "more quickly.", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer_.Draw(x, y, "more quickly.");
+        textRenderer_.DrawLeft(x, y, "more quickly.", { 0xff, 0xff, 0xff, 0xff });
     }
 
     y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 40.0f;
@@ -107,22 +100,19 @@ void Menu::Draw(double t)
         if (input::HasGamepad())
         {
             x = VIRTUAL_WIDTH / 2.0f - 76.0f;
-            textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS (A) TO START", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer_.Draw(x, y, "PRESS ({) TO START", { 0xff, 0xff, 0xff, 0xff });
+            textRenderer_.DrawLeft(x, y, "PRESS ({) TO START", { 0xff, 0xff, 0xff, 0xff });
         }
         else
         {
             x = VIRTUAL_WIDTH / 2.0f - 22 * 0.5f * 8.0f;
-            textRenderer_.Draw(x + 1.0f, y + 1.0f, "PRESS [SPACE] TO START", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer_.Draw(x, y, "PRESS [SPACE] TO START", { 0xff, 0xff, 0xff, 0xff });
+            textRenderer_.DrawLeft(x, y, "PRESS [SPACE] TO START", { 0xff, 0xff, 0xff, 0xff });
         }
     }
 
     // Draw the game mode's name.
     x = VIRTUAL_WIDTH / 2.0f - 64.0f;
     y += 24.0f;
-    textRenderer_.Draw(x + 1.0f, y + 1.0f, "\"Just a minute\"", { 0x00, 0x00, 0x00, 0xff });
-    textRenderer_.Draw(x, y, "\"Just a minute\"", { 0xff, 0x00, 0x00, 0xff });
+    textRenderer_.DrawLeft(x, y, "\"Just a minute\"", { 0xff, 0x00, 0x00, 0xff });
     x += 8.0f;
 
     // Draw the level selection cursor.
@@ -139,14 +129,13 @@ void Menu::Draw(double t)
     {
         std::stringstream text;
         text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores[i].score; // TODO: display the name.
-        textRenderer_.Draw(x + 1.0f, y + 1.0f, text.str(), { 0x00, 0x00, 0x00, 0xff });
         if (i + 1 <= maxLevel)
         {
-            textRenderer_.Draw(x, y, text.str());
+            textRenderer_.DrawLeft(x, y, text.str(), { 0xff, 0xff, 0xff, 0xff });
         }
         else
         {
-            textRenderer_.Draw(x, y, text.str(), { 0x7f, 0x7f, 0x7f, 0xff });
+            textRenderer_.DrawLeft(x, y, text.str(), { 0x7f, 0x7f, 0x7f, 0xff });
         }
         y += 12.0f;
     }

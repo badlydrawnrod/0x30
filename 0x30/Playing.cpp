@@ -378,11 +378,10 @@ void Playing::Draw(double t)
     DrawBackdrop();
 
     {
-        const float x = VIRTUAL_WIDTH / 2 - 6.5f * 8.0f;
+        const float x = VIRTUAL_WIDTH / 2;
         const float y = 4.0f;
         batch_.AddVertices(je::quads::Create(textures.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
-        textRenderer.Draw(x + 1.0f, y + 1.0f, "Just a minute", { 0x00, 0x00, 0x00, 0xff });
-        textRenderer.Draw(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff });
+        textRenderer.DrawCentred(x, y, "Just a minute", { 0xff, 0x00, 0x00, 0xff }, { 0x00, 0x00, 0x00, 0xff });
     }
 
     // Draw a translucent texture over the pit area, then draw the pit itself.
@@ -417,14 +416,12 @@ void Playing::Draw(double t)
             if (pit.IsImpacted())
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0 * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "GAME OVER!", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "GAME OVER!");
+                textRenderer.DrawLeft(x, y, "GAME OVER!", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
             }
             else
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 4.0 * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "YOU WIN!", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "YOU WIN!");
+                textRenderer.DrawLeft(x, y, "YOU WIN!", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
             }
         }
         if (actionsEnabled_)
@@ -434,29 +431,25 @@ void Playing::Draw(double t)
                 if (input::HasGamepad())
                 {
                     const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.Draw(x + 1.0f, y + 1.0f, "(X) retry", { 0x00, 0x00, 0x00, 0xff });
-                    textRenderer.Draw(x, y, "(}) retry");
+                    textRenderer.DrawLeft(x, y, "(}) retry", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
                 }
                 else
                 {
                     const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[CTRL] retry", { 0x00, 0x00, 0x00, 0xff });
-                    textRenderer.Draw(x, y, "[CTRL] retry");
+                    textRenderer.DrawLeft(x, y, "[CTRL] retry", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
                 }
             }
             if (input::HasGamepad())
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "(B) back", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "(|) back");
+                textRenderer.DrawLeft(x, y, "(|) back", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
             }
             else
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                textRenderer.Draw(x + 1.0f, y + 1.0f, "[ESC]   back", { 0x00, 0x00, 0x00, 0xff });
-                textRenderer.Draw(x, y, "[ESC]   back");
+                textRenderer.DrawLeft(x, y, "[ESC]   back", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
             }
             if (!pit.IsImpacted())
             {
@@ -464,15 +457,13 @@ void Playing::Draw(double t)
                 {
                     const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                     const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) next", { 0x00, 0x00, 0x00, 0xff });
-                    textRenderer.Draw(x, y, "({) next");
+                    textRenderer.DrawLeft(x, y, "({) next", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
                 }
                 else
                 {
                     const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                     const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                    textRenderer.Draw(x + 1.0f, y + 1.0f, "[SPACE] next", { 0x00, 0x00, 0x00, 0xff });
-                    textRenderer.Draw(x, y, "[SPACE] next");
+                    textRenderer.DrawLeft(x, y, "[SPACE] next", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
                 }
             }
         }
@@ -486,38 +477,33 @@ void Playing::Draw(double t)
         {
             const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
             const float y = VIRTUAL_HEIGHT / 3.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "Paused", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "Paused");
+            textRenderer.DrawLeft(x, y, "Paused", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
         }
 
         if (input::HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "(B) quit", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "(|) quit");
+            textRenderer.DrawLeft(x, y, "(|) quit", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
         }
         else
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "[ESC]   quit", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "[ESC]   quit");
+            textRenderer.DrawLeft(x, y, "[ESC]   quit", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
         }
 
         if (input::HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "(A) play", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "({) play");
+            textRenderer.DrawLeft(x, y, "({) play", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
         }
         else
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-            textRenderer.Draw(x + 1.0f, y + 1.0f, "[SPACE] play", { 0x00, 0x00, 0x00, 0xff });
-            textRenderer.Draw(x, y, "[SPACE] play");
+            textRenderer.DrawLeft(x, y, "[SPACE] play", { 0xff, 0xff, 0xff, 0xff }, { 0x00, 0x00, 0x00, 0xff });
         }
     }
 

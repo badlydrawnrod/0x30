@@ -26,9 +26,7 @@ void TimeRenderer::Draw(je::Vec2f position, double elapsed)
     je::Rgba4b blackColour{ 0x00, 0x00, 0x00, 0xff };
     je::Rgba4b textColour{ 0x1f, 0xff, 0xff, 0xff };
     je::Rgba4b timeColour{ 0xff, 0x1f, 0x1f, 0xff };
-    textRenderer_.Draw(1.0f + position.x, 1.0f + position.y, "TIME", blackColour);
-    textRenderer_.Draw(position.x, position.y, "TIME", textColour);
+    textRenderer_.DrawLeft(position.x, position.y, "TIME", textColour, blackColour);
     // TODO: lose the magic numbers.
-    textRenderer_.Draw(1.0f + position.x + 32.0f - 8.0f * numChars_, 1.0f + position.y + 10.0f, timeBuf_, blackColour);
-    textRenderer_.Draw(position.x + 32.0f - 8.0f * numChars_, position.y + 10.0f, timeBuf_, timeColour);
+    textRenderer_.DrawLeft(position.x + 32.0f - 8.0f * numChars_, position.y + 10.0f, timeBuf_, timeColour, blackColour);
 }
