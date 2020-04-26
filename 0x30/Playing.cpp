@@ -219,6 +219,132 @@ void Playing::UpdateScore(const Pit& pit, uint64_t& score)
 }
 
 
+void Playing::UpdatePlaying(double t)
+{
+    // Scroll the contents of the pit up.
+    internalTileScroll += (input::buttons.IsPressed(input::ButtonId::x) && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
+        ? 1.0f
+        : scrollRate;
+    if (internalTileScroll >= tileSize)
+    {
+        pit.ScrollOne();
+        if (cursorTileY > 1)
+        {
+            cursorTileY--;
+        }
+        internalTileScroll = 0.0f;
+    }
+
+    // Move the player.
+    if (input::buttons.JustPressed(input::ButtonId::left) && cursorTileX > 0)
+    {
+        --cursorTileX;
+    }
+    if (input::buttons.JustPressed(input::ButtonId::right) && cursorTileX < Pit::cols - 2)
+    {
+        ++cursorTileX;
+    }
+    if (input::buttons.JustPressed(input::ButtonId::up) && cursorTileY > 1)
+    {
+        --cursorTileY;
+    }
+    if (input::buttons.JustPressed(input::ButtonId::down) && cursorTileY < Pit::rows - 2)
+    {
+        ++cursorTileY;
+    }
+
+    // Swap tiles.
+    if (input::buttons.JustPressed(input::ButtonId::a))
+    {
+        pit.Swap(cursorTileX, cursorTileY);
+        blocksSwappingSource_.Play(sounds_.blocksSwapping);
+    }
+
+    pit.Update();
+
+    if (pit.Landed())
+    {
+        blocksLandingSource_.Play(sounds_.blocksLanding);
+    }
+    if (auto runs = pit.Runs(); runs.size() > 0)
+    {
+        blocksPoppingSource_.Play(sounds_.blocksPopping);
+    }
+
+    UpdateScore(pit, score);
+
+    // Add fly-ups.
+    for (const auto& run : pit.Runs())
+    {
+        AddFlyupsForRun(run);
+        AddFlyupsForChains(run);
+    }
+
+    // Check for paused.
+    if (input::buttons.JustPressed(input::ButtonId::back))
+    {
+        musicSource_.Pause();
+        SetState(State::PAUSED, t);
+    }
+
+    // Check for game over.
+    if (pit.IsImpacted())
+    {
+        musicSource_.Play(sounds_.musicLAdieu);
+        SetState(State::GAME_OVER, t);
+        actionsEnabled_ = false;
+    }
+
+}
+
+
+Screens Playing::UpdateGameOver(double t)
+{
+    // Don't allow the player to do anything for a short time to prevent them from taking accidental actions.
+    const double delay = 2.0;
+    actionsEnabled_ = t - stateStartTime_ >= delay;
+    if (actionsEnabled_)
+    {
+        if (input::buttons.JustPressed(input::ButtonId::b))
+        {
+            musicSource_.Stop();
+            progress_.SaveScores(); // TODO: dedup.
+            return Screens::Menu;
+        }
+        if (input::buttons.JustPressed(input::ButtonId::x))
+        {
+            musicSource_.Stop();
+            progress_.SaveScores(); // TODO: dedup.
+            Start(t, lastPlayed_);
+        }
+        if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
+        {
+            // Go on to the next level.
+            musicSource_.Stop();
+            progress_.SaveScores(); // TODO: dedup.
+            Start(t, level_);
+        }
+    }
+    return Screens::Playing;
+}
+
+
+Screens Playing::UpdatePaused(double t)
+{
+    if (input::buttons.JustPressed(input::ButtonId::b))
+    {
+        musicSource_.Stop();
+        return Screens::Menu;
+    }
+    if (input::buttons.JustPressed(input::ButtonId::a))
+    {
+        musicSource_.Resume();
+        SetState(State::PLAYING, t);
+    }
+    return Screens::Playing;
+}
+
+
 Screens Playing::Update(double t, double dt)
 {
     // Update elapsed time only when playing.
@@ -241,120 +367,22 @@ Screens Playing::Update(double t, double dt)
 
     if (state_ == State::PLAYING)
     {
-        // Scroll the contents of the pit up.
-        internalTileScroll += (input::buttons.IsPressed(input::ButtonId::x) && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
-            ? 1.0f
-            : scrollRate;
-        if (internalTileScroll >= tileSize)
-        {
-            pit.ScrollOne();
-            if (cursorTileY > 1)
-            {
-                cursorTileY--;
-            }
-            internalTileScroll = 0.0f;
-        }
-
-        // Move the player.
-        if (input::buttons.JustPressed(input::ButtonId::left) && cursorTileX > 0)
-        {
-            --cursorTileX;
-        }
-        if (input::buttons.JustPressed(input::ButtonId::right) && cursorTileX < Pit::cols - 2)
-        {
-            ++cursorTileX;
-        }
-        if (input::buttons.JustPressed(input::ButtonId::up) && cursorTileY > 1)
-        {
-            --cursorTileY;
-        }
-        if (input::buttons.JustPressed(input::ButtonId::down) && cursorTileY < Pit::rows - 2)
-        {
-            ++cursorTileY;
-        }
-
-        // Swap tiles.
-        if (input::buttons.JustPressed(input::ButtonId::a))
-        {
-            pit.Swap(cursorTileX, cursorTileY);
-            blocksSwappingSource_.Play(sounds_.blocksSwapping);
-        }
-
-        pit.Update();
-
-        if (pit.Landed())
-        {
-            blocksLandingSource_.Play(sounds_.blocksLanding);
-        }
-        if (auto runs = pit.Runs(); runs.size() > 0)
-        {
-            blocksPoppingSource_.Play(sounds_.blocksPopping);
-        }
-
-        UpdateScore(pit, score);
-
-        // Add fly-ups.
-        for (const auto& run : pit.Runs())
-        {
-            AddFlyupsForRun(run);
-            AddFlyupsForChains(run);
-        }
-
-        // Check for paused.
-        if (input::buttons.JustPressed(input::ButtonId::back))
-        {
-            musicSource_.Pause();
-            SetState(State::PAUSED, t);
-        }
-
-        // Check for game over.
-        if (pit.IsImpacted())
-        {
-            musicSource_.Play(sounds_.musicLAdieu);
-            SetState(State::GAME_OVER, t);
-            actionsEnabled_ = false;
-        }
-
+        UpdatePlaying(t);
     }
     else if (state_ == State::GAME_OVER)
     {
-        // Don't allow the player to do anything for a short time to prevent them from taking accidental actions.
-        const double delay = 2.0;
-        actionsEnabled_ = t - stateStartTime_ >= delay;
-        if (actionsEnabled_)
+        Screens screen = UpdateGameOver(t);
+        if (screen != Screens::Playing)
         {
-            if (input::buttons.JustPressed(input::ButtonId::b))
-            {
-                musicSource_.Stop();
-                progress_.SaveScores(); // TODO: dedup.
-                return Screens::Menu;
-            }
-            if (input::buttons.JustPressed(input::ButtonId::x))
-            {
-                musicSource_.Stop();
-                progress_.SaveScores(); // TODO: dedup.
-                Start(t, lastPlayed_);
-            }
-            if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
-            {
-                // Go on to the next level.
-                musicSource_.Stop();
-                progress_.SaveScores(); // TODO: dedup.
-                Start(t, level_);
-            }
+            return screen;
         }
     }
     else if (state_ == State::PAUSED)
     {
-        if (input::buttons.JustPressed(input::ButtonId::b))
+        Screens screen = UpdatePaused(t);
+        if (screen != Screens::Playing)
         {
-            musicSource_.Stop();
-            return Screens::Menu;
-        }
-        if (input::buttons.JustPressed(input::ButtonId::a))
-        {
-            musicSource_.Resume();
-            SetState(State::PLAYING, t);
+            return screen;
         }
     }
 
@@ -373,22 +401,124 @@ void Playing::DrawBackdrop()
     }
 }
 
-void Playing::Draw(double t)
-{
-    // Draw the backdrop.
-    DrawBackdrop();
 
+void Playing::DrawPaused()
+{
+    // Draw a translucent texture over the pit area again.
+    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+
+    // The game is currently paused.
     {
-        const float x = VIRTUAL_WIDTH / 2;
-        const float y = 4.0f;
-        batch_.AddVertices(je::quads::Create(textures.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
-        textRenderer.DrawCentred(x, y, "Just a minute", Colours::mode, Colours::black);
+        const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
+        const float y = VIRTUAL_HEIGHT / 3.0f;
+        textRenderer.DrawLeft(x, y, "Paused", Colours::white, Colours::black);
     }
 
-    // Draw a translucent texture over the pit area, then draw the pit itself.
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
-    pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
+    if (input::HasGamepad())
+    {
+        const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+        const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+        textRenderer.DrawLeft(x, y, "(|) quit", Colours::white, Colours::black);
+    }
+    else
+    {
+        const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+        const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+        textRenderer.DrawLeft(x, y, "[ESC]   quit", Colours::white, Colours::black);
+    }
 
+    if (input::HasGamepad())
+    {
+        const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+        const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+        textRenderer.DrawLeft(x, y, "({) play", Colours::white, Colours::black);
+    }
+    else
+    {
+        const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+        const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+        textRenderer.DrawLeft(x, y, "[SPACE] play", Colours::white, Colours::black);
+    }
+}
+
+
+void Playing::DrawGameOver(double t)
+{
+    // Draw a translucent texture over the pit area again.
+    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+
+    // It's game over, so tell the player.
+    if (std::fmod(t - stateStartTime_, 1.0) < 0.6)
+    {
+        const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
+        if (pit.IsImpacted())
+        {
+            const float x = VIRTUAL_WIDTH / 2.0f - 5.0 * 8.0f;
+            textRenderer.DrawLeft(x, y, "GAME OVER!", Colours::white, Colours::black);
+        }
+        else
+        {
+            const float x = VIRTUAL_WIDTH / 2.0f - 4.0 * 8.0f;
+            textRenderer.DrawLeft(x, y, "YOU WIN!", Colours::white, Colours::black);
+        }
+    }
+    if (actionsEnabled_)
+    {
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
+            if (input::HasGamepad())
+            {
+                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                textRenderer.DrawLeft(x, y, "(}) retry", Colours::white, Colours::black);
+            }
+            else
+            {
+                const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+                textRenderer.DrawLeft(x, y, "[CTRL] retry", Colours::white, Colours::black);
+            }
+        }
+        if (input::HasGamepad())
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+            textRenderer.DrawLeft(x, y, "(|) back", Colours::white, Colours::black);
+        }
+        else
+        {
+            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
+            const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+            textRenderer.DrawLeft(x, y, "[ESC]   back", Colours::white, Colours::black);
+        }
+        if (!pit.IsImpacted())
+        {
+            if (input::HasGamepad())
+            {
+                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
+                textRenderer.DrawLeft(x, y, "({) next", Colours::white, Colours::black);
+            }
+            else
+            {
+                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
+                const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
+                textRenderer.DrawLeft(x, y, "[SPACE] next", Colours::white, Colours::black);
+            }
+        }
+    }
+}
+
+
+void Playing::DrawTitle()
+{
+    const float x = VIRTUAL_WIDTH / 2;
+    const float y = 4.0f;
+    batch_.AddVertices(je::quads::Create(textures.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
+    textRenderer.DrawCentred(x, y, "Just a minute", Colours::mode, Colours::black);
+}
+
+
+void Playing::DrawStats()
+{
     // Draw some stats.
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 6));
@@ -396,118 +526,36 @@ void Playing::Draw(double t)
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
     highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, highScore_);
     speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 6 }, lastPlayed_);
+}
 
-    if (state_ == State::PLAYING)
-    {
-        // We're still playing, so draw the cursor.
-        float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
-        float cursorY = topLeft.y + cursorTileY * tileSize - 1.0f - internalTileScroll;
-        batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
-        batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
-    }
-    else if (state_ == State::GAME_OVER)
-    {
-        // Draw a translucent texture over the pit area again.
-        batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
 
-        // It's game over, so tell the player.
-        if (std::fmod(t - stateStartTime_, 1.0) < 0.6)
-        {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
-            if (pit.IsImpacted())
-            {
-                const float x = VIRTUAL_WIDTH / 2.0f - 5.0 * 8.0f;
-                textRenderer.DrawLeft(x, y, "GAME OVER!", Colours::white, Colours::black);
-            }
-            else
-            {
-                const float x = VIRTUAL_WIDTH / 2.0f - 4.0 * 8.0f;
-                textRenderer.DrawLeft(x, y, "YOU WIN!", Colours::white, Colours::black);
-            }
-        }
-        if (actionsEnabled_)
-        {
-            {
-                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
-                if (input::HasGamepad())
-                {
-                    const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "(}) retry", Colours::white, Colours::black);
-                }
-                else
-                {
-                    const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "[CTRL] retry", Colours::white, Colours::black);
-                }
-            }
-            if (input::HasGamepad())
-            {
-                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
-                const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.DrawLeft(x, y, "(|) back", Colours::white, Colours::black);
-            }
-            else
-            {
-                const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
-                const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                textRenderer.DrawLeft(x, y, "[ESC]   back", Colours::white, Colours::black);
-            }
-            if (!pit.IsImpacted())
-            {
-                if (input::HasGamepad())
-                {
-                    const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
-                    const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "({) next", Colours::white, Colours::black);
-                }
-                else
-                {
-                    const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
-                    const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                    textRenderer.DrawLeft(x, y, "[SPACE] next", Colours::white, Colours::black);
-                }
-            }
-        }
-    }
-    else if (state_ == State::PAUSED)
-    {
-        // Draw a translucent texture over the pit area again.
-        batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+void Playing::DrawGui()
+{
+    DrawTitle();
+    DrawStats();
+}
 
-        // The game is currently paused.
-        {
-            const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
-            const float y = VIRTUAL_HEIGHT / 3.0f;
-            textRenderer.DrawLeft(x, y, "Paused", Colours::white, Colours::black);
-        }
 
-        if (input::HasGamepad())
-        {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
-            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.DrawLeft(x, y, "(|) quit", Colours::white, Colours::black);
-        }
-        else
-        {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
-            const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-            textRenderer.DrawLeft(x, y, "[ESC]   quit", Colours::white, Colours::black);
-        }
+void Playing::DrawPit()
+{
+    // Draw a translucent texture over the pit area, then draw the pit itself.
+    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+    pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
+}
 
-        if (input::HasGamepad())
-        {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
-            const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.DrawLeft(x, y, "({) play", Colours::white, Colours::black);
-        }
-        else
-        {
-            const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
-            const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-            textRenderer.DrawLeft(x, y, "[SPACE] play", Colours::white, Colours::black);
-        }
-    }
 
+void Playing::DrawCursor()
+{
+    // We're still playing, so draw the cursor.
+    float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
+    float cursorY = topLeft.y + cursorTileY * tileSize - 1.0f - internalTileScroll;
+    batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
+    batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
+}
+
+
+void Playing::DrawFlyups()
+{
     // Draw fly-ups.
     for (auto& flyup : flyups)
     {
@@ -516,4 +564,27 @@ void Playing::Draw(double t)
             flyup.Draw(batch_);
         }
     }
+}
+
+
+void Playing::Draw(double t)
+{
+    DrawBackdrop();
+    DrawGui();
+    DrawPit();
+
+    if (state_ == State::PLAYING)
+    {
+        DrawCursor();
+    }
+    else if (state_ == State::GAME_OVER)
+    {
+        DrawGameOver(t);
+    }
+    else if (state_ == State::PAUSED)
+    {
+        DrawPaused();
+    }
+
+    DrawFlyups();
 }

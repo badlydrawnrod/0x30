@@ -30,12 +30,25 @@ public:
 
     void Start(double t);
     void Start(double t, int level);
+    
     Screens Update(double t, double dt);
+    void DrawCursor();
     void Draw(double t);
 
 private:
-
     enum class State { PLAYING, PAUSED, GAME_OVER };
+
+    Screens UpdateGameOver(double t);
+    Screens UpdatePaused(double t);
+    void UpdatePlaying(double t);
+
+    void DrawPaused();
+    void DrawGameOver(double t);
+    void DrawStats();
+    void DrawTitle();
+    void DrawPit();
+    void DrawGui();
+    void DrawFlyups();
 
     void AddFlyupsForRun(const Pit::RunInfo& run);
     void AddFlyupsForChains(const Pit::RunInfo& run);
