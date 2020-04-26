@@ -204,10 +204,6 @@ namespace je
         return buffer;
     }
 
-    void PlayBufferToSource(ALuint buffer, ALuint source)
-    {
-    }
-
     SoundSource::SoundSource() : source_ { MakeSource() }
     {
     }
