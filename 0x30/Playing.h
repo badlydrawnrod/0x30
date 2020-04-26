@@ -75,10 +75,13 @@ private:
     ScoreRenderer scoreRenderer;
     ScoreRenderer highScoreRenderer;
     LevelRenderer speedRenderer;
-    double lastTime_;
-    double remaining_;
-    State state_;
+    
+    double lastTime_{ 0.0 };
+    double elapsedTime_{ 0.0 };
+    double remainingTime_{ 0.0 };
     double stateStartTime_{ 0.0 };
+
+    State state_;
     bool actionsEnabled_{ false };
 
     const je::Vec2f topLeft{ (VIRTUAL_WIDTH - Pit::cols * tileSize) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize };

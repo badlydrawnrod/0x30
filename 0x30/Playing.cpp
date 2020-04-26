@@ -22,9 +22,7 @@ Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sound
     scoreRenderer{ textRenderer, "SCORE" },
     highScoreRenderer{ textRenderer, " HIGH" },
     speedRenderer{ textRenderer },
-    state_{ State::PLAYING },
-    remaining_{ 0 },
-    lastTime_{ 0 }
+    state_{ State::PLAYING }
 {
 }
 
@@ -61,7 +59,8 @@ void Playing::Start(const double t, const int level)
     pit.Reset(actualLevel);
     SetState(State::PLAYING, t);
     score = 0;
-    remaining_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
+    remainingTime_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
+    elapsedTime_ = 0.0;
     lastTime_ = t;
     lastPlayed_ = actualLevel;
 
@@ -352,8 +351,9 @@ Screens Playing::Update(double t, double dt)
     double now = t;
     double delta = (now - lastTime_) * multiplier;
     lastTime_ = now;
-    remaining_ -= delta;
-    if (remaining_ < 0.0)
+    elapsedTime_ += delta;
+    remainingTime_ -= delta;
+    if (remainingTime_ < 0.0)
     {
         if (state_ == State::PLAYING)
         {
@@ -362,7 +362,7 @@ Screens Playing::Update(double t, double dt)
             SetLevel(level_ + 1);
             actionsEnabled_ = false;
         }
-        remaining_ = 0.0;
+        remainingTime_ = 0.0;
     }
 
     if (state_ == State::PLAYING)
@@ -523,7 +523,7 @@ void Playing::DrawStats()
     // Draw some stats.
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 6));
-    timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remaining_);
+    timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remainingTime_);
     scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
     highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, highScore_);
     speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 6 }, lastPlayed_);
