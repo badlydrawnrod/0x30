@@ -52,7 +52,7 @@ private:
 
     void AddFlyupsForRun(const Pit::RunInfo& run);
     void AddFlyupsForChains(const Pit::RunInfo& run);
-    void UpdateScore(const Pit& pit, uint64_t& score);
+    void UpdateScore();
     void DrawBackdrop();
 
     void SetLevel(int level);

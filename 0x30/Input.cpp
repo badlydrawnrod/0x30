@@ -166,10 +166,9 @@ namespace input
         }
     }
 
-    void ButtonStates::OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
+    void ButtonStates::OnKeyEvent(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/)
     {
-        bool isPress = (action == GLFW_PRESS);
-        bool isPressOrRepeat = (action == GLFW_PRESS || action == GLFW_REPEAT);
+        const bool isPressOrRepeat = (action == GLFW_PRESS || action == GLFW_REPEAT);
         switch (key)
         {
         case GLFW_KEY_LEFT:
@@ -216,7 +215,7 @@ namespace input
         }
     }
 
-    void ButtonStates::OnJoystickEvent(int joystickId, int event)
+    void ButtonStates::OnJoystickEvent(int /*joystickId*/, int /*event*/)
     {
     }
 

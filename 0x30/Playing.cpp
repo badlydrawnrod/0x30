@@ -169,7 +169,7 @@ void Playing::AddFlyupsForChains(const Pit::RunInfo& run)
 }
 
 
-void Playing::UpdateScore(const Pit& pit, uint64_t& score)
+void Playing::UpdateScore()
 {
     const auto& runs = pit.Runs();
     if (runs.size() > 0)
@@ -270,7 +270,7 @@ void Playing::UpdatePlaying(double t)
         blocksPoppingSource_.Play(sounds_.blocksPopping);
     }
 
-    UpdateScore(pit, score);
+    UpdateScore();
 
     // Add fly-ups.
     for (const auto& run : pit.Runs())
@@ -344,7 +344,7 @@ Screens Playing::UpdatePaused(double t)
 }
 
 
-Screens Playing::Update(double t, double dt)
+Screens Playing::Update(double t, double /*dt*/)
 {
     // Update elapsed time only when playing.
     double multiplier = (state_ == State::PLAYING) ? 1.0 : 0.0;
@@ -541,7 +541,7 @@ void Playing::DrawPit()
 {
     // Draw a translucent texture over the pit area, then draw the pit itself.
     batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
-    pitRenderer.Draw(topLeft, internalTileScroll, lastRow, bottomRow);
+    pitRenderer.Draw(topLeft, internalTileScroll, bottomRow);
 }
 
 

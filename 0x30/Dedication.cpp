@@ -19,7 +19,7 @@ Dedication::Dedication(je::Batch& batch, Textures& textures, Sounds& sounds) :
 }
 
 
-Screens Dedication::Update(double t, double dt)
+Screens Dedication::Update(double t, double /*dt*/)
 {
     if (!sounds_.IsLoaded())
     {

@@ -35,7 +35,7 @@ void Menu::Start(double t)
 }
 
 
-Screens Menu::Update(double t, double dt)
+Screens Menu::Update(double /*t*/, double /*dt*/)
 {
     if (input::buttons.JustPressed(input::ButtonId::a))
     {

@@ -20,8 +20,8 @@ public:
 
     struct RunInfo
     {
-        size_t runSize;
-        size_t chainLength;
+        size_t runSize{ 0 };
+        size_t chainLength{ 0 };
         std::vector<PitCoord> coord;
     };
 

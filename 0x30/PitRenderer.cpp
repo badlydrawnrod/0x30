@@ -5,14 +5,14 @@
 #include "je/QuadHelpers.h"
 
 
-void PitRenderer::Draw(je::Vec2f topLeft, float internalTileScroll, const float lastRow, const float bottomRow)
+void PitRenderer::Draw(je::Vec2f topLeft, float internalTileScroll, const float bottomRow)
 {
-    DrawContents(topLeft, internalTileScroll, lastRow, bottomRow);
+    DrawContents(topLeft, internalTileScroll, bottomRow);
     DrawOutline(topLeft);
 }
 
 
-void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, const float lastRow, const float bottomRow)
+void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, const float bottomRow)
 {
     // Draw the contents of the pit.
     for (auto row = 0; row < Pit::rows; row++)

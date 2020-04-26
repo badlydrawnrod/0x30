@@ -450,7 +450,7 @@ void Pit::RemoveRuns()
             size_t run = RunAt(x, y);
             if (run > 0)
             {
-                row += '0' + (int)RunAt(x, y);
+                row += '0' + (char)RunAt(x, y);
             }
             else
             {
