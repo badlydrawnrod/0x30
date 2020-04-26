@@ -20,10 +20,24 @@ public:
 
     Scores LevelScores() const { return scores_; }
 
-    void UpdateHighScore(int level, uint64_t score) { scores_[level - 1].score = std::max(score, scores_[level - 1].score); }
-    uint64_t HighScore(int level) const { return scores_[level - 1].score; }
+    void UpdateHighScore(int level, uint64_t score);
+    uint64_t HighScore(int level) const;
 
 private:
     int maxLevel_{ 1 };
     Scores scores_;
 };
+
+
+inline void Progress::UpdateHighScore(int level, uint64_t score)
+{
+    int index = level - 1;
+    scores_[index].score = std::max(score, scores_[index].score);
+}
+
+
+inline uint64_t Progress::HighScore(int level) const
+{
+    int index = level - 1;
+    return scores_[index].score;
+}

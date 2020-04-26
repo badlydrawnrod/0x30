@@ -397,7 +397,8 @@ void Playing::DrawBackdrop()
 {
     if (!textures.backdrops.empty())
     {
-        batch_.AddVertices(je::quads::Create(textures.backdrops[(lastPlayed_ - 1) % textures.backdrops.size()], 0.0f, 0.0f));
+        int index = lastPlayed_ - 1;
+        batch_.AddVertices(je::quads::Create(textures.backdrops[index % textures.backdrops.size()], 0.0f, 0.0f));
     }
 }
 
