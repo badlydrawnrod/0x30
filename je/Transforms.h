@@ -24,8 +24,8 @@ namespace je::vec
     inline Vec2f Rotate(Vec2f vec, Vec2f rotate)
     {
         return Vec2f{
-            vec.x * rotate.cos - vec.y * rotate.sin,
-            vec.x * rotate.sin + vec.y * rotate.cos
+            vec.x * rotate.x - vec.y * rotate.y,
+            vec.x * rotate.y + vec.y * rotate.x
         };
     }
 

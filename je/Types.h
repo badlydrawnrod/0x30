@@ -7,42 +7,19 @@
 namespace je
 {
     // Packed RGBA colour.
-    union Rgba4b
+    struct Rgba4b
     {
-        struct
-        {
-            GLubyte r;
-            GLubyte g;
-            GLubyte b;
-            GLubyte a;
-        };
-        GLubyte data[4];
+        GLubyte r;
+        GLubyte g;
+        GLubyte b;
+        GLubyte a;
     };
 
-    // A 2 element float vector, with aliases for common usages.
-    union Vec2f
+    // A 2 element float vector.
+    struct Vec2f
     {
-        struct
-        {
-            GLfloat x;
-            GLfloat y;
-        };
-        struct
-        {
-            GLfloat u;
-            GLfloat v;
-        };
-        struct
-        {
-            GLfloat w;
-            GLfloat h;
-        };
-        struct
-        {
-            GLfloat cos;
-            GLfloat sin;
-        };
-        GLfloat data[2];
+        GLfloat x;
+        GLfloat y;
     };
 
     // A rectangle.
