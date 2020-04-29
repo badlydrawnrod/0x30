@@ -12,16 +12,16 @@
 
 Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
     batch_{ batch },
-    textures{ textures },
+    textures_{ textures },
     progress_{ progress },
     sounds_{ sounds },
-    pit{ rnd },
-    pitRenderer{ pit, textures, batch },
-    textRenderer{ textures.textTiles, batch },
-    timeRenderer{ textRenderer },
-    scoreRenderer{ textRenderer, "SCORE" },
-    highScoreRenderer{ textRenderer, " HIGH" },
-    speedRenderer{ textRenderer },
+    pit_{ rnd },
+    pitRenderer_{ pit_, textures, batch },
+    textRenderer_{ textures.textTiles, batch },
+    timeRenderer_{ textRenderer_ },
+    scoreRenderer_{ textRenderer_, "SCORE" },
+    highScoreRenderer_{ textRenderer_, " HIGH" },
+    speedRenderer_{ textRenderer_ },
     state_{ State::PLAYING }
 {
 }
@@ -53,12 +53,12 @@ void Playing::Start(const double t)
 
 void Playing::Start(const double t, const int level)
 {
-    int actualLevel = level < numLevels ? level : numLevels;
+    int actualLevel = level < numLevels_ ? level : numLevels_;
     SetLevel(actualLevel);
     highScore_ = progress_.HighScore(level_);
-    pit.Reset(actualLevel);
+    pit_.Reset(actualLevel);
     SetState(State::PLAYING, t);
-    score = 0;
+    score_ = 0;
     remainingTime_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
     elapsedTime_ = 0.0;
     lastTime_ = t;
@@ -79,11 +79,11 @@ void Playing::Start(const double t, const int level)
         --speedMultiplier;
     }
     LOG("Level " << actualLevel << ", speed " << speedMultiplier);
-    scrollRate = 0.025f + (0.0025f * speedMultiplier);
+    scrollRate_ = 0.025f + (0.0025f * speedMultiplier);
 
-    cursorTileX = (Pit::cols / 2) - 1;
-    cursorTileY = Pit::rows / 2;
-    flyups.clear();
+    cursorTileX_ = (Pit::cols / 2) - 1;
+    cursorTileY_ = Pit::rows / 2;
+    flyups_.clear();
     musicSource_.Play(sounds_.musicMinuteWaltz);
 }
 
@@ -99,22 +99,22 @@ void Playing::AddFlyupsForRun(const Pit::RunInfo& run)
         switch (run.runSize)
         {
         case 4:
-            texture = textures.combo4;
+            texture = textures_.combo4;
             break;
         case 5:
-            texture = textures.combo5;
+            texture = textures_.combo5;
             break;
         case 6:
-            texture = textures.combo6;
+            texture = textures_.combo6;
             break;
         case 7:
-            texture = textures.combo7;
+            texture = textures_.combo7;
             break;
         case 8:
-            texture = textures.combo8;
+            texture = textures_.combo8;
             break;
         case 9:
-            texture = textures.combo9;
+            texture = textures_.combo9;
             break;
         }
 
@@ -122,9 +122,9 @@ void Playing::AddFlyupsForRun(const Pit::RunInfo& run)
         {
             for (auto i = 0; i < run.runSize; i++)
             {
-                float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
-                float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
-                flyups.emplace_back(texture, x, y, runFlyupDuration);
+                float x = run.coord[i].x * tileSize_ + topLeft_.x + tileSize_ * 0.5f - texture.w * 0.5f;
+                float y = run.coord[i].y * tileSize_ + topLeft_.y + tileSize_ * 0.5f - texture.h * 0.5f - internalTileScroll_;
+                flyups_.emplace_back(texture, x, y, runFlyupDuration);
             }
         }
     }
@@ -141,28 +141,28 @@ void Playing::AddFlyupsForChains(const Pit::RunInfo& run)
         switch (chains)
         {
         case 2:
-            texture = textures.chain2;
+            texture = textures_.chain2;
             break;
         case 3:
-            texture = textures.chain3;
+            texture = textures_.chain3;
             break;
         case 4:
-            texture = textures.chain4;
+            texture = textures_.chain4;
             break;
         case 5:
-            texture = textures.chain5;
+            texture = textures_.chain5;
             break;
         case 6:
-            texture = textures.chain6;
+            texture = textures_.chain6;
             break;
         }
         if (chains >= 2 && chains <= 6)
         {
             for (auto i = 0; i < run.runSize; i++)
             {
-                float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
-                float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll - tileSize;
-                flyups.emplace_back(texture, x, y, chainFlyupDuration);
+                float x = run.coord[i].x * tileSize_ + topLeft_.x + tileSize_ * 0.5f - texture.w * 0.5f;
+                float y = run.coord[i].y * tileSize_ + topLeft_.y + tileSize_ * 0.5f - texture.h * 0.5f - internalTileScroll_ - tileSize_;
+                flyups_.emplace_back(texture, x, y, chainFlyupDuration);
             }
         }
     }
@@ -171,7 +171,7 @@ void Playing::AddFlyupsForChains(const Pit::RunInfo& run)
 
 void Playing::UpdateScore()
 {
-    const auto& runs = pit.Runs();
+    const auto& runs = pit_.Runs();
     if (runs.size() > 0)
     {
         auto multiplier = runs.size();
@@ -210,10 +210,10 @@ void Playing::UpdateScore()
             }
             uint64_t scoreChange = runScore * (runInfo.chainLength + 1) * multiplier;
             LOG("Run score: " << runScore << " * chain length " << (runInfo.chainLength + 1) << " * multiplier " << multiplier << " = " << scoreChange);
-            score += scoreChange;
+            score_ += scoreChange;
         }
-        highScore_ = std::max(score, highScore_);
-        LOG("Score: " << score << " High: " << highScore_);
+        highScore_ = std::max(score_, highScore_);
+        LOG("Score: " << score_ << " High: " << highScore_);
     }
 }
 
@@ -221,51 +221,51 @@ void Playing::UpdateScore()
 void Playing::UpdatePlaying(double t)
 {
     // Scroll the contents of the pit up.
-    internalTileScroll += (input::buttons.IsPressed(input::ButtonId::x) && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
+    internalTileScroll_ += (input::buttons.IsPressed(input::ButtonId::x) && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
         ? 1.0f
-        : scrollRate;
-    if (internalTileScroll >= tileSize)
+        : scrollRate_;
+    if (internalTileScroll_ >= tileSize_)
     {
-        pit.ScrollOne();
-        if (cursorTileY > 1)
+        pit_.ScrollOne();
+        if (cursorTileY_ > 1)
         {
-            cursorTileY--;
+            cursorTileY_--;
         }
-        internalTileScroll = 0.0f;
+        internalTileScroll_ = 0.0f;
     }
 
     // Move the player.
-    if (input::buttons.JustPressed(input::ButtonId::left) && cursorTileX > 0)
+    if (input::buttons.JustPressed(input::ButtonId::left) && cursorTileX_ > 0)
     {
-        --cursorTileX;
+        --cursorTileX_;
     }
-    if (input::buttons.JustPressed(input::ButtonId::right) && cursorTileX < Pit::cols - 2)
+    if (input::buttons.JustPressed(input::ButtonId::right) && cursorTileX_ < Pit::cols - 2)
     {
-        ++cursorTileX;
+        ++cursorTileX_;
     }
-    if (input::buttons.JustPressed(input::ButtonId::up) && cursorTileY > 1)
+    if (input::buttons.JustPressed(input::ButtonId::up) && cursorTileY_ > 1)
     {
-        --cursorTileY;
+        --cursorTileY_;
     }
-    if (input::buttons.JustPressed(input::ButtonId::down) && cursorTileY < Pit::rows - 2)
+    if (input::buttons.JustPressed(input::ButtonId::down) && cursorTileY_ < Pit::rows - 2)
     {
-        ++cursorTileY;
+        ++cursorTileY_;
     }
 
     // Swap tiles.
     if (input::buttons.JustPressed(input::ButtonId::a))
     {
-        pit.Swap(cursorTileX, cursorTileY);
+        pit_.Swap(cursorTileX_, cursorTileY_);
         blocksSwappingSource_.Play(sounds_.blocksSwapping);
     }
 
-    pit.Update();
+    pit_.Update();
 
-    if (pit.Landed())
+    if (pit_.Landed())
     {
         blocksLandingSource_.Play(sounds_.blocksLanding);
     }
-    if (auto runs = pit.Runs(); runs.size() > 0)
+    if (auto runs = pit_.Runs(); runs.size() > 0)
     {
         blocksPoppingSource_.Play(sounds_.blocksPopping);
     }
@@ -273,7 +273,7 @@ void Playing::UpdatePlaying(double t)
     UpdateScore();
 
     // Add fly-ups.
-    for (const auto& run : pit.Runs())
+    for (const auto& run : pit_.Runs())
     {
         AddFlyupsForRun(run);
         AddFlyupsForChains(run);
@@ -287,7 +287,7 @@ void Playing::UpdatePlaying(double t)
     }
 
     // Check for game over.
-    if (pit.IsImpacted())
+    if (pit_.IsImpacted())
     {
         musicSource_.Play(sounds_.musicLAdieu);
         SetState(State::GAME_OVER, t);
@@ -316,7 +316,7 @@ Screens Playing::UpdateGameOver(double t)
             progress_.SaveScores(); // TODO: dedup.
             Start(t, lastPlayed_);
         }
-        if (input::buttons.JustPressed(input::ButtonId::a) && !pit.IsImpacted())
+        if (input::buttons.JustPressed(input::ButtonId::a) && !pit_.IsImpacted())
         {
             // Go on to the next level.
             musicSource_.Stop();
@@ -387,7 +387,7 @@ Screens Playing::Update(double t, double /*dt*/)
     }
 
     // Remove dead fly-ups.
-    flyups.erase(std::remove_if(flyups.begin(), flyups.end(), [](const auto& f) { return !f.IsAlive(); }), flyups.end());
+    flyups_.erase(std::remove_if(flyups_.begin(), flyups_.end(), [](const auto& f) { return !f.IsAlive(); }), flyups_.end());
 
     return Screens::Playing;
 }
@@ -395,10 +395,10 @@ Screens Playing::Update(double t, double /*dt*/)
 
 void Playing::DrawBackdrop()
 {
-    if (!textures.backdrops.empty())
+    if (!textures_.backdrops.empty())
     {
         int index = lastPlayed_ - 1;
-        batch_.AddVertices(je::quads::Create(textures.backdrops[index % textures.backdrops.size()], 0.0f, 0.0f));
+        batch_.AddVertices(je::quads::Create(textures_.backdrops[index % textures_.backdrops.size()], 0.0f, 0.0f));
     }
 }
 
@@ -406,39 +406,39 @@ void Playing::DrawBackdrop()
 void Playing::DrawPaused()
 {
     // Draw a translucent texture over the pit area again.
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+    batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x, topLeft_.y, tileSize_ * pit_.cols, tileSize_ * (pit_.rows - 1)));
 
     // The game is currently paused.
     {
         const float x = VIRTUAL_WIDTH / 2.0f - 3 * 8.0f;
         const float y = VIRTUAL_HEIGHT / 3.0f;
-        textRenderer.DrawLeft(x, y, "Paused", Colours::white, Colours::black);
+        textRenderer_.DrawLeft(x, y, "Paused", Colours::white, Colours::black);
     }
 
     if (input::HasGamepad())
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-        textRenderer.DrawLeft(x, y, "(|) quit", Colours::white, Colours::black);
+        textRenderer_.DrawLeft(x, y, "(|) quit", Colours::white, Colours::black);
     }
     else
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-        textRenderer.DrawLeft(x, y, "[ESC]   quit", Colours::white, Colours::black);
+        textRenderer_.DrawLeft(x, y, "[ESC]   quit", Colours::white, Colours::black);
     }
 
     if (input::HasGamepad())
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-        textRenderer.DrawLeft(x, y, "({) play", Colours::white, Colours::black);
+        textRenderer_.DrawLeft(x, y, "({) play", Colours::white, Colours::black);
     }
     else
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-        textRenderer.DrawLeft(x, y, "[SPACE] play", Colours::white, Colours::black);
+        textRenderer_.DrawLeft(x, y, "[SPACE] play", Colours::white, Colours::black);
     }
 }
 
@@ -446,21 +446,21 @@ void Playing::DrawPaused()
 void Playing::DrawGameOver(double t)
 {
     // Draw a translucent texture over the pit area again.
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
+    batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x, topLeft_.y, tileSize_ * pit_.cols, tileSize_ * (pit_.rows - 1)));
 
     // It's game over, so tell the player.
     if (std::fmod(t - stateStartTime_, 1.0) < 0.6)
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f;
-        if (pit.IsImpacted())
+        if (pit_.IsImpacted())
         {
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0 * 8.0f;
-            textRenderer.DrawLeft(x, y, "GAME OVER!", Colours::white, Colours::black);
+            textRenderer_.DrawLeft(x, y, "GAME OVER!", Colours::white, Colours::black);
         }
         else
         {
             const float x = VIRTUAL_WIDTH / 2.0f - 4.0 * 8.0f;
-            textRenderer.DrawLeft(x, y, "YOU WIN!", Colours::white, Colours::black);
+            textRenderer_.DrawLeft(x, y, "YOU WIN!", Colours::white, Colours::black);
         }
     }
     if (actionsEnabled_)
@@ -470,39 +470,39 @@ void Playing::DrawGameOver(double t)
             if (input::HasGamepad())
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.DrawLeft(x, y, "(}) retry", Colours::white, Colours::black);
+                textRenderer_.DrawLeft(x, y, "(}) retry", Colours::white, Colours::black);
             }
             else
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                textRenderer.DrawLeft(x, y, "[CTRL] retry", Colours::white, Colours::black);
+                textRenderer_.DrawLeft(x, y, "[CTRL] retry", Colours::white, Colours::black);
             }
         }
         if (input::HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-            textRenderer.DrawLeft(x, y, "(|) back", Colours::white, Colours::black);
+            textRenderer_.DrawLeft(x, y, "(|) back", Colours::white, Colours::black);
         }
         else
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-            textRenderer.DrawLeft(x, y, "[ESC]   back", Colours::white, Colours::black);
+            textRenderer_.DrawLeft(x, y, "[ESC]   back", Colours::white, Colours::black);
         }
-        if (!pit.IsImpacted())
+        if (!pit_.IsImpacted())
         {
             if (input::HasGamepad())
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
-                textRenderer.DrawLeft(x, y, "({) next", Colours::white, Colours::black);
+                textRenderer_.DrawLeft(x, y, "({) next", Colours::white, Colours::black);
             }
             else
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 6.125f * 8.0f;
-                textRenderer.DrawLeft(x, y, "[SPACE] next", Colours::white, Colours::black);
+                textRenderer_.DrawLeft(x, y, "[SPACE] next", Colours::white, Colours::black);
             }
         }
     }
@@ -513,20 +513,20 @@ void Playing::DrawTitle()
 {
     const float x = VIRTUAL_WIDTH / 2;
     const float y = 4.0f;
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
-    textRenderer.DrawCentred(x, y, "Just a minute", Colours::mode, Colours::black);
+    batch_.AddVertices(je::quads::Create(textures_.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
+    textRenderer_.DrawCentred(x, y, "Just a minute", Colours::mode, Colours::black);
 }
 
 
 void Playing::DrawStats()
 {
     // Draw some stats.
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x - tileSize * 3 - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 3, tileSize * 2));
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x + tileSize * (pit.cols + 1) - tileSize * 0.5f, topLeft.y + tileSize * 2 - tileSize * 0.5f, tileSize * 5, tileSize * 6));
-    timeRenderer.Draw({ topLeft.x - tileSize * 3, topLeft.y + tileSize * 2 }, remainingTime_);
-    scoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 2 }, score);
-    highScoreRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 4 }, highScore_);
-    speedRenderer.Draw({ topLeft.x + tileSize * (pit.cols + 2.5f), topLeft.y + tileSize * 6 }, lastPlayed_);
+    batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x - tileSize_ * 3 - tileSize_ * 0.5f, topLeft_.y + tileSize_ * 2 - tileSize_ * 0.5f, tileSize_ * 3, tileSize_ * 2));
+    batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x + tileSize_ * (pit_.cols + 1) - tileSize_ * 0.5f, topLeft_.y + tileSize_ * 2 - tileSize_ * 0.5f, tileSize_ * 5, tileSize_ * 6));
+    timeRenderer_.Draw({ topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2 }, remainingTime_);
+    scoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, score_);
+    highScoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 4 }, highScore_);
+    speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, lastPlayed_);
 }
 
 
@@ -540,25 +540,25 @@ void Playing::DrawGui()
 void Playing::DrawPit()
 {
     // Draw a translucent texture over the pit area, then draw the pit itself.
-    batch_.AddVertices(je::quads::Create(textures.blankSquare, topLeft.x, topLeft.y, tileSize * pit.cols, tileSize * (pit.rows - 1)));
-    pitRenderer.Draw(topLeft, internalTileScroll, bottomRow);
+    batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x, topLeft_.y, tileSize_ * pit_.cols, tileSize_ * (pit_.rows - 1)));
+    pitRenderer_.Draw(topLeft_, internalTileScroll_, bottomRow_);
 }
 
 
 void Playing::DrawCursor()
 {
     // We're still playing, so draw the cursor.
-    float cursorX = topLeft.x + cursorTileX * tileSize - 1.0f;
-    float cursorY = topLeft.y + cursorTileY * tileSize - 1.0f - internalTileScroll;
-    batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX, cursorY));
-    batch_.AddVertices(je::quads::Create(textures.cursorTile, cursorX + tileSize, cursorY));
+    float cursorX = topLeft_.x + cursorTileX_ * tileSize_ - 1.0f;
+    float cursorY = topLeft_.y + cursorTileY_ * tileSize_ - 1.0f - internalTileScroll_;
+    batch_.AddVertices(je::quads::Create(textures_.cursorTile, cursorX, cursorY));
+    batch_.AddVertices(je::quads::Create(textures_.cursorTile, cursorX + tileSize_, cursorY));
 }
 
 
 void Playing::DrawFlyups()
 {
     // Draw fly-ups.
-    for (auto& flyup : flyups)
+    for (auto& flyup : flyups_)
     {
         if (flyup.IsAlive())
         {
