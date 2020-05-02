@@ -8,6 +8,7 @@
 #include "Progress.h"
 #include "TextRenderer.h"
 #include "Textures.h"
+#include "Types.h"
 
 #include "je/Batch.h"
 #include "je/Context.h"
@@ -153,7 +154,7 @@ void Game::Update(double t, double dt)
         currentScreen = newScreen;
         if (currentScreen == Screens::Playing)
         {
-            playing.Start(t, menu.SelectedLevel(), Playing::Mode::ENDLESS);
+            playing.Start(t, menu.SelectedLevel(), Mode::ENDLESS);
         }
         else if (currentScreen == Screens::Menu)
         {

@@ -26,8 +26,6 @@
 class Playing
 {
 public:
-    enum class Mode { TIMED, ENDLESS };
-
     Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
     void SetDifficulty(int actualLevel);

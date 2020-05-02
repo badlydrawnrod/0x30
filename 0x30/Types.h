@@ -11,3 +11,5 @@ struct ScoreRecord
 };
 
 using Scores = std::array<ScoreRecord, 20>;
+
+enum class Mode { TIMED, ENDLESS };
