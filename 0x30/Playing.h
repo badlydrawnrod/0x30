@@ -30,6 +30,8 @@ public:
 
     Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
+    void SetDifficulty(int actualLevel);
+
     void Start(double t, int level, Mode mode);
 
     Screens Update(double t, double dt);
@@ -78,8 +80,9 @@ private:
 
     double lastTime_{ 0.0 };
     double elapsedTime_{ 0.0 };
-    double remainingTime_{ 0.0 };
     double stateStartTime_{ 0.0 };
+    double remainingTime_{ 0.0 };
+    double timeToNextLevelChange_{ 0.0 };
 
     State state_;
     bool actionsEnabled_{ false };

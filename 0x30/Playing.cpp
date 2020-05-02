@@ -47,6 +47,30 @@ void Playing::SetState(State state, double t)
 }
 
 
+void Playing::SetDifficulty(int actualLevel)
+{
+    // The scroll rate is based on the level number, but doesn't increase when new blocks are introduced.
+    int speedMultiplier = actualLevel - 1;
+    if (mode_ == Mode::TIMED)
+    {
+        if (actualLevel >= 16)
+        {
+            --speedMultiplier;
+        }
+        if (actualLevel >= 9)
+        {
+            --speedMultiplier;
+        }
+        if (actualLevel >= 4)
+        {
+            --speedMultiplier;
+        }
+    }
+    LOG("Level " << actualLevel << ", speed " << speedMultiplier);
+    scrollRate_ = 0.025f + (0.0025f * speedMultiplier);
+}
+
+
 void Playing::Start(const double t, const int level, Mode mode)
 {
     mode_ = mode;
@@ -60,26 +84,15 @@ void Playing::Start(const double t, const int level, Mode mode)
     {
         remainingTime_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
     }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        timeToNextLevelChange_ = 10.0;
+    }
     elapsedTime_ = 0.0;
     lastTime_ = t;
     lastPlayed_ = actualLevel;
 
-    // The scroll rate is based on the level number, but doesn't increase when new blocks are introduced.
-    int speedMultiplier = actualLevel - 1;
-    if (actualLevel >= 16)
-    {
-        --speedMultiplier;
-    }
-    if (actualLevel >= 9)
-    {
-        --speedMultiplier;
-    }
-    if (actualLevel >= 4)
-    {
-        --speedMultiplier;
-    }
-    LOG("Level " << actualLevel << ", speed " << speedMultiplier);
-    scrollRate_ = 0.025f + (0.0025f * speedMultiplier);
+    SetDifficulty(actualLevel);
 
     cursorTileX_ = (Pit::cols / 2) - 1;
     cursorTileY_ = Pit::rows / 2;
@@ -288,7 +301,14 @@ Screens Playing::Update(double t, double /*dt*/)
     }
     else if (mode_ == Mode::ENDLESS)
     {
-        // TODO: something to make endless mode get a bit quicker with time.
+        timeToNextLevelChange_ -= delta;
+        if (timeToNextLevelChange_ < 0.0)
+        {
+            level_ = std::min(level_ + 1, (int) numLevels_);
+            SetDifficulty(level_);
+            musicSource_.Play(sounds_.musicMinuteWaltz);
+            timeToNextLevelChange_ = 10.0;  // TODO: no magic.
+        }
     }
 
     if (state_ == State::PLAYING)
@@ -466,7 +486,14 @@ void Playing::DrawStats()
     }
     scoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, score_);
     highScoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 4 }, highScore_);
-    speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, lastPlayed_);
+    if (mode_ == Mode::TIMED)
+    {
+        speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, lastPlayed_);
+    }
+    else
+    {
+        speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, level_);
+    }
 }
 
 
