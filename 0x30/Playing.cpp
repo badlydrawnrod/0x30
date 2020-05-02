@@ -10,6 +10,10 @@
 #include <cmath>
 
 
+const double TIMED_MODE_TIME = 98.0;
+const double ENDLESS_MODE_TIME = 98.0;
+
+
 Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
     batch_{ batch },
     textures_{ textures },
@@ -80,11 +84,11 @@ void Playing::Start(const double t, const int level, Mode mode)
     score_ = 0;
     if (mode_ == Mode::TIMED)
     {
-        remainingTime_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
+        remainingTime_ = TIMED_MODE_TIME;
     }
     else if (mode_ == Mode::ENDLESS)
     {
-        timeToNextLevelChange_ = 98.0;
+        timeToNextLevelChange_ = ENDLESS_MODE_TIME;
     }
     elapsedTime_ = 0.0;
     lastTime_ = t;
@@ -305,7 +309,7 @@ Screens Playing::Update(double t, double /*dt*/)
             level_ = std::min(level_ + 1, (int)numLevels_);
             SetDifficulty(level_);
             musicSource_.Play(sounds_.musicMinuteWaltz);
-            timeToNextLevelChange_ = 98.0;  // TODO: no magic.
+            timeToNextLevelChange_ = ENDLESS_MODE_TIME;
         }
     }
 
@@ -341,8 +345,16 @@ void Playing::DrawBackdrop()
 {
     if (!textures_.backdrops.empty())
     {
-        int index = lastPlayed_ - 1;
-        batch_.AddVertices(je::quads::Create(textures_.backdrops[index % textures_.backdrops.size()], 0.0f, 0.0f));
+        if (mode_ == Mode::TIMED)
+        {
+            int index = lastPlayed_ - 1;
+            batch_.AddVertices(je::quads::Create(textures_.backdrops[index % textures_.backdrops.size()], 0.0f, 0.0f));
+        }
+        else if (mode_ == Mode::ENDLESS)
+        {
+            int index = level_ - 1;
+            batch_.AddVertices(je::quads::Create(textures_.backdrops[index % textures_.backdrops.size()], 0.0f, 0.0f));
+        }
     }
 }
 
