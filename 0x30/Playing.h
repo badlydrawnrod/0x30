@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Constants.h"
-#include "Flyup.h"
+#include "FlyupRenderer.h"
 #include "LevelRenderer.h"
 #include "Pit.h"
 #include "PitRenderer.h"
@@ -48,10 +48,7 @@ private:
     void DrawTitle();
     void DrawPit();
     void DrawGui();
-    void DrawFlyups();
 
-    void AddFlyupsForRun(const Pit::RunInfo& run);
-    void AddFlyupsForChains(const Pit::RunInfo& run);
     void UpdateScore();
     void DrawBackdrop();
 
@@ -75,6 +72,7 @@ private:
     ScoreRenderer scoreRenderer_;
     ScoreRenderer highScoreRenderer_;
     LevelRenderer speedRenderer_;
+    FlyupRenderer flyupRenderer_;
 
     double lastTime_{ 0.0 };
     double elapsedTime_{ 0.0 };
@@ -99,6 +97,4 @@ private:
     int level_{ 1 };
     int lastPlayed_{ 1 };
     static constexpr size_t numLevels_ = std::tuple_size<Scores>::value;
-
-    std::vector<Flyup> flyups_;
 };

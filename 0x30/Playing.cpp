@@ -22,6 +22,7 @@ Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sound
     scoreRenderer_{ textRenderer_, "SCORE" },
     highScoreRenderer_{ textRenderer_, " HIGH" },
     speedRenderer_{ textRenderer_ },
+    flyupRenderer_{ textures, batch_ },
     state_{ State::PLAYING }
 {
 }
@@ -83,89 +84,8 @@ void Playing::Start(const double t, const int level)
 
     cursorTileX_ = (Pit::cols / 2) - 1;
     cursorTileY_ = Pit::rows / 2;
-    flyups_.clear();
+    flyupRenderer_.Reset();
     musicSource_.Play(sounds_.musicMinuteWaltz);
-}
-
-
-void Playing::AddFlyupsForRun(const Pit::RunInfo& run)
-{
-    // Add fly-ups for runs of 4-9.
-    if (run.runSize >= 4 && run.runSize < 10)
-    {
-        float runFlyupDuration = 1.0f;
-        je::TextureRegion texture{};
-
-        switch (run.runSize)
-        {
-        case 4:
-            texture = textures_.combo4;
-            break;
-        case 5:
-            texture = textures_.combo5;
-            break;
-        case 6:
-            texture = textures_.combo6;
-            break;
-        case 7:
-            texture = textures_.combo7;
-            break;
-        case 8:
-            texture = textures_.combo8;
-            break;
-        case 9:
-            texture = textures_.combo9;
-            break;
-        }
-
-        if (run.runSize >= 4 && run.runSize <= 9)
-        {
-            for (auto i = 0; i < run.runSize; i++)
-            {
-                float x = run.coord[i].x * tileSize_ + topLeft_.x + tileSize_ * 0.5f - texture.w * 0.5f;
-                float y = run.coord[i].y * tileSize_ + topLeft_.y + tileSize_ * 0.5f - texture.h * 0.5f - internalTileScroll_;
-                flyups_.emplace_back(texture, x, y, runFlyupDuration);
-            }
-        }
-    }
-}
-
-
-void Playing::AddFlyupsForChains(const Pit::RunInfo& run)
-{
-    // Add fly-ups for chains of 2-6.
-    if (const auto chains = run.chainLength + 1; chains >= 2 && chains < 7)
-    {
-        const float chainFlyupDuration = 1.5f;
-        je::TextureRegion texture{};
-        switch (chains)
-        {
-        case 2:
-            texture = textures_.chain2;
-            break;
-        case 3:
-            texture = textures_.chain3;
-            break;
-        case 4:
-            texture = textures_.chain4;
-            break;
-        case 5:
-            texture = textures_.chain5;
-            break;
-        case 6:
-            texture = textures_.chain6;
-            break;
-        }
-        if (chains >= 2 && chains <= 6)
-        {
-            for (auto i = 0; i < run.runSize; i++)
-            {
-                float x = run.coord[i].x * tileSize_ + topLeft_.x + tileSize_ * 0.5f - texture.w * 0.5f;
-                float y = run.coord[i].y * tileSize_ + topLeft_.y + tileSize_ * 0.5f - texture.h * 0.5f - internalTileScroll_ - tileSize_;
-                flyups_.emplace_back(texture, x, y, chainFlyupDuration);
-            }
-        }
-    }
 }
 
 
@@ -275,8 +195,8 @@ void Playing::UpdatePlaying(double t)
     // Add fly-ups.
     for (const auto& run : pit_.Runs())
     {
-        AddFlyupsForRun(run);
-        AddFlyupsForChains(run);
+        flyupRenderer_.AddFlyupsForRun(run, topLeft_, tileSize_, internalTileScroll_);
+        flyupRenderer_.AddFlyupsForChains(run, topLeft_, tileSize_, internalTileScroll_);
     }
 
     // Check for paused.
@@ -387,7 +307,7 @@ Screens Playing::Update(double t, double /*dt*/)
     }
 
     // Remove dead fly-ups.
-    flyups_.erase(std::remove_if(flyups_.begin(), flyups_.end(), [](const auto& f) { return !f.IsAlive(); }), flyups_.end());
+    flyupRenderer_.Update();
 
     return Screens::Playing;
 }
@@ -555,19 +475,6 @@ void Playing::DrawCursor()
 }
 
 
-void Playing::DrawFlyups()
-{
-    // Draw fly-ups.
-    for (auto& flyup : flyups_)
-    {
-        if (flyup.IsAlive())
-        {
-            flyup.Draw(batch_);
-        }
-    }
-}
-
-
 void Playing::Draw(double t)
 {
     DrawBackdrop();
@@ -587,5 +494,5 @@ void Playing::Draw(double t)
         DrawPaused();
     }
 
-    DrawFlyups();
+    flyupRenderer_.DrawFlyups();
 }

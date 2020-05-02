@@ -210,6 +210,7 @@ xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionD
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Colours.cpp" />
+    <ClCompile Include="FlyupRenderer.cpp" />
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Sounds.cpp" />
     <ClCompile Include="Textures.cpp" />
@@ -228,6 +229,7 @@ xcopy /q/y/s/e/i "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionD
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Colours.h" />
+    <ClInclude Include="FlyupRenderer.h" />
     <ClInclude Include="Progress.h" />
     <ClInclude Include="Sounds.h" />
     <ClInclude Include="Textures.h" />
