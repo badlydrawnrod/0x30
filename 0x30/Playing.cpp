@@ -23,7 +23,8 @@ Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sound
     highScoreRenderer_{ textRenderer_, " HIGH" },
     speedRenderer_{ textRenderer_ },
     flyupRenderer_{ textures, batch_ },
-    state_{ State::PLAYING }
+    state_{ State::PLAYING },
+    mode_{ Mode::TIMED }
 {
 }
 
@@ -46,15 +47,19 @@ void Playing::SetState(State state, double t)
 }
 
 
-void Playing::Start(const double t, const int level)
+void Playing::Start(const double t, const int level, Mode mode)
 {
+    mode_ = mode;
     int actualLevel = level < numLevels_ ? level : numLevels_;
     SetLevel(actualLevel);
     highScore_ = progress_.HighScore(level_);
     pit_.Reset(actualLevel);
     SetState(State::PLAYING, t);
     score_ = 0;
-    remainingTime_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
+    if (mode_ == Mode::TIMED)
+    {
+        remainingTime_ = 98.0;  // Enough time to play the minute waltz. Because it's my newt not minute.
+    }
     elapsedTime_ = 0.0;
     lastTime_ = t;
     lastPlayed_ = actualLevel;
@@ -228,14 +233,14 @@ Screens Playing::UpdateGameOver(double t)
         {
             musicSource_.Stop();
             progress_.SaveScores(); // TODO: dedup.
-            Start(t, lastPlayed_);
+            Start(t, lastPlayed_, mode_);
         }
         if (input::buttons.JustPressed(input::ButtonId::a) && !pit_.IsImpacted())
         {
             // Go on to the next level.
             musicSource_.Stop();
             progress_.SaveScores(); // TODO: dedup.
-            Start(t, level_);
+            Start(t, level_, mode_);
         }
     }
     return Screens::Playing;
@@ -266,17 +271,24 @@ Screens Playing::Update(double t, double /*dt*/)
     double delta = (now - lastTime_) * multiplier;
     lastTime_ = now;
     elapsedTime_ += delta;
-    remainingTime_ -= delta;
-    if (remainingTime_ < 0.0)
+    if (mode_ == Mode::TIMED)
     {
-        if (state_ == State::PLAYING)
+        remainingTime_ -= delta;
+        if (remainingTime_ < 0.0)
         {
-            musicSource_.Play(sounds_.musicHallelujah);
-            SetState(State::GAME_OVER, t);
-            SetLevel(level_ + 1);
-            actionsEnabled_ = false;
+            if (state_ == State::PLAYING)
+            {
+                musicSource_.Play(sounds_.musicHallelujah);
+                SetState(State::GAME_OVER, t);
+                SetLevel(level_ + 1);
+                actionsEnabled_ = false;
+            }
+            remainingTime_ = 0.0;
         }
-        remainingTime_ = 0.0;
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        // TODO: something to make endless mode get a bit quicker with time.
     }
 
     if (state_ == State::PLAYING)
@@ -428,7 +440,14 @@ void Playing::DrawTitle()
     const float x = VIRTUAL_WIDTH / 2;
     const float y = 4.0f;
     batch_.AddVertices(je::quads::Create(textures_.blankSquare, 0.0f, 2.0f, VIRTUAL_WIDTH, 12.0f));
-    textRenderer_.DrawCentred(x, y, "Just a minute", Colours::mode, Colours::black);
+    if (mode_ == Mode::TIMED)
+    {
+        textRenderer_.DrawCentred(x, y, "Just a minute", Colours::mode, Colours::black);
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        textRenderer_.DrawCentred(x, y, "Endless fun", Colours::mode, Colours::black);
+    }
 }
 
 
@@ -437,7 +456,14 @@ void Playing::DrawStats()
     // Draw some stats.
     batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x - tileSize_ * 3 - tileSize_ * 0.5f, topLeft_.y + tileSize_ * 2 - tileSize_ * 0.5f, tileSize_ * 3, tileSize_ * 2));
     batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x + tileSize_ * (pit_.cols + 1) - tileSize_ * 0.5f, topLeft_.y + tileSize_ * 2 - tileSize_ * 0.5f, tileSize_ * 5, tileSize_ * 6));
-    timeRenderer_.Draw({ topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2 }, remainingTime_);
+    if (mode_ == Mode::TIMED)
+    {
+        timeRenderer_.Draw({ topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2 }, remainingTime_);
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        timeRenderer_.Draw({ topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2 }, elapsedTime_);
+    }
     scoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, score_);
     highScoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 4 }, highScore_);
     speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, lastPlayed_);

@@ -26,9 +26,11 @@
 class Playing
 {
 public:
+    enum class Mode { TIMED, ENDLESS };
+
     Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
-    void Start(double t, int level);
+    void Start(double t, int level, Mode mode);
 
     Screens Update(double t, double dt);
     void DrawCursor();
@@ -72,6 +74,7 @@ private:
     ScoreRenderer highScoreRenderer_;
     LevelRenderer speedRenderer_;
     FlyupRenderer flyupRenderer_;
+    Mode mode_;
 
     double lastTime_{ 0.0 };
     double elapsedTime_{ 0.0 };
