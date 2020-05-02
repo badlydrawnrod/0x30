@@ -28,29 +28,54 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <functional>
 #include <iomanip>
 #include <random>
 #include <sstream>
 
 
-// Show / hide the Windows console.
-void ToggleConsole()
+struct Console
 {
-    static bool isConsoleHidden = false;
+    static inline bool isConsoleHidden{ false };
 
-    if (isConsoleHidden)
+    static void Show()
     {
         HWND activeWindow = GetActiveWindow();
         ShowWindow(GetConsoleWindow(), 1);
         SetFocus(activeWindow);
+        isConsoleHidden = false;
     }
-    else
+
+    static void Hide()
     {
         ShowWindow(GetConsoleWindow(), 0);
+        isConsoleHidden = true;
     }
-    isConsoleHidden = !isConsoleHidden;
-}
+
+    static void Toggle()
+    {
+        if (isConsoleHidden)
+        {
+            Show();
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    // Show the console and wait for the user to press Enter.
+    static void Oops()
+    {
+        Show();
+        SetFocus(GetConsoleWindow());
+        std::cout << "\nPress [ENTER] to close this window...\n";
+        while (std::getchar() != '\n')
+        {
+        }
+    }
+};
 
 
 class Game
@@ -103,7 +128,7 @@ void Game::Update(double t, double dt)
     input::UpdateInputState(t);
     if (input::buttons.JustPressed(input::ButtonId::debug))
     {
-        ToggleConsole();
+        Console::Toggle();
     }
 
     Screens newScreen = currentScreen;
@@ -164,61 +189,77 @@ void Game::Draw(double t)
 
 int main()
 {
-    // Make a function to create random integers in a closed range.
-    std::random_device randomDevice;
-    std::mt19937 generator(randomDevice());
-    std::function<int(int, int)> Rnd = [&](int lo, int hi) {
-        std::uniform_int_distribution<int> distribution(lo, hi);
-        return distribution(generator);
-    };
-
-    ToggleConsole();
-
-    Game game(Rnd);
-
-    double t = 0.0;
-    double dt = 1.0 / UPDATE_FPS;
-    double lastTime = je::GetTime();
-    double accumulator = 0.0;
-
-    double lastDrawTime = je::GetTime();
-    const double minDrawInterval = 1.0 / RENDER_FPS;
-
-    while (!game.ShouldQuit())
+    try
     {
-        // Update using: https://gafferongames.com/post/fix_your_timestep/
-        double now = je::GetTime();
-        double delta = now - lastTime;
-        if (delta >= 0.1)
+        // Make a function to create random integers in a closed range.
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        std::function<int(int, int)> Rnd = [&](int lo, int hi) {
+            std::uniform_int_distribution<int> distribution(lo, hi);
+            return distribution(generator);
+        };
+
+        Console::Hide();
+        Game game(Rnd);
+
+        double t = 0.0;
+        double dt = 1.0 / UPDATE_FPS;
+        double lastTime = je::GetTime();
+        double accumulator = 0.0;
+
+        double lastDrawTime = je::GetTime();
+        const double minDrawInterval = 1.0 / RENDER_FPS;
+
+        while (!game.ShouldQuit())
         {
-            delta = 0.1;
-        }
-        lastTime = now;
-        accumulator += delta;
-        while (accumulator >= dt)
-        {
-            game.Update(t, dt);
-            t += dt;
-            accumulator -= dt;
+            // Update using: https://gafferongames.com/post/fix_your_timestep/
+            double now = je::GetTime();
+            double delta = now - lastTime;
+            if (delta >= 0.1)
+            {
+                delta = 0.1;
+            }
+            lastTime = now;
+            accumulator += delta;
+            while (accumulator >= dt)
+            {
+                game.Update(t, dt);
+                t += dt;
+                accumulator -= dt;
+            }
+
+            // Draw, potentially capping the frame rate.
+            now = je::GetTime();
+            double drawInterval = now - lastDrawTime;
+            if (drawInterval >= minDrawInterval)
+            {
+                lastDrawTime = now;
+                // Clear the colour buffer.
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                // Set the viewport position and size.
+                glViewport(0, 0, WIDTH, HEIGHT);
+
+                // Make like a gunslinger.
+                game.Draw(t);
+            }
         }
 
-        // Draw, potentially capping the frame rate.
-        now = je::GetTime();
-        double drawInterval = now - lastDrawTime;
-        if (drawInterval >= minDrawInterval)
-        {
-            lastDrawTime = now;
-            // Clear the colour buffer.
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            // Set the viewport position and size.
-            glViewport(0, 0, WIDTH, HEIGHT);
-
-            // Make like a gunslinger.
-            game.Draw(t);
-        }
+        return 0;
     }
+    catch (const std::exception& e)
+    {
+        LOG("Failed with exception: " << e.what());
+        Console::Oops();
 
-    return 0;
+        return 1;
+    }
+    catch (...)
+    {
+        LOG("Failed with unknown exception");
+        Console::Oops();
+
+        return 1;
+    }
 }

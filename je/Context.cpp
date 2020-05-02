@@ -2,6 +2,8 @@
 
 #include "Logger.h"
 
+#include <stdexcept>
+
 
 namespace je
 {
@@ -11,8 +13,10 @@ namespace je
         glfwInit();
 
         // Set the options for GLFW.
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        const int minOpenGlMajorVersion = 3;
+        const int minOpenGlMinorVersion = 3;
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, minOpenGlMajorVersion);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minOpenGlMinorVersion);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -21,9 +25,9 @@ namespace je
         glfwMakeContextCurrent(window_);
         if (window_ == nullptr)
         {
-            LOG("Failed to create GLFW window");
+            LOG("Failed to create GLFW window for OpenGL " << minOpenGlMajorVersion << "." << minOpenGlMinorVersion);
             glfwTerminate();
-            return;
+            throw std::runtime_error("Unable to create GLFW window");
         }
 
         // Load modern OpenGL mappings.
@@ -31,8 +35,9 @@ namespace je
         {
             LOG("Failed to initialize OpenGL context");
             glfwTerminate();
-            return;
+            throw std::runtime_error("Failed to initialize OpenGL context");
         }
+
         LOG("Using OpenGL " << GLVersion.major << "." << GLVersion.minor);
     }
 
