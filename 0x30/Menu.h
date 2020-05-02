@@ -17,6 +17,7 @@ public:
     Screens Update(double t, double dt);
     void Draw(double t);
     int SelectedLevel() const { return currentSelection_ + 1; }
+    Mode SelectedMode() const { return mode_; }
 
 private:
     const Progress& progress_;
@@ -27,5 +28,7 @@ private:
     double screenStartTime_{ 0 };
     int currentSelection_{ 0 };
     int firstVisibleLevel_{ 0 };
+    Mode mode_{ Mode::TIMED };
+
     static constexpr int visibleLevels_{ 10 };
 };

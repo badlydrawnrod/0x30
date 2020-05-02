@@ -47,6 +47,18 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         return Screens::Quit;
     }
 
+    if (input::buttons.JustPressed(input::ButtonId::left) || input::buttons.JustPressed(input::ButtonId::right))
+    {
+        if (mode_ == Mode::ENDLESS)
+        {
+            mode_ = Mode::TIMED;
+        }
+        else if (mode_ == Mode::TIMED)
+        {
+            mode_ = Mode::ENDLESS;
+        }
+    }
+
     if (input::buttons.JustPressed(input::ButtonId::up) && currentSelection_ > 0)
     {
         --currentSelection_;
@@ -111,10 +123,17 @@ void Menu::Draw(double t)
     }
 
     // Draw the game mode's name.
-    x = VIRTUAL_WIDTH / 2.0f - 64.0f;
+    x = VIRTUAL_WIDTH / 2.0f;
     y += 24.0f;
-    textRenderer_.DrawLeft(x, y, "\"Just a minute\"", Colours::mode);
-    x += 8.0f;
+    if (mode_ == Mode::TIMED)
+    {
+        textRenderer_.DrawCentred(x, y, "Just a minute", Colours::mode);
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        textRenderer_.DrawCentred(x, y, "Endless fun", Colours::mode);
+    }
+    x = VIRTUAL_WIDTH / 2.0f - 64.0f + 8.0f;
 
     // Draw the level selection cursor.
     y += 16.0f;
