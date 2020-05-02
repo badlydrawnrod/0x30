@@ -28,7 +28,6 @@ class Playing
 public:
     Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
-    void Start(double t);
     void Start(double t, int level);
 
     Screens Update(double t, double dt);

@@ -46,12 +46,6 @@ void Playing::SetState(State state, double t)
 }
 
 
-void Playing::Start(const double t)
-{
-    Start(t, level_);
-}
-
-
 void Playing::Start(const double t, const int level)
 {
     int actualLevel = level < numLevels_ ? level : numLevels_;
