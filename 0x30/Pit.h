@@ -68,6 +68,7 @@ public:
     Pit(std::function<int(int, int)>& rnd);
 
     void Reset(int level);
+    void SetLevel(int level);
     void Update();
     void ScrollOne();
     void Swap(size_t x, size_t y);

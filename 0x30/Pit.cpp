@@ -28,6 +28,12 @@ Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, r
 }
 
 
+void Pit::SetLevel(int level)
+{
+    level_ = level;
+}
+
+
 void Pit::Reset(int level)
 {
     level_ = level;

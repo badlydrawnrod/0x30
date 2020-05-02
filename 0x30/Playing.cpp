@@ -50,21 +50,19 @@ void Playing::SetState(State state, double t)
 void Playing::SetDifficulty(int actualLevel)
 {
     // The scroll rate is based on the level number, but doesn't increase when new blocks are introduced.
+    pit_.SetLevel(actualLevel);
     int speedMultiplier = actualLevel - 1;
-    if (mode_ == Mode::TIMED)
+    if (actualLevel >= 16)
     {
-        if (actualLevel >= 16)
-        {
-            --speedMultiplier;
-        }
-        if (actualLevel >= 9)
-        {
-            --speedMultiplier;
-        }
-        if (actualLevel >= 4)
-        {
-            --speedMultiplier;
-        }
+        --speedMultiplier;
+    }
+    if (actualLevel >= 9)
+    {
+        --speedMultiplier;
+    }
+    if (actualLevel >= 4)
+    {
+        --speedMultiplier;
     }
     LOG("Level " << actualLevel << ", speed " << speedMultiplier);
     scrollRate_ = 0.025f + (0.0025f * speedMultiplier);
@@ -86,7 +84,7 @@ void Playing::Start(const double t, const int level, Mode mode)
     }
     else if (mode_ == Mode::ENDLESS)
     {
-        timeToNextLevelChange_ = 10.0;
+        timeToNextLevelChange_ = 98.0;
     }
     elapsedTime_ = 0.0;
     lastTime_ = t;
@@ -304,10 +302,10 @@ Screens Playing::Update(double t, double /*dt*/)
         timeToNextLevelChange_ -= delta;
         if (timeToNextLevelChange_ < 0.0)
         {
-            level_ = std::min(level_ + 1, (int) numLevels_);
+            level_ = std::min(level_ + 1, (int)numLevels_);
             SetDifficulty(level_);
             musicSource_.Play(sounds_.musicMinuteWaltz);
-            timeToNextLevelChange_ = 10.0;  // TODO: no magic.
+            timeToNextLevelChange_ = 98.0;  // TODO: no magic.
         }
     }
 
