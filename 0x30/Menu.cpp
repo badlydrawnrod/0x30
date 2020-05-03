@@ -52,11 +52,14 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         if (mode_ == Mode::ENDLESS)
         {
             mode_ = Mode::TIMED;
+            currentSelection_ = std::min(currentSelection_, progress_.MaxLevel() - 1);
         }
         else if (mode_ == Mode::TIMED)
         {
             mode_ = Mode::ENDLESS;
+            currentSelection_ = std::min(currentSelection_, progress_.MaxTimedLevel() - 1);
         }
+        firstVisibleLevel_ = 0;
     }
 
     if (input::buttons.JustPressed(input::ButtonId::up) && currentSelection_ > 0)
@@ -65,7 +68,17 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         firstVisibleLevel_ = std::min(currentSelection_, firstVisibleLevel_);
     }
 
-    if (input::buttons.JustPressed(input::ButtonId::down) && currentSelection_ + 1 < progress_.MaxLevel())
+    int maxSelection = 0;
+    if (mode_ == Mode::TIMED)
+    {
+        maxSelection = progress_.MaxLevel();
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        maxSelection = progress_.MaxTimedLevel();
+    }
+
+    if (input::buttons.JustPressed(input::ButtonId::down) && currentSelection_ + 1 < maxSelection)
     {
         ++currentSelection_;
         if (currentSelection_ >= firstVisibleLevel_ + visibleLevels_)
@@ -139,24 +152,55 @@ void Menu::Draw(double t)
     y += 16.0f;
     int cursorRow = currentSelection_ - firstVisibleLevel_;
     batch_.AddVertices(je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * cursorRow - 2.0f, 120.0f, 8.0f + 4.0f, Colours::cursorBackground));
-
-    // TODO: add labels to make it clear that these are the best scores for each level, not a high score table.
-    // Draw the scores for each level.
-    const Scores& scores = progress_.LevelScores();
-    const int maxLevel = progress_.MaxLevel();
-    const int lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, static_cast<int>(scores.size()));
-    for (auto i = firstVisibleLevel_; i < lastVisibleLevel; i++)
+    if (mode_ == Mode::TIMED)
     {
-        std::stringstream text;
-        text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores[i].score; // TODO: display the name.
-        if (i + 1 <= maxLevel)
+        // Draw the scores for each level.
+        const Scores& scores = progress_.LevelScores();
+        const int maxLevel = progress_.MaxLevel();
+        const int lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, static_cast<int>(scores.size()));
+        for (auto i = firstVisibleLevel_; i < lastVisibleLevel; i++)
         {
-            textRenderer_.DrawLeft(x, y, text.str(), Colours::selectableLevel);
+            std::stringstream text;
+            text << std::setw(2) << (i + 1) << std::setw(0) << "    " << std::setw(6) << scores[i].score;
+            if (i + 1 <= maxLevel)
+            {
+                textRenderer_.DrawLeft(x, y, text.str(), Colours::selectableLevel);
+            }
+            else
+            {
+                textRenderer_.DrawLeft(x, y, text.str(), Colours::unselectableLevel);
+            }
+            y += 12.0f;
         }
-        else
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        // Draw the times for each level.
+        const Times& times = progress_.LevelTimes();
+        const int maxLevel = progress_.MaxTimedLevel();
+        const int lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, static_cast<int>(times.size()));
+        static const char* levels[] = {
+            "Slow",
+            "Medium",
+            "Fast"
+        };
+        for (auto i = firstVisibleLevel_; i < lastVisibleLevel; i++)
         {
-            textRenderer_.DrawLeft(x, y, text.str(), Colours::unselectableLevel);
+            double elapsed = times[i].time;
+            int minutes = (int)(elapsed / 60.0);
+            int seconds = ((int)elapsed % 60);
+
+            std::stringstream text;
+            text << std::setw(6) << levels[i] << std::setw(0) << "  " << std::setw(2) << minutes << "'" << std::setw(2) << std::setfill('0') << seconds << std::setfill(' ') << std::setw(0);
+            if (i + 1 <= maxLevel)
+            {
+                textRenderer_.DrawLeft(x, y, text.str(), Colours::selectableLevel);
+            }
+            else
+            {
+                textRenderer_.DrawLeft(x, y, text.str(), Colours::unselectableLevel);
+            }
+            y += 12.0f;
         }
-        y += 12.0f;
     }
 }

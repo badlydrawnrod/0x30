@@ -108,7 +108,7 @@ namespace
             maxLevel = jsonProgress["maxLevel"].asInt();
 
             times = defaultTimes;
-            maxTimedLevel = 1;
+            maxTimedLevel = static_cast<int>(times.size() + 1);
         }
     }
 }

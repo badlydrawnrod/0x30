@@ -17,8 +17,10 @@ public:
 
     void UpdateMaxLevel(int level) { maxLevel_ = std::max(level, maxLevel_); }
     int MaxLevel() const { return maxLevel_; }
+    int MaxTimedLevel() const { return maxTimedLevel_; }
 
     Scores LevelScores() const { return scores_; }
+    Times LevelTimes() const { return times_; }
 
     void UpdateHighScore(int level, uint64_t score);
     uint64_t HighScore(int level) const;
