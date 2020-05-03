@@ -26,6 +26,9 @@ public:
 private:
     int maxLevel_{ 1 };
     Scores scores_;
+
+    int maxTimedLevel_{ 1 };
+    Times times_;
 };
 
 

@@ -30,7 +30,7 @@ void Menu::Start(double t)
     const Scores& scores = progress_.LevelScores();
     for (auto i = 0; i < scores.size(); i++)
     {
-        LOG("Level: " << (i + 1) << " Score: " << scores[i].score << " Player: " << scores[i].name);
+        LOG("Level: " << (i + 1) << " Score: " << scores[i].score);
     }
 }
 
