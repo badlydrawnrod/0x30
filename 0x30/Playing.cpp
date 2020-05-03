@@ -11,7 +11,7 @@
 
 
 const double TIMED_MODE_TIME = 98.0;
-const double ENDLESS_MODE_TIME = 98.0;
+const double ENDLESS_MODE_TIME = 5.0;
 
 
 Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
@@ -22,7 +22,8 @@ Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sound
     pit_{ rnd },
     pitRenderer_{ pit_, textures, batch },
     textRenderer_{ textures.textTiles, batch },
-    timeRenderer_{ textRenderer_ },
+    timeRenderer_{ textRenderer_, "TIME" },
+    bestTimeRenderer_{ textRenderer_, "BEST" },
     scoreRenderer_{ textRenderer_, "SCORE" },
     highScoreRenderer_{ textRenderer_, " HIGH" },
     speedRenderer_{ textRenderer_ },
@@ -45,7 +46,14 @@ void Playing::SetState(State state, double t)
     state_ = state;
     if (state_ == State::GAME_OVER)
     {
-        progress_.UpdateHighScore(level_, highScore_);
+        if (mode_ == Mode::TIMED)
+        {
+            progress_.UpdateHighScore(level_, highScore_);
+        }
+        else if (mode_ == Mode::ENDLESS)
+        {
+            progress_.UpdateBestTime(initialLevel_, bestTime_);
+        }
     }
     stateStartTime_ = t;
 }
@@ -76,9 +84,31 @@ void Playing::SetDifficulty(int actualLevel)
 void Playing::Start(const double t, const int level, Mode mode)
 {
     mode_ = mode;
-    int actualLevel = level < numLevels_ ? level : numLevels_;
-    SetLevel(actualLevel);
-    highScore_ = progress_.HighScore(level_);
+    int actualLevel = 1;
+    if (mode_ == Mode::TIMED)
+    {
+        actualLevel = level < numLevels_ ? level : numLevels_;
+        SetLevel(actualLevel);
+        highScore_ = progress_.HighScore(level_);
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        initialLevel_ = level;
+        if (level == 1)
+        {
+            actualLevel = 4;
+        }
+        else if (level == 2)
+        {
+            actualLevel = 9;
+        }
+        else if (level == 3)
+        {
+            actualLevel = 16;
+        }
+        SetLevel(level);
+        bestTime_ = progress_.BestTime(level_);
+    }
     pit_.Reset(actualLevel);
     SetState(State::PLAYING, t);
     score_ = 0;
@@ -303,6 +333,7 @@ Screens Playing::Update(double t, double /*dt*/)
     }
     else if (mode_ == Mode::ENDLESS)
     {
+        bestTime_ = std::max(bestTime_, elapsedTime_);
         timeToNextLevelChange_ -= delta;
         if (timeToNextLevelChange_ < 0.0)
         {
@@ -494,15 +525,15 @@ void Playing::DrawStats()
     {
         timeRenderer_.Draw({ topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2 }, elapsedTime_);
     }
-    scoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, score_);
-    highScoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 4 }, highScore_);
     if (mode_ == Mode::TIMED)
     {
+        scoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, score_);
+        highScoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 4 }, highScore_);
         speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, lastPlayed_);
     }
-    else
+    else if (mode_ == Mode::ENDLESS)
     {
-        speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, level_);
+        bestTimeRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, bestTime_);
     }
 }
 

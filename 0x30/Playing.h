@@ -70,6 +70,7 @@ private:
     PitRenderer pitRenderer_;
     TextRenderer textRenderer_;
     TimeRenderer timeRenderer_;
+    TimeRenderer bestTimeRenderer_;
     ScoreRenderer scoreRenderer_;
     ScoreRenderer highScoreRenderer_;
     LevelRenderer speedRenderer_;
@@ -97,7 +98,9 @@ private:
 
     uint64_t score_{ 0 };
     uint64_t highScore_{ 0 };
+    double bestTime_{ 0.0 };
     int level_{ 1 };
     int lastPlayed_{ 1 };
+    int initialLevel_{ 1 };
     static constexpr size_t numLevels_ = std::tuple_size<Scores>::value;
 };

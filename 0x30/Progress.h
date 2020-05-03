@@ -25,6 +25,9 @@ public:
     void UpdateHighScore(int level, uint64_t score);
     uint64_t HighScore(int level) const;
 
+    void UpdateBestTime(int level, double time);
+    double BestTime(int level) const;
+
 private:
     int maxLevel_{ 1 };
     Scores scores_;
@@ -45,4 +48,18 @@ inline uint64_t Progress::HighScore(int level) const
 {
     int index = level - 1;
     return scores_[index].score;
+}
+
+
+inline void Progress::UpdateBestTime(int level, double time)
+{
+    int index = level - 1;
+    times_[index].time = std::max(time, times_[index].time);
+}
+
+
+inline double Progress::BestTime(int level) const
+{
+    int index = level - 1;
+    return times_[index].time;
 }
