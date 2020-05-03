@@ -33,6 +33,10 @@ namespace je
         void Resume();
         void Stop();
 
+        bool IsStopped() const;
+        bool IsPaused() const;
+        bool IsPlaying() const;
+
     private:
         ALuint source_{ 0 };
     };

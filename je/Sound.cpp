@@ -240,6 +240,27 @@ namespace je
         alSourceStop(source_);
     }
 
+    bool SoundSource::IsStopped() const
+    {
+        ALint value = 0;
+        alGetSourcei(source_, AL_SOURCE_STATE, &value);
+        return value == AL_STOPPED;
+    }
+
+    bool SoundSource::IsPaused() const
+    {
+        ALint value = 0;
+        alGetSourcei(source_, AL_SOURCE_STATE, &value);
+        return value == AL_PAUSED;
+    }
+
+    bool SoundSource::IsPlaying() const
+    {
+        ALint value = 0;
+        alGetSourcei(source_, AL_SOURCE_STATE, &value);
+        return value == AL_PLAYING;
+    }
+
     SoundBuffer::SoundBuffer() : buffer_{ MakeBuffer() }
     {
     }

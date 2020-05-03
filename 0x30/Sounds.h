@@ -18,6 +18,7 @@ struct Sounds
     je::SoundBuffer musicMinuteWaltz;
     je::SoundBuffer musicLAdieu;
     je::SoundBuffer musicHallelujah;
+    je::SoundBuffer musicGymnopedie;
 
 private:
     void LoaderTask();

@@ -96,15 +96,15 @@ void Playing::Start(const double t, const int level, Mode mode)
         initialLevel_ = level;
         if (level == 1)
         {
-            actualLevel = 4;
+            actualLevel = 3;
         }
         else if (level == 2)
         {
-            actualLevel = 9;
+            actualLevel = 6;
         }
         else if (level == 3)
         {
-            actualLevel = 16;
+            actualLevel = 9;
         }
         SetLevel(level);
         bestTime_ = progress_.BestTime(level_);
@@ -129,7 +129,14 @@ void Playing::Start(const double t, const int level, Mode mode)
     cursorTileX_ = (Pit::cols / 2) - 1;
     cursorTileY_ = Pit::rows / 2;
     flyupRenderer_.Reset();
-    musicSource_.Play(sounds_.musicMinuteWaltz);
+    if (mode_ == Mode::TIMED)
+    {
+        musicSource_.Play(sounds_.musicMinuteWaltz);
+    }
+    else if (mode_ == Mode::ENDLESS)
+    {
+        musicSource_.Play(sounds_.musicGymnopedie);
+    }
 }
 
 
@@ -333,13 +340,16 @@ Screens Playing::Update(double t, double /*dt*/)
     }
     else if (mode_ == Mode::ENDLESS)
     {
+        if (musicSource_.IsStopped())
+        {
+            musicSource_.Play(sounds_.musicGymnopedie);
+        }
         bestTime_ = std::max(bestTime_, elapsedTime_);
         timeToNextLevelChange_ -= delta;
         if (timeToNextLevelChange_ < 0.0)
         {
             level_ = std::min(level_ + 1, (int)numLevels_);
             SetDifficulty(level_);
-            musicSource_.Play(sounds_.musicMinuteWaltz);
             timeToNextLevelChange_ = ENDLESS_MODE_TIME;
         }
     }

@@ -25,4 +25,5 @@ void Sounds::LoaderTask()
     musicMinuteWaltz.TakeOwnership(je::LoadSound("assets/music/minute.ogg"));
     musicLAdieu.TakeOwnership(je::LoadSound("assets/music/adieu.ogg"));
     musicHallelujah.TakeOwnership(je::LoadSound("assets/music/hallelujah.ogg"));
+    musicGymnopedie.TakeOwnership(je::LoadSound("assets/music/gymnopedie1.ogg"));
 }

@@ -28,7 +28,7 @@ private:
     double screenStartTime_{ 0 };
     int currentSelection_{ 0 };
     int firstVisibleLevel_{ 0 };
-    Mode mode_{ Mode::TIMED };
+    Mode mode_{ Mode::ENDLESS };
 
     static constexpr int visibleLevels_{ 10 };
 };
