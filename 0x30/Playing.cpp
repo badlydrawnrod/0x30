@@ -285,7 +285,14 @@ Screens Playing::UpdateGameOver(double t)
         {
             musicSource_.Stop();
             progress_.SaveScores(); // TODO: dedup.
-            Start(t, lastPlayed_, mode_);
+            if (mode_ == Mode::TIMED)
+            {
+                Start(t, lastPlayed_, mode_);
+            }
+            else if (mode_ == Mode::ENDLESS)
+            {
+                Start(t, initialLevel_, mode_);
+            }
         }
         if (input::buttons.JustPressed(input::ButtonId::a) && !pit_.IsImpacted())
         {
