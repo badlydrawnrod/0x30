@@ -11,7 +11,7 @@
 
 
 const double TIMED_MODE_TIME = 98.0;
-const double ENDLESS_MODE_TIME = 5.0;
+const double ENDLESS_MODE_TIME = 98.0;
 
 
 Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
