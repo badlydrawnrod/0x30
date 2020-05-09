@@ -167,6 +167,9 @@ void Game::Update(double t, double dt)
 
 void Game::Draw(double t)
 {
+    context.Clear();
+    context.SetViewport(0, 0, WIDTH, HEIGHT);
+
     batch.Begin(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
     switch (currentScreen)
     {
@@ -234,12 +237,6 @@ int main()
             if (drawInterval >= minDrawInterval)
             {
                 lastDrawTime = now;
-                // Clear the colour buffer.
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                // Set the viewport position and size.
-                glViewport(0, 0, WIDTH, HEIGHT);
 
                 // Make like a gunslinger.
                 game.Draw(t);
