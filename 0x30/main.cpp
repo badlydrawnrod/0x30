@@ -120,7 +120,7 @@ Game::Game(std::function<int(int, int)>& rnd) :
 
 bool Game::ShouldQuit()
 {
-    return glfwWindowShouldClose(context.Window());
+    return context.ShouldQuit();
 }
 
 
@@ -145,7 +145,7 @@ void Game::Update(double t, double dt)
         newScreen = playing.Update(t, dt);
         break;
     case Screens::Quit:
-        glfwSetWindowShouldClose(context.Window(), GL_TRUE);
+        context.SetShouldQuit(true);
         break;
     }
     if (newScreen != currentScreen)
@@ -183,8 +183,7 @@ void Game::Draw(double t)
     batch.End();
 
     // Swap buffers.
-    // TODO: does this belong here?
-    glfwSwapBuffers(context.Window());
+    context.SwapBuffers();
 }
 
 

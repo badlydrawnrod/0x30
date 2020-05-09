@@ -14,5 +14,10 @@ namespace je
         ~Context();
 
         GLFWwindow* Window() const { return window_; }
+
+        bool ShouldQuit() const { return glfwWindowShouldClose(window_); }
+        void SetShouldQuit(bool shouldQuit) { glfwSetWindowShouldClose(window_, shouldQuit ? GLFW_TRUE : GLFW_FALSE); }
+
+        void SwapBuffers() { glfwSwapBuffers(window_); }
     };
 }
