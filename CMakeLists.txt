@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
-project(0x30)
+project(game)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
@@ -13,7 +14,7 @@ find_package(jsoncpp CONFIG REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_executable(0x30
+add_executable(game
         0x30/Colours.cpp
         0x30/Colours.h
         0x30/Constants.h
@@ -65,4 +66,4 @@ add_executable(0x30
         je/Transforms.h
         je/Types.h)
 
-target_link_libraries(0x30 PRIVATE glfw glad::glad SDL2::SDL2 SDL2::SDL2_image OpenAL::OpenAL sndfile-shared jsoncpp_lib)
+target_link_libraries(game PRIVATE glfw glad::glad SDL2::SDL2 SDL2::SDL2_image OpenAL::OpenAL sndfile-shared jsoncpp_lib)
