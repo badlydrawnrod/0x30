@@ -29,7 +29,7 @@ namespace je
             glfwTerminate();
             throw std::runtime_error("Unable to create GLFW window");
         }
-
+#if !defined(__EMSCRIPTEN__)
         // Load modern OpenGL mappings.
         if (!gladLoadGL())
         {
@@ -39,6 +39,7 @@ namespace je
         }
 
         LOG("Using OpenGL " << GLVersion.major << "." << GLVersion.minor);
+#endif
     }
 
     Context::~Context()

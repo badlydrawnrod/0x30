@@ -4,6 +4,8 @@
 
 #include "je/Types.h"
 
+#include <stdio.h>
+
 
 TimeRenderer::TimeRenderer(TextRenderer& textRenderer, const std::string& text) : textRenderer_{ textRenderer }, text_{ text }, minutes_{ -1 }, seconds_{ -1 }, numChars_{ 0 }
 {
@@ -18,7 +20,11 @@ void TimeRenderer::Draw(je::Vec2f position, double elapsed)
     // Only re-create the string if it has changed.
     if (minutes != minutes_ || seconds != seconds_)
     {
+#if !defined(__EMSCRIPTEN__)
         numChars_ = sprintf_s(timeBuf_, sizeof(timeBuf_), "%d'%02d", minutes, seconds);
+#else
+        numChars_ = sprintf(timeBuf_, "%d'%02d", minutes, seconds);
+#endif
         minutes_ = minutes;
         seconds_ = seconds;
     }

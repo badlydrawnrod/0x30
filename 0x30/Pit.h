@@ -2,6 +2,7 @@
 
 #include <array>
 #include <functional>
+#include <vector>
 
 
 class Pit

@@ -20,12 +20,16 @@
 #include "je/Time.h"
 #include "je/Types.h"
 
+#if !defined(__EMSCRIPTEN__)
 #include <glad/glad.h>
+#endif
 #include <GLFW/glfw3.h>
 
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #undef APIENTRY
 #include <Windows.h>
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -36,6 +40,7 @@
 #include <sstream>
 
 
+#if defined(_WIN32)
 struct Console
 {
     static inline bool isConsoleHidden{ false };
@@ -77,7 +82,7 @@ struct Console
         }
     }
 };
-
+#endif
 
 class Game
 {
@@ -129,7 +134,9 @@ void Game::Update(double t, double dt)
     input::UpdateInputState(t);
     if (input::buttons.JustPressed(input::ButtonId::debug))
     {
+#if defined(_WIN32)
         Console::Toggle();
+#endif
     }
 
     Screens newScreen = currentScreen;
@@ -202,7 +209,9 @@ int main()
             return distribution(generator);
         };
 
+#if defined(_WIN32)
         Console::Hide();
+#endif
         Game game(Rnd);
 
         double t = 0.0;
@@ -248,14 +257,18 @@ int main()
     catch (const std::exception& e)
     {
         LOG("Failed with exception: " << e.what());
+#if defined(_WIN32)
         Console::Oops();
+#endif
 
         return 1;
     }
     catch (...)
     {
         LOG("Failed with unknown exception");
+#if defined(_WIN32)
         Console::Oops();
+#endif
 
         return 1;
     }

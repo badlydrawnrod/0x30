@@ -9,6 +9,7 @@
 #include "je/QuadHelpers.h"
 #include "je/Time.h"
 
+#include <cmath>
 #include <iomanip>
 #include <sstream>
 

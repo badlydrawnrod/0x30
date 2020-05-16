@@ -8,6 +8,8 @@
 #include "je/Logger.h"
 #include "je/Time.h"
 
+#include <cmath>
+
 
 Dedication::Dedication(je::Batch& batch, Textures& textures, Sounds& sounds) :
     batch_{ batch },

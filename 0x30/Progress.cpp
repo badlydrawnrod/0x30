@@ -1,6 +1,8 @@
 #include "Progress.h"
 
+#if !defined(__EMSCRIPTEN__)
 #include <json/json.h>
+#endif
 
 #include <filesystem>
 
@@ -8,6 +10,7 @@
 const int progressFileVersion = 1;
 
 
+#if !defined(__EMSCRIPTEN__)
 namespace
 {
     constexpr const char* scoresFile = "data/progress.json";
@@ -146,3 +149,22 @@ void Progress::SaveScores()
     ToJson(root, scores_, maxLevel_, times_, maxTimedLevel_);
     outfile << root << std::endl;
 }
+
+#else
+
+Progress::Progress()
+{
+    LoadScores();
+}
+
+
+void Progress::LoadScores()
+{
+}
+
+
+void Progress::SaveScores()
+{
+}
+
+#endif

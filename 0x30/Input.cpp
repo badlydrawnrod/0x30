@@ -72,6 +72,8 @@ namespace input
         }
     }
 
+
+#if !defined(__EMSCRIPTEN__)
     void ButtonStates::PollGamepadButton(const GLFWgamepadstate& state, int button, uint32_t bit)
     {
         if (state.buttons[button] && !prevGamepadState_.buttons[button])
@@ -83,9 +85,11 @@ namespace input
             buttons_ &= ~bit;
         }
     }
+#endif
 
     void ButtonStates::PollGamepad()
     {
+#if !defined(__EMSCRIPTEN__)
         GLFWgamepadstate state;
         if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
         {
@@ -131,6 +135,7 @@ namespace input
             wasUpActivated_ = isUpActivated;
             wasDownActivated_ = isDownActivated;
         }
+#endif
     }
 
     void ButtonStates::DetectTransitions(double t)
@@ -232,6 +237,8 @@ namespace
         input::buttons.OnKeyEvent(window, key, scancode, action, mode);
     }
 
+
+#if !defined(__EMSCRIPTEN__)
     // Called by GLFW whenever a joystick / gamepad is connected or disconnected.
     void OnJoystickEvent(int joystickId, int event)
     {
@@ -248,6 +255,7 @@ namespace
             }
         }
     }
+#endif
 }
 
 namespace input
@@ -265,6 +273,7 @@ namespace input
     {
         // Wire up some GLFW callbacks.
         glfwSetKeyCallback(context.Window(), OnKeyEvent);
+#if !defined(__EMSCRIPTEN__)
         glfwSetJoystickCallback(OnJoystickEvent);
 
         // Enumerate the gamepads.
@@ -278,6 +287,7 @@ namespace input
             }
         }
         LOG("Has gamepad = " << (hasGamepad ? "true" : "false"));
+#endif
     }
 
     bool HasGamepad()

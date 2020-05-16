@@ -3,7 +3,9 @@
 #include "Batch.h"
 #include "Transforms.h"
 
+#if !defined(__EMSCRIPTEN__)
 #include <glad/glad.h>
+#endif
 #include <GLFW/glfw3.h>
 
 

@@ -27,7 +27,10 @@ namespace input
 
     private:
         void UpdateButton(bool isPressOrRepeat, uint32_t bit);
+
+#if !defined(__EMSCRIPTEN__)
         void PollGamepadButton(const GLFWgamepadstate& state, int button, uint32_t bit);
+#endif
 
         using Buttons = uint32_t;
         static constexpr size_t numButtons = static_cast<size_t>(ButtonId::last) + 1;
@@ -38,7 +41,9 @@ namespace input
         Buttons buttonUps_{ 0 };
         std::array<double, numButtons> buttonDownTimes_;
         std::array<double, numButtons> buttonUpTimes_;
+#if !defined(__EMSCRIPTEN__)
         GLFWgamepadstate prevGamepadState_{ 0 };
+#endif
         bool wasLeftActivated_;
         bool wasRightActivated_;
         bool wasUpActivated_;

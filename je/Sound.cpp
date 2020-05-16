@@ -2,7 +2,9 @@
 
 #include "Logger.h"
 
+#if !defined(__EMSCRIPTEN__)
 #include "sndfile.hh"
+#endif
 
 #include <string>
 
@@ -152,6 +154,7 @@ namespace je
 
     ALuint LoadSound(const std::string& filename)
     {
+#if !defined(__EMSCRIPTEN__)
         SndfileHandle sndFile(filename);
         if (sndFile.error() != 0)
         {
@@ -202,6 +205,9 @@ namespace je
 
         LOG("Loaded sound " << filename << " with buffer id " << buffer);
         return buffer;
+#else
+        return 0;
+#endif
     }
 
     SoundSource::SoundSource() : source_ { MakeSource() }
