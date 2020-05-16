@@ -20,6 +20,10 @@
 #include "je/Time.h"
 #include "je/Types.h"
 
+#if defined(__EMSCRIPTEN__)
+#include "emscripten.h"
+#endif
+
 #if !defined(__EMSCRIPTEN__)
 #include <glad/glad.h>
 #endif
@@ -197,8 +201,17 @@ void Game::Draw(double t)
 }
 
 
+static void main_loop(void)
+{
+}
+
 int main()
 {
+    // TODO: obviously move this - it's just a test to see if it does _anything_.
+#if defined(__EMSCRIPTEN__)
+    emscripten_set_main_loop(main_loop, -1, false);
+#endif
+
     try
     {
         // Make a function to create random integers in a closed range.
@@ -212,6 +225,7 @@ int main()
 #if defined(_WIN32)
         Console::Hide();
 #endif
+
         Game game(Rnd);
 
         double t = 0.0;

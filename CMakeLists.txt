@@ -4,12 +4,14 @@ project(game)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
 
 # Is this Emscripten?
 if (CMAKE_CXX_COMPILER MATCHES "/emsdk.*em\\+\\+")
     message(STATUS "Emscripten detected")
     set(CMAKE_CXX_COMPILER_ID "Emscripten")
+    set(TARGET_NAME index)
+else ()
+    set(TARGET_NAME game)
 endif ()
 
 message(STATUS "Build type: CMAKE_BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
@@ -36,9 +38,16 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
     add_definitions(-D GLFW_INCLUDE_ES3)
 endif ()
 
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/index)
+else ()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
+endif ()
+
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_executable(game
+add_executable(${TARGET_NAME}
         0x30/Colours.cpp
         0x30/Colours.h
         0x30/Constants.h
@@ -90,17 +99,13 @@ add_executable(game
         je/Transforms.h
         je/Types.h)
 
-
-target_link_libraries(game PRIVATE ${LIBS})
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
-#    set_target_properties(game PROPERTIES COMPILE_FLAGS "-Wall -pedantic -Wshadow -Wpointer-arith -Wcast-qual \
-#-Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wconversion -lopenal -O2 \
-#-s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
-    set_target_properties(game PROPERTIES COMPILE_FLAGS "-lopenal -O2 \
--s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
+    #    set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-Wall -pedantic -Wshadow -Wpointer-arith -Wcast-qual \
+    #-Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wconversion -lopenal -O2 \
+    #-s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
+    set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-lopenal -O2 -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
 
     # The @ is used to remap ${CMAKE_SOURCE_DIR}/assets to /assets.
-    set_target_properties(game PROPERTIES LINK_FLAGS "-O2 --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"] --preload-file ${CMAKE_SOURCE_DIR}/assets@/assets/")
-
+#    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "-O2 --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"] --preload-file ${CMAKE_SOURCE_DIR}/assets@/assets")
+    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "-O2 --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html -s ASSERTIONS=1 -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
 endif ()
