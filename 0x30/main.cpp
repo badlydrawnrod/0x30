@@ -203,6 +203,7 @@ void Game::Draw(double t)
 
 static void main_loop(void)
 {
+    LOG("Main loop");
 }
 
 int main()
