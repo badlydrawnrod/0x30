@@ -216,7 +216,6 @@ static Game* theGame;
 static void main_loop(void)
 {
     // Update using: https://gafferongames.com/post/fix_your_timestep/
-//    glfwPollEvents();
     double now = je::GetTime();
     double delta = now - lastTime;
     if (delta >= 0.1)
