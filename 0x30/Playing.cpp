@@ -129,6 +129,7 @@ void Playing::Start(const double t, const int level, Mode mode)
     cursorTileX_ = (Pit::cols / 2) - 1;
     cursorTileY_ = Pit::rows / 2;
     flyupRenderer_.Reset();
+#if !defined(__EMSCRIPTEN__)
     if (mode_ == Mode::TIMED)
     {
         musicSource_.Play(sounds_.musicMinuteWaltz);
@@ -137,6 +138,7 @@ void Playing::Start(const double t, const int level, Mode mode)
     {
         musicSource_.Play(sounds_.musicGymnopedie);
     }
+#endif
 }
 
 
@@ -260,7 +262,9 @@ void Playing::UpdatePlaying(double t)
     // Check for game over.
     if (pit_.IsImpacted())
     {
+#if !defined(__EMSCRIPTEN__)
         musicSource_.Play(sounds_.musicLAdieu);
+#endif
         SetState(State::GAME_OVER, t);
         actionsEnabled_ = false;
     }
@@ -337,7 +341,9 @@ Screens Playing::Update(double t, double /*dt*/)
         {
             if (state_ == State::PLAYING)
             {
+#if !defined(__EMSCRIPTEN__)
                 musicSource_.Play(sounds_.musicHallelujah);
+#endif
                 SetState(State::GAME_OVER, t);
                 SetLevel(level_ + 1);
                 actionsEnabled_ = false;
@@ -349,7 +355,9 @@ Screens Playing::Update(double t, double /*dt*/)
     {
         if (musicSource_.IsStopped())
         {
+#if !defined(__EMSCRIPTEN__)
             musicSource_.Play(sounds_.musicGymnopedie);
+#endif
         }
         bestTime_ = std::max(bestTime_, elapsedTime_);
         timeToNextLevelChange_ -= delta;

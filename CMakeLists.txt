@@ -108,11 +108,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
     set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-lopenal -O2 -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
 
     # The @ is used to remap ${CMAKE_SOURCE_DIR}/assets to /assets.
-#    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "-O2 --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"] --preload-file ${CMAKE_SOURCE_DIR}/assets@/assets/ --exclude-file ${CMAKE_SOURCE_DIR}/assets/music")
-    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "-O2 --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html \
-    -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"] \
-     --preload-file ${CMAKE_SOURCE_DIR}/assets/sprite_tiles.png@assets/sprite_tiles.png \
-     --preload-file ${CMAKE_SOURCE_DIR}/assets/backdrops@assets/backdrops \
-     --preload-file ${CMAKE_SOURCE_DIR}/assets/music@assets/music \
-     --preload-file ${CMAKE_SOURCE_DIR}/assets/sounds@assets/sounds")
+    # Here we're explicitly _not_ loading music as it causes everything to crash.
+    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS " -s ASSERTIONS=1 -O2 --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"] --preload-file ${CMAKE_SOURCE_DIR}/assets@/assets/ --exclude-file ${CMAKE_SOURCE_DIR}/assets/music")
+#    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "-O2 --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html \
+#    -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"] \
+#     --preload-file ${CMAKE_SOURCE_DIR}/assets/sprite_tiles.png@assets/sprite_tiles.png \
+#     --preload-file ${CMAKE_SOURCE_DIR}/assets/backdrops@assets/backdrops \
+#     --preload-file ${CMAKE_SOURCE_DIR}/assets/sounds@assets/sounds")
 endif ()

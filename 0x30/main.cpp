@@ -123,7 +123,9 @@ Game::Game(std::function<int(int, int)>& rnd) :
 {
     LOG("Shader program " << shader.Program());
     input::Initialise(context);
+    LOG("Finished initialising input");
     sounds.Load();
+    LOG("Finished loading sounds");
 }
 
 
@@ -201,18 +203,53 @@ void Game::Draw(double t)
 }
 
 
+static double t = 0.0;
+static double dt = 1.0 / UPDATE_FPS;
+static double lastTime = je::GetTime();
+static double accumulator = 0.0;
+
+static double lastDrawTime = je::GetTime();
+static const double minDrawInterval = 1.0 / (2 * RENDER_FPS);
+static Game* theGame;
+
+
 static void main_loop(void)
 {
-    LOG("Main loop");
+    // Update using: https://gafferongames.com/post/fix_your_timestep/
+    double now = je::GetTime();
+    double delta = now - lastTime;
+    if (delta >= 0.1)
+    {
+        delta = 0.1;
+    }
+    lastTime = now;
+    accumulator += delta;
+    while (accumulator >= dt)
+    {
+        theGame->Update(t, dt);
+        t += dt;
+        accumulator -= dt;
+    }
+
+    // Draw. Don't cap the frame rate as the browser is probably doing it for us.
+    theGame->Draw(t);
 }
+
 
 int main()
 {
     // TODO: obviously move this - it's just a test to see if it does _anything_.
 #if defined(__EMSCRIPTEN__)
-    emscripten_set_main_loop(main_loop, -1, false);
-#endif
-
+    std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        std::function<int(int, int)> Rnd = [&](int lo, int hi) {
+            std::uniform_int_distribution<int> distribution(lo, hi);
+            return distribution(generator);
+        };
+    Game game(Rnd);
+    theGame = &game;
+    emscripten_set_main_loop(main_loop, -1, true);
+#else
     try
     {
         // Make a function to create random integers in a closed range.
@@ -287,4 +324,5 @@ int main()
 
         return 1;
     }
+#endif
 }

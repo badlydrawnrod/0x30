@@ -15,10 +15,12 @@ struct Sounds
     je::SoundBuffer blocksPopping;
     je::SoundBuffer menuSelect;
 
+#if !defined(__EMSCRIPTEN__)
     je::SoundBuffer musicMinuteWaltz;
     je::SoundBuffer musicLAdieu;
     je::SoundBuffer musicHallelujah;
     je::SoundBuffer musicGymnopedie;
+#endif
 
 private:
     void LoaderTask();
