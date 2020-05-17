@@ -33,6 +33,10 @@ namespace input
 
     bool ButtonStates::JustPressed(ButtonId id) const
     {
+        if (id == ButtonId::a)
+        {
+            const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
+        }
         const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
         return (buttonDowns_ & idBit) == idBit;
     }
@@ -263,10 +267,10 @@ namespace input
     void UpdateInputState(double t)
     {
         // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
-        buttons.Update();
         glfwPollEvents();
         buttons.PollGamepad();
         buttons.DetectTransitions(t);
+        buttons.Update();
     }
 
     void Initialise(je::Context& context)
