@@ -3,6 +3,8 @@
 #include "je/Logger.h"
 #include "je/Time.h"
 
+#include <SDL2/SDL.h>
+
 
 namespace input
 {
@@ -33,10 +35,6 @@ namespace input
 
     bool ButtonStates::JustPressed(ButtonId id) const
     {
-        if (id == ButtonId::a)
-        {
-            const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
-        }
         const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
         return (buttonDowns_ & idBit) == idBit;
     }
@@ -74,72 +72,6 @@ namespace input
         {
             buttons_ &= ~bit;
         }
-    }
-
-
-#if !defined(__EMSCRIPTEN__)
-    void ButtonStates::PollGamepadButton(const GLFWgamepadstate& state, int button, uint32_t bit)
-    {
-        if (state.buttons[button] && !prevGamepadState_.buttons[button])
-        {
-            buttons_ |= bit;
-        }
-        else if (!state.buttons[button] && prevGamepadState_.buttons[button])
-        {
-            buttons_ &= ~bit;
-        }
-    }
-#endif
-
-    void ButtonStates::PollGamepad()
-    {
-#if !defined(__EMSCRIPTEN__)
-        GLFWgamepadstate state;
-        if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
-        {
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_BACK, backBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_START, startBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_LEFT, leftBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_RIGHT, rightBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_UP, upBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_DPAD_DOWN, downBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_A, aBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_B, bBit);
-            PollGamepadButton(state, GLFW_GAMEPAD_BUTTON_X, xBit);
-            prevGamepadState_ = state;
-
-            const float joystickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
-            const float joystickY = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
-
-            const float threshold = 0.5f;
-            const bool isLeftActivated = joystickX < -threshold;
-            const bool isRightActivated = joystickX > threshold;
-            const bool isUpActivated = joystickY < -threshold;
-            const bool isDownActivated = joystickY > threshold;
-
-            if (isLeftActivated != wasLeftActivated_)
-            {
-                UpdateButton(isLeftActivated, leftBit);
-            }
-            if (isRightActivated != wasRightActivated_)
-            {
-                UpdateButton(isRightActivated, rightBit);
-            }
-            if (isUpActivated != wasUpActivated_)
-            {
-                UpdateButton(isUpActivated, upBit);
-            }
-            if (isDownActivated != wasDownActivated_)
-            {
-                UpdateButton(isDownActivated, downBit);
-            }
-
-            wasLeftActivated_ = isLeftActivated;
-            wasRightActivated_ = isRightActivated;
-            wasUpActivated_ = isUpActivated;
-            wasDownActivated_ = isDownActivated;
-        }
-#endif
     }
 
     void ButtonStates::DetectTransitions(double t)
@@ -224,8 +156,85 @@ namespace input
         }
     }
 
-    void ButtonStates::OnJoystickEvent(int /*joystickId*/, int /*event*/)
+    void ButtonStates::OnGamepadButtonEvent(SDL_JoystickID joystickId, Uint8 button, Uint8 state)
     {
+        const bool isPressOrRepeat = (state == SDL_PRESSED);
+        switch (button)
+        {
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+            // Left.
+            UpdateButton(isPressOrRepeat, leftBit);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+            // Right.
+            UpdateButton(isPressOrRepeat, rightBit);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP:
+            // Up.
+            UpdateButton(isPressOrRepeat, upBit);
+            break;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+            // Down.
+            UpdateButton(isPressOrRepeat, downBit);
+            break;
+        case SDL_CONTROLLER_BUTTON_A:
+            // Button [A].
+            UpdateButton(isPressOrRepeat, aBit);
+            break;
+        case SDL_CONTROLLER_BUTTON_B:
+            // Button [B].
+            UpdateButton(isPressOrRepeat, bBit);
+            break;
+        case SDL_CONTROLLER_BUTTON_X:
+            // Button [X].
+            UpdateButton(isPressOrRepeat, xBit);
+            break;
+        case SDL_CONTROLLER_BUTTON_BACK:
+            // Button [Back].
+            UpdateButton(isPressOrRepeat, backBit);
+            break;
+        default:
+            break;
+        }
+    }
+
+    void ButtonStates::OnGamepadAxisEvent(SDL_JoystickID joystickId, Uint8 axis, Sint16 value)
+    {
+        const Sint16 threshold = SDL_MAX_SINT16 / 2;
+        if (axis == SDL_CONTROLLER_AXIS_LEFTX)
+        {
+            const Sint16 joystickX = value;
+            const bool isLeftActivated = joystickX < -threshold;
+            const bool isRightActivated = joystickX > threshold;
+            if (isLeftActivated != wasLeftActivated_)
+            {
+                UpdateButton(isLeftActivated, leftBit);
+            }
+            if (isRightActivated != wasRightActivated_)
+            {
+                UpdateButton(isRightActivated, rightBit);
+            }
+            wasLeftActivated_ = isLeftActivated;
+            wasRightActivated_ = isRightActivated;
+        }
+        else if (axis == SDL_CONTROLLER_AXIS_LEFTY)
+        {
+            const Sint16 joystickY = value;
+            const bool isUpActivated = joystickY < -threshold;
+            const bool isDownActivated = joystickY > threshold;
+
+            if (isUpActivated != wasUpActivated_)
+            {
+                UpdateButton(isUpActivated, upBit);
+            }
+            if (isDownActivated != wasDownActivated_)
+            {
+                UpdateButton(isDownActivated, downBit);
+            }
+
+            wasUpActivated_ = isUpActivated;
+            wasDownActivated_ = isDownActivated;
+        }
     }
 
     ButtonStates buttons;
@@ -240,58 +249,53 @@ namespace
     {
         input::buttons.OnKeyEvent(window, key, scancode, action, mode);
     }
-
-
-#if !defined(__EMSCRIPTEN__)
-    // Called by GLFW whenever a joystick / gamepad is connected or disconnected.
-    void OnJoystickEvent(int joystickId, int event)
-    {
-        // We only care if the joystick in question is a gamepad.
-        if (glfwJoystickIsGamepad(joystickId))
-        {
-            if (event == GLFW_CONNECTED)
-            {
-                LOG("Gamepad " << joystickId << " - " << glfwGetGamepadName(joystickId) << " - connected");
-            }
-            else if (event == GLFW_DISCONNECTED)
-            {
-                LOG("Gamepad " << joystickId << " - " << glfwGetGamepadName(joystickId) << " - disconnected");
-            }
-        }
-    }
-#endif
 }
+
+// TODO: make this sensible...
+SDL_GameController *controller { nullptr };
 
 namespace input
 {
     void UpdateInputState(double t)
     {
-        // Check if any events have been activated (key pressed, mouse moved etc.) and invoke the relevant callbacks.
+        // ASk SDL to poll for events. We specifically want to know about controllers, i.e., gamepads.
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type)
+            {
+            case SDL_CONTROLLERDEVICEADDED:
+                // We only care about the first controller we see.
+                if (!controller)
+                {
+                    controller = SDL_GameControllerOpen(event.cdevice.which);
+                    hasGamepad = true;
+                }
+                break;
+            case SDL_CONTROLLERAXISMOTION:
+                input::buttons.OnGamepadAxisEvent(event.caxis.which, event.caxis.axis, event.caxis.value);
+                break;
+            case SDL_CONTROLLERBUTTONDOWN:
+            case SDL_CONTROLLERBUTTONUP:
+                input::buttons.OnGamepadButtonEvent(event.cbutton.which, event.cbutton.button, event.cbutton.state);
+                break;
+            }
+        }
+
+        // Now ask GLFW to do the same, because we're using it for keyboard input.
         glfwPollEvents();
-        buttons.PollGamepad();
+
         buttons.DetectTransitions(t);
         buttons.Update();
     }
 
     void Initialise(je::Context& context)
     {
-        // Wire up some GLFW callbacks.
+        // Tell GLFW to tell us about key events.
         glfwSetKeyCallback(context.Window(), OnKeyEvent);
-#if !defined(__EMSCRIPTEN__)
-        glfwSetJoystickCallback(OnJoystickEvent);
 
-        // Enumerate the gamepads.
-        hasGamepad = false;
-        for (int joystickId = GLFW_JOYSTICK_1; joystickId <= GLFW_JOYSTICK_LAST; joystickId++)
-        {
-            if (glfwJoystickIsGamepad(joystickId))
-            {
-                hasGamepad = true;
-                LOG("Gamepad " << joystickId << " [" << glfwGetGamepadName(joystickId) << "] found");
-            }
-        }
-        LOG("Has gamepad = " << (hasGamepad ? "true" : "false"));
-#endif
+        // Use SDL for gamepads.
+        SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
     }
 
     bool HasGamepad()
