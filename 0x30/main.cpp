@@ -98,6 +98,7 @@ public:
 
 private:
     je::Context context;
+    input::Input& input_;
     je::SoundSystem soundSystem;
 
     je::Shader shader;
@@ -115,14 +116,15 @@ private:
 
 Game::Game(std::function<int(int, int)>& rnd) :
     context{ je::Context(WIDTH, HEIGHT, TITLE) },
+    input_ { *(input::Input::Instance()) },
     shader{ je::Shader() },
     batch{ shader.Program() },
-    playing{ progress_, batch, textures, sounds, rnd },
-    dedication{ batch, textures, sounds },
-    menu{ progress_, batch, textures }
+    playing{ input_, progress_, batch, textures, sounds, rnd },
+    dedication{ input_, batch, textures, sounds },
+    menu{ input_, progress_, batch, textures }
 {
     LOG("Shader program " << shader.Program());
-    input::Initialise(context);
+    input_.Init(context);
     LOG("Finished initialising input");
     sounds.Load();
     LOG("Finished loading sounds");
@@ -137,8 +139,8 @@ bool Game::ShouldQuit()
 
 void Game::Update(double t, double dt)
 {
-    input::UpdateInputState(t);
-    if (input::buttons.JustPressed(input::ButtonId::debug))
+    input_.Update(t);
+    if (input_.Buttons().JustPressed(input::ButtonId::debug))
     {
 #if defined(_WIN32)
         Console::Toggle();

@@ -14,7 +14,8 @@ const double TIMED_MODE_TIME = 98.0;
 const double ENDLESS_MODE_TIME = 98.0;
 
 
-Playing::Playing(Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
+Playing::Playing(input::Input& input, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
+    input_{ input },
     batch_{ batch },
     textures_{ textures },
     progress_{ progress },
@@ -194,7 +195,7 @@ void Playing::UpdateScore()
 void Playing::UpdatePlaying(double t)
 {
     // Scroll the contents of the pit up.
-    internalTileScroll_ += (input::buttons.IsPressed(input::ButtonId::x) && input::buttons.LastPressed(input::ButtonId::x) > stateStartTime_)
+    internalTileScroll_ += (input_.Buttons().IsPressed(input::ButtonId::x) && input_.Buttons().LastPressed(input::ButtonId::x) > stateStartTime_)
         ? 1.0f
         : scrollRate_;
     if (internalTileScroll_ >= tileSize_)
@@ -208,25 +209,25 @@ void Playing::UpdatePlaying(double t)
     }
 
     // Move the player.
-    if (input::buttons.JustPressed(input::ButtonId::left) && cursorTileX_ > 0)
+    if (input_.Buttons().JustPressed(input::ButtonId::left) && cursorTileX_ > 0)
     {
         --cursorTileX_;
     }
-    if (input::buttons.JustPressed(input::ButtonId::right) && cursorTileX_ < Pit::cols - 2)
+    if (input_.Buttons().JustPressed(input::ButtonId::right) && cursorTileX_ < Pit::cols - 2)
     {
         ++cursorTileX_;
     }
-    if (input::buttons.JustPressed(input::ButtonId::up) && cursorTileY_ > 1)
+    if (input_.Buttons().JustPressed(input::ButtonId::up) && cursorTileY_ > 1)
     {
         --cursorTileY_;
     }
-    if (input::buttons.JustPressed(input::ButtonId::down) && cursorTileY_ < Pit::rows - 2)
+    if (input_.Buttons().JustPressed(input::ButtonId::down) && cursorTileY_ < Pit::rows - 2)
     {
         ++cursorTileY_;
     }
 
     // Swap tiles.
-    if (input::buttons.JustPressed(input::ButtonId::a))
+    if (input_.Buttons().JustPressed(input::ButtonId::a))
     {
         pit_.Swap(cursorTileX_, cursorTileY_);
         blocksSwappingSource_.Play(sounds_.blocksSwapping);
@@ -253,7 +254,7 @@ void Playing::UpdatePlaying(double t)
     }
 
     // Check for paused.
-    if (input::buttons.JustPressed(input::ButtonId::back))
+    if (input_.Buttons().JustPressed(input::ButtonId::back))
     {
         musicSource_.Pause();
         SetState(State::PAUSED, t);
@@ -279,13 +280,13 @@ Screens Playing::UpdateGameOver(double t)
     actionsEnabled_ = t - stateStartTime_ >= delay;
     if (actionsEnabled_)
     {
-        if (input::buttons.JustPressed(input::ButtonId::b))
+        if (input_.Buttons().JustPressed(input::ButtonId::b))
         {
             musicSource_.Stop();
             progress_.SaveScores(); // TODO: dedup.
             return Screens::Menu;
         }
-        if (input::buttons.JustPressed(input::ButtonId::x))
+        if (input_.Buttons().JustPressed(input::ButtonId::x))
         {
             musicSource_.Stop();
             progress_.SaveScores(); // TODO: dedup.
@@ -298,7 +299,7 @@ Screens Playing::UpdateGameOver(double t)
                 Start(t, initialLevel_, mode_);
             }
         }
-        if (input::buttons.JustPressed(input::ButtonId::a) && !pit_.IsImpacted())
+        if (input_.Buttons().JustPressed(input::ButtonId::a) && !pit_.IsImpacted())
         {
             // Go on to the next level.
             musicSource_.Stop();
@@ -312,12 +313,12 @@ Screens Playing::UpdateGameOver(double t)
 
 Screens Playing::UpdatePaused(double t)
 {
-    if (input::buttons.JustPressed(input::ButtonId::b))
+    if (input_.Buttons().JustPressed(input::ButtonId::b))
     {
         musicSource_.Stop();
         return Screens::Menu;
     }
-    if (input::buttons.JustPressed(input::ButtonId::a))
+    if (input_.Buttons().JustPressed(input::ButtonId::a))
     {
         musicSource_.Resume();
         SetState(State::PLAYING, t);
@@ -427,7 +428,7 @@ void Playing::DrawPaused()
         textRenderer_.DrawLeft(x, y, "Paused", Colours::white, Colours::black);
     }
 
-    if (input::HasGamepad())
+    if (input_.HasGamepad())
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
@@ -440,7 +441,7 @@ void Playing::DrawPaused()
         textRenderer_.DrawLeft(x, y, "[ESC]   quit", Colours::white, Colours::black);
     }
 
-    if (input::HasGamepad())
+    if (input_.HasGamepad())
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
@@ -479,7 +480,7 @@ void Playing::DrawGameOver(double t)
     {
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
-            if (input::HasGamepad())
+            if (input_.HasGamepad())
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
                 textRenderer_.DrawLeft(x, y, "(}) retry", Colours::white, Colours::black);
@@ -490,7 +491,7 @@ void Playing::DrawGameOver(double t)
                 textRenderer_.DrawLeft(x, y, "[CTRL] retry", Colours::white, Colours::black);
             }
         }
-        if (input::HasGamepad())
+        if (input_.HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
@@ -504,7 +505,7 @@ void Playing::DrawGameOver(double t)
         }
         if (!pit_.IsImpacted())
         {
-            if (input::HasGamepad())
+            if (input_.HasGamepad())
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;

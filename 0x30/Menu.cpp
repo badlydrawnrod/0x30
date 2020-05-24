@@ -14,7 +14,8 @@
 #include <sstream>
 
 
-Menu::Menu(const Progress& progress, je::Batch& batch, Textures& textures) :
+Menu::Menu(input::Input& input, const Progress& progress, je::Batch& batch, Textures& textures) :
+    input_{ input },
     progress_{ progress },
     batch_{ batch },
     textures_{ textures },
@@ -38,17 +39,17 @@ void Menu::Start(double t)
 
 Screens Menu::Update(double /*t*/, double /*dt*/)
 {
-    if (input::buttons.JustPressed(input::ButtonId::a))
+    if (input_.Buttons().JustPressed(input::ButtonId::a))
     {
         return Screens::Playing;
     }
 
-    if (input::buttons.JustPressed(input::ButtonId::b))
+    if (input_.Buttons().JustPressed(input::ButtonId::b))
     {
         return Screens::Quit;
     }
 
-    if (input::buttons.JustPressed(input::ButtonId::left) || input::buttons.JustPressed(input::ButtonId::right))
+    if (input_.Buttons().JustPressed(input::ButtonId::left) || input_.Buttons().JustPressed(input::ButtonId::right))
     {
         if (mode_ == Mode::ENDLESS)
         {
@@ -63,7 +64,7 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         firstVisibleLevel_ = 0;
     }
 
-    if (input::buttons.JustPressed(input::ButtonId::up) && currentSelection_ > 0)
+    if (input_.Buttons().JustPressed(input::ButtonId::up) && currentSelection_ > 0)
     {
         --currentSelection_;
         firstVisibleLevel_ = std::min(currentSelection_, firstVisibleLevel_);
@@ -79,7 +80,7 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         maxSelection = progress_.MaxTimedLevel();
     }
 
-    if (input::buttons.JustPressed(input::ButtonId::down) && currentSelection_ + 1 < maxSelection)
+    if (input_.Buttons().JustPressed(input::ButtonId::down) && currentSelection_ + 1 < maxSelection)
     {
         ++currentSelection_;
         if (currentSelection_ >= firstVisibleLevel_ + visibleLevels_)
@@ -106,7 +107,7 @@ void Menu::Draw(double t)
     textRenderer_.DrawLeft(x, y, "Clear blocks and don't let them reach", Colours::white);
     y += 12.0f;
 
-    if (input::HasGamepad())
+    if (input_.HasGamepad())
     {
         textRenderer_.DrawLeft(x, y, "the top. Press ({) to swap and hold (}) to", Colours::white);
         y += 12.0f;
@@ -124,7 +125,7 @@ void Menu::Draw(double t)
     y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 40.0f;
     if (std::fmod(t - screenStartTime_, 1.0f) < 0.6f)
     {
-        if (input::HasGamepad())
+        if (input_.HasGamepad())
         {
             x = VIRTUAL_WIDTH / 2.0f - 76.0f;
             textRenderer_.DrawLeft(x, y, "PRESS ({) TO START", Colours::white);

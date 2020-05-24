@@ -11,7 +11,8 @@
 #include <cmath>
 
 
-Dedication::Dedication(je::Batch& batch, Textures& textures, Sounds& sounds) :
+Dedication::Dedication(input::Input& input, je::Batch& batch, Textures& textures, Sounds& sounds) :
+    input_{ input },
     batch_{ batch },
     textures_{ textures },
     sounds_{ sounds },
@@ -28,7 +29,7 @@ Screens Dedication::Update(double t, double /*dt*/)
         return Screens::Dedication;
     }
 
-    if (t - startTime_ >= 30.0 || input::buttons.JustPressed(input::ButtonId::a))
+    if (t - startTime_ >= 30.0 || input_.Buttons().JustPressed(input::ButtonId::a))
     {
         return Screens::Menu;
     }
@@ -69,7 +70,7 @@ void Dedication::Draw(double t)
     // Tell the player that they can take an action.
     if (t - startTime_ >= 4.0 && sounds_.IsLoaded() && std::fmod(t - startTime_, 1.0) <= 0.6)
     {
-        if (input::HasGamepad())
+        if (input_.HasGamepad())
         {
             x = VIRTUAL_WIDTH / 2.0f;
             y = 3 * VIRTUAL_HEIGHT / 4.0f;

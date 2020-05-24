@@ -5,6 +5,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <memory>
+
 
 namespace input
 {
@@ -45,13 +47,13 @@ namespace input
         return (buttonUps_ & idBit) == idBit;
     }
 
-    double ButtonStates::LastPressed(ButtonId id)
+    double ButtonStates::LastPressed(ButtonId id) const
     {
         size_t i = static_cast<size_t>(id);
         return buttonDownTimes_[i];
     }
 
-    double ButtonStates::LastReleased(ButtonId id)
+    double ButtonStates::LastReleased(ButtonId id) const
     {
         size_t i = static_cast<size_t>(id);
         return buttonUpTimes_[i];
@@ -236,27 +238,51 @@ namespace input
             wasDownActivated_ = isDownActivated;
         }
     }
-
-    ButtonStates buttons;
 }
-
-namespace
-{
-    bool hasGamepad{ false };
-
-    // Called by GLFW whenever a key is pressed or released.
-    void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
-    {
-        input::buttons.OnKeyEvent(window, key, scancode, action, mode);
-    }
-}
-
-// TODO: make this sensible...
-SDL_GameController *controller { nullptr };
 
 namespace input
 {
-    void UpdateInputState(double t)
+    Input* Input::Instance()
+    {
+        static std::unique_ptr<Input> input = nullptr;
+        if (!input)
+        {
+            input.reset(new Input);
+        }
+        return input.get();
+    }
+
+    void Input::OnKeyEventCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+    {
+        Instance()->OnKeyEvent(window, key, scancode, action, mode);
+    }
+
+    void Input::Init(je::Context &context)
+    {
+        // Tell GLFW to tell us about key events.
+        glfwSetKeyCallback(context.Window(), OnKeyEventCallback);
+
+        // Use SDL for gamepads.
+        SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+    }
+
+    Input::~Input()
+    {
+        LOG("Tearing down input");
+        if (controller_)
+        {
+            SDL_GameControllerClose(controller_);
+            controller_ = nullptr;
+        }
+        SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+    }
+
+    void Input::OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
+    {
+        buttons_.OnKeyEvent(window, key, scancode, action, mode);
+    }
+
+    void Input::Update(double t)
     {
         // ASk SDL to poll for events. We specifically want to know about controllers, i.e., gamepads.
         SDL_Event event;
@@ -266,18 +292,18 @@ namespace input
             {
             case SDL_CONTROLLERDEVICEADDED:
                 // We only care about the first controller we see.
-                if (!controller)
+                if (!controller_)
                 {
-                    controller = SDL_GameControllerOpen(event.cdevice.which);
-                    hasGamepad = true;
+                    controller_ = SDL_GameControllerOpen(event.cdevice.which);
+                    hasGamepad_ = true;
                 }
                 break;
             case SDL_CONTROLLERAXISMOTION:
-                input::buttons.OnGamepadAxisEvent(event.caxis.which, event.caxis.axis, event.caxis.value);
+                buttons_.OnGamepadAxisEvent(event.caxis.which, event.caxis.axis, event.caxis.value);
                 break;
             case SDL_CONTROLLERBUTTONDOWN:
             case SDL_CONTROLLERBUTTONUP:
-                input::buttons.OnGamepadButtonEvent(event.cbutton.which, event.cbutton.button, event.cbutton.state);
+                buttons_.OnGamepadButtonEvent(event.cbutton.which, event.cbutton.button, event.cbutton.state);
                 break;
             }
         }
@@ -285,21 +311,17 @@ namespace input
         // Now ask GLFW to do the same, because we're using it for keyboard input.
         glfwPollEvents();
 
-        buttons.DetectTransitions(t);
-        buttons.Update();
+        buttons_.DetectTransitions(t);
+        buttons_.Update();
     }
 
-    void Initialise(je::Context& context)
+    const ButtonStates& Input::Buttons() const
     {
-        // Tell GLFW to tell us about key events.
-        glfwSetKeyCallback(context.Window(), OnKeyEvent);
-
-        // Use SDL for gamepads.
-        SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+        return buttons_;
     }
 
-    bool HasGamepad()
+    bool Input::HasGamepad() const
     {
-        return hasGamepad;
+        return hasGamepad_;
     }
 }

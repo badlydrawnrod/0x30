@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Input.h"
 #include "Sounds.h"
 #include "TextRenderer.h"
 #include "Textures.h"
@@ -11,12 +12,13 @@
 class Dedication
 {
 public:
-    Dedication(je::Batch& batch, Textures& textures, Sounds& sounds);
+    Dedication(input::Input& input, je::Batch& batch, Textures& textures, Sounds& sounds);
 
     Screens Update(double t, double dt);
     void Draw(double t);
 
 private:
+    input::Input& input_;
     je::Batch& batch_;
     Textures& textures_;
     Sounds& sounds_;
