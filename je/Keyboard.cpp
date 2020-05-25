@@ -1,6 +1,6 @@
 #include "Keyboard.h"
 
-#include "Context.h"
+#include "Human.h"
 
 #if !defined(__EMSCRIPTEN__)
 #include <glad/glad.h>
@@ -14,8 +14,8 @@ namespace je
     {
         if (void* userPointer = glfwGetWindowUserPointer(window); userPointer)
         {
-            auto context = reinterpret_cast<je::Context*>(userPointer);
-            context->KeyboardEventHandler(window, key, scancode, action, mode);
+            auto human = reinterpret_cast<je::Human*>(userPointer);
+            human->KeyboardEventHandler(window, key, scancode, action, mode);
         }
     }
 

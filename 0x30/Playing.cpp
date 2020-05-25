@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Types.h"
 
+#include "je/Human.h"
 #include "je/Logger.h"
 
 #include <algorithm>
@@ -428,7 +429,7 @@ void Playing::DrawPaused()
         textRenderer_.DrawLeft(x, y, "Paused", Colours::white, Colours::black);
     }
 
-    if (input_.HasGamepad())
+    if (je::Human::Instance()->HasGamepad())
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
@@ -441,7 +442,7 @@ void Playing::DrawPaused()
         textRenderer_.DrawLeft(x, y, "[ESC]   quit", Colours::white, Colours::black);
     }
 
-    if (input_.HasGamepad())
+    if (je::Human::Instance()->HasGamepad())
     {
         const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
         const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
@@ -480,7 +481,7 @@ void Playing::DrawGameOver(double t)
     {
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 4.0f;
-            if (input_.HasGamepad())
+            if (je::Human::Instance()->HasGamepad())
             {
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
                 textRenderer_.DrawLeft(x, y, "(}) retry", Colours::white, Colours::black);
@@ -491,7 +492,7 @@ void Playing::DrawGameOver(double t)
                 textRenderer_.DrawLeft(x, y, "[CTRL] retry", Colours::white, Colours::black);
             }
         }
-        if (input_.HasGamepad())
+        if (je::Human::Instance()->HasGamepad())
         {
             const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 8.0f;
             const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;
@@ -505,7 +506,7 @@ void Playing::DrawGameOver(double t)
         }
         if (!pit_.IsImpacted())
         {
-            if (input_.HasGamepad())
+            if (je::Human::Instance()->HasGamepad())
             {
                 const float y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 64.0f + 8.0f * 6.0f;
                 const float x = VIRTUAL_WIDTH / 2.0f - 5.0f * 8.0f;

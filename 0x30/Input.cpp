@@ -1,5 +1,6 @@
 #include "Input.h"
 
+#include "je/Human.h"
 #include "je/Logger.h"
 #include "je/Time.h"
 
@@ -254,67 +255,27 @@ namespace input
         return input.get();
     }
 
-    void Input::OnKeyEventCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
-    {
-        Instance()->OnKeyEvent(window, key, scancode, action, mode);
-    }
-
     void Input::Init(je::Context &context)
     {
-        // Tell the context that we want to know about keyboard events.
-        context.OnKeyboardEvent([this](GLFWwindow* window, int key, int scancode, int action, int mode) {
+        // Tell the input that we want to know about keyboard events.
+        je::Human::Instance()->OnKeyboardEvent([this](GLFWwindow* window, int key, int scancode, int action, int mode) {
             buttons_.OnKeyEvent(window, key, scancode, action, mode);
         });
 
-        // Use SDL for gamepads.
-        SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
-    }
+        // Tell the input that we want to know about gamepad button events.
+        je::Human::Instance()->OnGamepadButtonEvent([this](SDL_JoystickID joystickId, Uint8 button, Uint8 state) {
+            buttons_.OnGamepadButtonEvent(joystickId, button, state);
+        });
 
-    Input::~Input()
-    {
-        LOG("Tearing down input");
-        if (controller_)
-        {
-            SDL_GameControllerClose(controller_);
-            controller_ = nullptr;
-        }
-        SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
-    }
-
-    void Input::OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode)
-    {
-        buttons_.OnKeyEvent(window, key, scancode, action, mode);
+        // Tell the input that we want to know about gamepad axis events.
+        je::Human::Instance()->OnGamepadAxisEvent([this](SDL_JoystickID joystickId, Uint8 axis, Sint16 value) {
+            buttons_.OnGamepadAxisEvent(joystickId, axis, value);
+        });
     }
 
     void Input::Update(double t)
     {
-        // ASk SDL to poll for events. We specifically want to know about controllers, i.e., gamepads.
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            switch (event.type)
-            {
-            case SDL_CONTROLLERDEVICEADDED:
-                // We only care about the first controller we see.
-                if (!controller_)
-                {
-                    controller_ = SDL_GameControllerOpen(event.cdevice.which);
-                    hasGamepad_ = true;
-                }
-                break;
-            case SDL_CONTROLLERAXISMOTION:
-                buttons_.OnGamepadAxisEvent(event.caxis.which, event.caxis.axis, event.caxis.value);
-                break;
-            case SDL_CONTROLLERBUTTONDOWN:
-            case SDL_CONTROLLERBUTTONUP:
-                buttons_.OnGamepadButtonEvent(event.cbutton.which, event.cbutton.button, event.cbutton.state);
-                break;
-            }
-        }
-
-        // Now ask GLFW to do the same, because we're using it for keyboard input.
-        glfwPollEvents();
-
+        je::Human::Instance()->Update(t);
         buttons_.DetectTransitions(t);
         buttons_.Update();
     }
@@ -322,10 +283,5 @@ namespace input
     const ButtonStates& Input::Buttons() const
     {
         return buttons_;
-    }
-
-    bool Input::HasGamepad() const
-    {
-        return hasGamepad_;
     }
 }

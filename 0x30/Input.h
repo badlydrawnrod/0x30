@@ -51,25 +51,14 @@ namespace input
         static Input* Instance();
 
         void Init(je::Context& context);
-        ~Input();
 
         void Update(double t);
 
         const ButtonStates& Buttons() const;
-        bool HasGamepad() const;
 
     private:
         Input() = default;
 
-        void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode);
-
-        static void OnKeyEventCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
-
-        SDL_GameController *controller_ { nullptr };
-        bool hasGamepad_{ false };
         ButtonStates buttons_{};
     };
-
-    GLFWkeyfun GetKeyboardHandler();
-    void SetKeyboardHandler(GLFWkeyfun handler);
 }

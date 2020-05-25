@@ -11,12 +11,8 @@ namespace je
 {
     class Context
     {
-    public:
-        using KeyboardEventFn = std::function<void(GLFWwindow* window, int key, int scancode, int action, int mode)>;
-
     private:
         GLFWwindow* window_;
-        KeyboardEventFn keyboardEventFn_;
 
     public:
         Context(GLuint width, GLuint height, const GLchar* title);
@@ -41,9 +37,5 @@ namespace je
             // Set the viewport position and size.
             glViewport(x, y, width, height);
         }
-
-        void OnKeyboardEvent(KeyboardEventFn keyboardEventFn);
-
-        void KeyboardEventHandler(GLFWwindow* window, int key, int scancode, int action, int mode);
     };
 }

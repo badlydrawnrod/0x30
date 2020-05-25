@@ -1,5 +1,6 @@
 #include "Context.h"
 
+#include "Human.h"
 #include "Keyboard.h"
 #include "Logger.h"
 
@@ -24,7 +25,7 @@ namespace je
         // Create a GLFWwindow and make its context current.
         window_ = glfwCreateWindow(width, height, title, nullptr, nullptr);
         glfwMakeContextCurrent(window_);
-        if (window_ == nullptr)
+        if (window_==nullptr)
         {
             LOG("Failed to create GLFW window for OpenGL " << minOpenGlMajorVersion << "." << minOpenGlMinorVersion);
             glfwTerminate();
@@ -41,10 +42,11 @@ namespace je
 
         LOG("Using OpenGL " << GLVersion.major << "." << GLVersion.minor);
 #endif
-        // Give the window a way to find this context.
-        glfwSetWindowUserPointer(window_, this);
+        // Associate the window with the input instance.
+        glfwSetWindowUserPointer(window_, Human::Instance());
 
-        // Wire up a keyboard handler.
+        // Add the keyboard handler.
+        // TODO: could this be part of the input instance, i.e., Human::GetKeyboardHandler().
         glfwSetKeyCallback(window_, GetKeyboardHandler());
     }
 
@@ -52,19 +54,5 @@ namespace je
     {
         window_ = 0;
         glfwTerminate();
-    }
-
-    void Context::OnKeyboardEvent(KeyboardEventFn keyboardEventFn)
-    {
-        keyboardEventFn_ = keyboardEventFn;
-    }
-
-    void Context::KeyboardEventHandler(GLFWwindow* window, int key, int scancode, int action, int mode)
-    {
-        LOG("new handler got keyboard event")
-        if (keyboardEventFn_)
-        {
-            keyboardEventFn_(window, key, scancode, action, mode);
-        }
     }
 }

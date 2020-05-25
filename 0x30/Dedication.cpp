@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "Types.h"
 
+#include "je/Human.h"
 #include "je/Logger.h"
 #include "je/Time.h"
 
@@ -70,7 +71,7 @@ void Dedication::Draw(double t)
     // Tell the player that they can take an action.
     if (t - startTime_ >= 4.0 && sounds_.IsLoaded() && std::fmod(t - startTime_, 1.0) <= 0.6)
     {
-        if (input_.HasGamepad())
+        if (je::Human::Instance()->HasGamepad())
         {
             x = VIRTUAL_WIDTH / 2.0f;
             y = 3 * VIRTUAL_HEIGHT / 4.0f;

@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "Types.h"
 
+#include "je/Human.h"
 #include "je/Logger.h"
 #include "je/QuadHelpers.h"
 #include "je/Time.h"
@@ -107,7 +108,7 @@ void Menu::Draw(double t)
     textRenderer_.DrawLeft(x, y, "Clear blocks and don't let them reach", Colours::white);
     y += 12.0f;
 
-    if (input_.HasGamepad())
+    if (je::Human::Instance()->HasGamepad())
     {
         textRenderer_.DrawLeft(x, y, "the top. Press ({) to swap and hold (}) to", Colours::white);
         y += 12.0f;
@@ -125,7 +126,7 @@ void Menu::Draw(double t)
     y = VIRTUAL_HEIGHT / 2.0f - 4.0f - 40.0f;
     if (std::fmod(t - screenStartTime_, 1.0f) < 0.6f)
     {
-        if (input_.HasGamepad())
+        if (je::Human::Instance()->HasGamepad())
         {
             x = VIRTUAL_WIDTH / 2.0f - 76.0f;
             textRenderer_.DrawLeft(x, y, "PRESS ({) TO START", Colours::white);

@@ -97,7 +97,7 @@ add_executable(${TARGET_NAME}
         je/Textures.h
         je/Time.h
         je/Transforms.h
-        je/Types.h je/Keyboard.cpp je/Keyboard.h)
+        je/Types.h je/Keyboard.cpp je/Keyboard.h je/Human.h je/Human.cpp)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
 
