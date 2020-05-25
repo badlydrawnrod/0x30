@@ -62,11 +62,6 @@ namespace input
         return buttonUpTimes_[i];
     }
 
-    void ButtonStates::Update()
-    {
-        prevButtons_ = buttons_;
-    }
-
     void ButtonStates::UpdateButton(bool isPressOrRepeat, uint32_t bit)
     {
         if (isPressOrRepeat)
@@ -79,7 +74,7 @@ namespace input
         }
     }
 
-    void ButtonStates::DetectTransitions(double t)
+    void ButtonStates::Update(double t)
     {
         Buttons changes = prevButtons_ ^ buttons_;
 
@@ -110,6 +105,8 @@ namespace input
                 mask = mask << 1;
             }
         }
+
+        prevButtons_ = buttons_;
     }
 
     void ButtonStates::OnKeyEvent(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/)
@@ -276,8 +273,7 @@ namespace input
     void Input::Update(double t)
     {
         je::Human::Instance()->Update(t);
-        buttons_.DetectTransitions(t);
-        buttons_.Update();
+        buttons_.Update(t);
     }
 
     const ButtonStates& Input::Buttons() const

@@ -14,7 +14,6 @@ namespace input
     class ButtonStates
     {
     public:
-        void Update();
         bool IsPressed(ButtonId id) const;
         bool IsReleased(ButtonId id) const;
         bool JustPressed(ButtonId id) const;
@@ -22,7 +21,7 @@ namespace input
         double LastPressed(ButtonId id) const;
         double LastReleased(ButtonId id) const;
 
-        void DetectTransitions(double t);
+        void Update(double t);
         void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mode);
         void OnGamepadButtonEvent(SDL_JoystickID joystickId, Uint8 button, Uint8 state);
         void OnGamepadAxisEvent(SDL_JoystickID joystickId, Uint8 axis, Sint16 value);
