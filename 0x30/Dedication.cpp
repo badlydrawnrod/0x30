@@ -2,7 +2,7 @@
 
 #include "Colours.h"
 #include "Constants.h"
-#include "Input.h"
+#include "Buttons.h"
 #include "Types.h"
 
 #include "je/Human.h"
@@ -12,8 +12,8 @@
 #include <cmath>
 
 
-Dedication::Dedication(input::Input& input, je::Batch& batch, Textures& textures, Sounds& sounds) :
-    input_{ input },
+Dedication::Dedication(Buttons& buttons, je::Batch& batch, Textures& textures, Sounds& sounds) :
+    buttons_{ buttons },
     batch_{ batch },
     textures_{ textures },
     sounds_{ sounds },
@@ -30,7 +30,7 @@ Screens Dedication::Update(double t, double /*dt*/)
         return Screens::Dedication;
     }
 
-    if (t - startTime_ >= 30.0 || input_.Buttons().JustPressed(input::ButtonId::a))
+    if (t - startTime_ >= 30.0 || buttons_.JustPressed(ButtonId::a))
     {
         return Screens::Menu;
     }

@@ -57,8 +57,8 @@ add_executable(${TARGET_NAME}
         0x30/Flyup.h
         0x30/FlyupRenderer.cpp
         0x30/FlyupRenderer.h
-        0x30/Input.cpp
-        0x30/Input.h
+        0x30/Buttons.cpp
+        0x30/Buttons.h
         0x30/LevelRenderer.cpp
         0x30/LevelRenderer.h
         0x30/main.cpp

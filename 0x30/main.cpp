@@ -1,6 +1,6 @@
 #include "Constants.h"
 #include "Dedication.h"
-#include "Input.h"
+#include "Buttons.h"
 #include "Menu.h"
 #include "Pit.h"
 #include "PitRenderer.h"
@@ -12,6 +12,7 @@
 
 #include "je/Batch.h"
 #include "je/Context.h"
+#include "je/Human.h"
 #include "je/Logger.h"
 #include "je/QuadHelpers.h"
 #include "je/Shaders.h"
@@ -98,7 +99,6 @@ public:
 
 private:
     je::Context context;
-    input::Input& input_;
     je::SoundSystem soundSystem;
 
     je::Shader shader;
@@ -106,6 +106,9 @@ private:
     Progress progress_;
     Textures textures;
     Sounds sounds;
+
+    Buttons buttons_;
+
     Playing playing;
     Dedication dedication;
     Menu menu;
@@ -116,18 +119,31 @@ private:
 
 Game::Game(std::function<int(int, int)>& rnd) :
     context{ je::Context(WIDTH, HEIGHT, TITLE) },
-    input_ { *(input::Input::Instance()) },
     shader{ je::Shader() },
     batch{ shader.Program() },
-    playing{ input_, progress_, batch, textures, sounds, rnd },
-    dedication{ input_, batch, textures, sounds },
-    menu{ input_, progress_, batch, textures }
+    playing{ buttons_, progress_, batch, textures, sounds, rnd },
+    dedication{ buttons_, batch, textures, sounds },
+    menu{ buttons_, progress_, batch, textures }
 {
     LOG("Shader program " << shader.Program());
-    input_.Init(context);
     LOG("Finished initialising input");
     sounds.Load();
     LOG("Finished loading sounds");
+
+    // Tell the input that we want to know about keyboard events.
+    je::Human::Instance()->OnKeyboardEvent([this](GLFWwindow* window, int key, int scancode, int action, int mode) {
+        buttons_.OnKeyEvent(window, key, scancode, action, mode);
+    });
+
+    // Tell the input that we want to know about gamepad button events.
+    je::Human::Instance()->OnGamepadButtonEvent([this](SDL_JoystickID joystickId, Uint8 button, Uint8 state) {
+        buttons_.OnGamepadButtonEvent(joystickId, button, state);
+    });
+
+    // Tell the input that we want to know about gamepad axis events.
+    je::Human::Instance()->OnGamepadAxisEvent([this](SDL_JoystickID joystickId, Uint8 axis, Sint16 value) {
+        buttons_.OnGamepadAxisEvent(joystickId, axis, value);
+    });
 }
 
 
@@ -139,8 +155,10 @@ bool Game::ShouldQuit()
 
 void Game::Update(double t, double dt)
 {
-    input_.Update(t);
-    if (input_.Buttons().JustPressed(input::ButtonId::debug))
+    je::Human::Instance()->Update(t);
+    buttons_.Update(t);
+
+    if (buttons_.JustPressed(ButtonId::debug))
     {
 #if defined(_WIN32)
         Console::Toggle();

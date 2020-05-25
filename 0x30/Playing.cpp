@@ -1,7 +1,7 @@
 #include "Playing.h"
 
 #include "Colours.h"
-#include "Input.h"
+#include "Buttons.h"
 #include "Types.h"
 
 #include "je/Human.h"
@@ -15,8 +15,8 @@ const double TIMED_MODE_TIME = 98.0;
 const double ENDLESS_MODE_TIME = 98.0;
 
 
-Playing::Playing(input::Input& input, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
-    input_{ input },
+Playing::Playing(Buttons& buttons, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
+    buttons_{ buttons },
     batch_{ batch },
     textures_{ textures },
     progress_{ progress },
@@ -196,7 +196,7 @@ void Playing::UpdateScore()
 void Playing::UpdatePlaying(double t)
 {
     // Scroll the contents of the pit up.
-    internalTileScroll_ += (input_.Buttons().IsPressed(input::ButtonId::x) && input_.Buttons().LastPressed(input::ButtonId::x) > stateStartTime_)
+    internalTileScroll_ += (buttons_.IsPressed(ButtonId::x) && buttons_.LastPressed(ButtonId::x) > stateStartTime_)
         ? 1.0f
         : scrollRate_;
     if (internalTileScroll_ >= tileSize_)
@@ -210,25 +210,25 @@ void Playing::UpdatePlaying(double t)
     }
 
     // Move the player.
-    if (input_.Buttons().JustPressed(input::ButtonId::left) && cursorTileX_ > 0)
+    if (buttons_.JustPressed(ButtonId::left) && cursorTileX_ > 0)
     {
         --cursorTileX_;
     }
-    if (input_.Buttons().JustPressed(input::ButtonId::right) && cursorTileX_ < Pit::cols - 2)
+    if (buttons_.JustPressed(ButtonId::right) && cursorTileX_ < Pit::cols - 2)
     {
         ++cursorTileX_;
     }
-    if (input_.Buttons().JustPressed(input::ButtonId::up) && cursorTileY_ > 1)
+    if (buttons_.JustPressed(ButtonId::up) && cursorTileY_ > 1)
     {
         --cursorTileY_;
     }
-    if (input_.Buttons().JustPressed(input::ButtonId::down) && cursorTileY_ < Pit::rows - 2)
+    if (buttons_.JustPressed(ButtonId::down) && cursorTileY_ < Pit::rows - 2)
     {
         ++cursorTileY_;
     }
 
     // Swap tiles.
-    if (input_.Buttons().JustPressed(input::ButtonId::a))
+    if (buttons_.JustPressed(ButtonId::a))
     {
         pit_.Swap(cursorTileX_, cursorTileY_);
         blocksSwappingSource_.Play(sounds_.blocksSwapping);
@@ -255,7 +255,7 @@ void Playing::UpdatePlaying(double t)
     }
 
     // Check for paused.
-    if (input_.Buttons().JustPressed(input::ButtonId::back))
+    if (buttons_.JustPressed(ButtonId::back))
     {
         musicSource_.Pause();
         SetState(State::PAUSED, t);
@@ -281,13 +281,13 @@ Screens Playing::UpdateGameOver(double t)
     actionsEnabled_ = t - stateStartTime_ >= delay;
     if (actionsEnabled_)
     {
-        if (input_.Buttons().JustPressed(input::ButtonId::b))
+        if (buttons_.JustPressed(ButtonId::b))
         {
             musicSource_.Stop();
             progress_.SaveScores(); // TODO: dedup.
             return Screens::Menu;
         }
-        if (input_.Buttons().JustPressed(input::ButtonId::x))
+        if (buttons_.JustPressed(ButtonId::x))
         {
             musicSource_.Stop();
             progress_.SaveScores(); // TODO: dedup.
@@ -300,7 +300,7 @@ Screens Playing::UpdateGameOver(double t)
                 Start(t, initialLevel_, mode_);
             }
         }
-        if (input_.Buttons().JustPressed(input::ButtonId::a) && !pit_.IsImpacted())
+        if (buttons_.JustPressed(ButtonId::a) && !pit_.IsImpacted())
         {
             // Go on to the next level.
             musicSource_.Stop();
@@ -314,12 +314,12 @@ Screens Playing::UpdateGameOver(double t)
 
 Screens Playing::UpdatePaused(double t)
 {
-    if (input_.Buttons().JustPressed(input::ButtonId::b))
+    if (buttons_.JustPressed(ButtonId::b))
     {
         musicSource_.Stop();
         return Screens::Menu;
     }
-    if (input_.Buttons().JustPressed(input::ButtonId::a))
+    if (buttons_.JustPressed(ButtonId::a))
     {
         musicSource_.Resume();
         SetState(State::PLAYING, t);

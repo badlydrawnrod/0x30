@@ -2,7 +2,7 @@
 
 #include "Colours.h"
 #include "Constants.h"
-#include "Input.h"
+#include "Buttons.h"
 #include "Types.h"
 
 #include "je/Human.h"
@@ -15,8 +15,8 @@
 #include <sstream>
 
 
-Menu::Menu(input::Input& input, const Progress& progress, je::Batch& batch, Textures& textures) :
-    input_{ input },
+Menu::Menu(Buttons& buttons, const Progress& progress, je::Batch& batch, Textures& textures) :
+    buttons_{ buttons },
     progress_{ progress },
     batch_{ batch },
     textures_{ textures },
@@ -40,17 +40,17 @@ void Menu::Start(double t)
 
 Screens Menu::Update(double /*t*/, double /*dt*/)
 {
-    if (input_.Buttons().JustPressed(input::ButtonId::a))
+    if (buttons_.JustPressed(ButtonId::a))
     {
         return Screens::Playing;
     }
 
-    if (input_.Buttons().JustPressed(input::ButtonId::b))
+    if (buttons_.JustPressed(ButtonId::b))
     {
         return Screens::Quit;
     }
 
-    if (input_.Buttons().JustPressed(input::ButtonId::left) || input_.Buttons().JustPressed(input::ButtonId::right))
+    if (buttons_.JustPressed(ButtonId::left) || buttons_.JustPressed(ButtonId::right))
     {
         if (mode_ == Mode::ENDLESS)
         {
@@ -65,7 +65,7 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         firstVisibleLevel_ = 0;
     }
 
-    if (input_.Buttons().JustPressed(input::ButtonId::up) && currentSelection_ > 0)
+    if (buttons_.JustPressed(ButtonId::up) && currentSelection_ > 0)
     {
         --currentSelection_;
         firstVisibleLevel_ = std::min(currentSelection_, firstVisibleLevel_);
@@ -81,7 +81,7 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         maxSelection = progress_.MaxTimedLevel();
     }
 
-    if (input_.Buttons().JustPressed(input::ButtonId::down) && currentSelection_ + 1 < maxSelection)
+    if (buttons_.JustPressed(ButtonId::down) && currentSelection_ + 1 < maxSelection)
     {
         ++currentSelection_;
         if (currentSelection_ >= firstVisibleLevel_ + visibleLevels_)

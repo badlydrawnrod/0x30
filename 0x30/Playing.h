@@ -2,7 +2,7 @@
 
 #include "Constants.h"
 #include "FlyupRenderer.h"
-#include "Input.h"
+#include "Buttons.h"
 #include "LevelRenderer.h"
 #include "Pit.h"
 #include "PitRenderer.h"
@@ -27,7 +27,7 @@
 class Playing
 {
 public:
-    Playing(input::Input& input, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
+    Playing(Buttons& buttonState, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
     void SetDifficulty(int actualLevel);
 
@@ -59,7 +59,7 @@ private:
 
     const float tileSize_ = 16.0f;
 
-    input::Input& input_;
+    Buttons& buttons_;
     Progress& progress_;
     je::Batch& batch_;
     Textures& textures_;
