@@ -1,5 +1,6 @@
 #include "Context.h"
 
+#include "Keyboard.h"
 #include "Logger.h"
 
 #include <stdexcept>
@@ -40,11 +41,30 @@ namespace je
 
         LOG("Using OpenGL " << GLVersion.major << "." << GLVersion.minor);
 #endif
+        // Give the window a way to find this context.
+        glfwSetWindowUserPointer(window_, this);
+
+        // Wire up a keyboard handler.
+        glfwSetKeyCallback(window_, GetKeyboardHandler());
     }
 
     Context::~Context()
     {
         window_ = 0;
         glfwTerminate();
+    }
+
+    void Context::OnKeyboardEvent(KeyboardEventFn keyboardEventFn)
+    {
+        keyboardEventFn_ = keyboardEventFn;
+    }
+
+    void Context::KeyboardEventHandler(GLFWwindow* window, int key, int scancode, int action, int mode)
+    {
+        LOG("new handler got keyboard event")
+        if (keyboardEventFn_)
+        {
+            keyboardEventFn_(window, key, scancode, action, mode);
+        }
     }
 }

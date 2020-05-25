@@ -69,4 +69,7 @@ namespace input
         bool hasGamepad_{ false };
         ButtonStates buttons_{};
     };
+
+    GLFWkeyfun GetKeyboardHandler();
+    void SetKeyboardHandler(GLFWkeyfun handler);
 }

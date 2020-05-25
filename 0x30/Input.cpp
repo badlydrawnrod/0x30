@@ -5,6 +5,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <functional>
+#include <map>
 #include <memory>
 
 
@@ -259,8 +261,10 @@ namespace input
 
     void Input::Init(je::Context &context)
     {
-        // Tell GLFW to tell us about key events.
-        glfwSetKeyCallback(context.Window(), OnKeyEventCallback);
+        // Tell the context that we want to know about keyboard events.
+        context.OnKeyboardEvent([this](GLFWwindow* window, int key, int scancode, int action, int mode) {
+            buttons_.OnKeyEvent(window, key, scancode, action, mode);
+        });
 
         // Use SDL for gamepads.
         SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
