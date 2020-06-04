@@ -23,6 +23,7 @@
 
 #if defined(__EMSCRIPTEN__)
 #include "emscripten.h"
+#include "emscripten/fetch.h"
 #endif
 
 #if !defined(__EMSCRIPTEN__)
@@ -255,17 +256,93 @@ static void main_loop(void)
     theGame->Draw(t);
 }
 
+#if defined(__EMSCRIPTEN__)
+#include <stdio.h>
+
+static int filesDownloaded = 0;
+
+extern "C" int Demo();
+
+int Demo()
+{
+    printf("Hello, we reached 'Demo'\n");
+    FILE* f = fopen("/data/music/adieu.ogg", "r");
+    if (f)
+    {
+        fseek(f, 0, SEEK_END);
+        long where = ftell(f);
+        fclose(f);
+        printf("adieu.ogg is %ld bytes\n", where);
+    }
+    printf("Goodbye, we finished 'Demo'\n");
+    return 0;
+}
+
+void DownloadSucceeded(emscripten_fetch_t *fetch) {
+    printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
+    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+    emscripten_fetch_close(fetch); // Free data associated with the fetch.
+
+}
+
+void DownloadFailed(emscripten_fetch_t *fetch) {
+    printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+    emscripten_fetch_close(fetch); // Also free data on failure.
+}
+
+void WGetSucceeded(const char* filename)
+{
+    printf("WGet Successfully loaded %s\n", filename);
+
+    ++filesDownloaded;
+    if (filesDownloaded == 4)
+    {
+        // Sync so that we see the files.
+        EM_ASM(
+            FS.syncfs(false, function(err) {
+            ccall('Demo', null, ['number'])
+        });
+        );
+    }
+}
+
+void WGetFailed(const char* filename)
+{
+    printf("WGet Failed to load %s\n", filename);
+}
+
+#endif
 
 int main()
 {
     // TODO: obviously move this - it's just a test to see if it does _anything_.
 #if defined(__EMSCRIPTEN__)
+    // Spike: download some relatively large files to memory.
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    strcpy(attr.requestMethod, "GET");
+    attr.attributes = EMSCRIPTEN_FETCH_REPLACE | EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_PERSIST_FILE;
+//    attr.attributes = EMSCRIPTEN_FETCH_REPLACE | EMSCRIPTEN_FETCH_PERSIST_FILE;
+    attr.onsuccess = DownloadSucceeded;
+    attr.onerror = DownloadFailed;
+
+    emscripten_async_wget("music/adieu.ogg", "/data/music/adieu.ogg", WGetSucceeded, WGetFailed);
+    emscripten_async_wget("music/gymnopedie1.ogg", "/data/music/gymnopedie1.ogg", WGetSucceeded, WGetFailed);
+    emscripten_async_wget("music/hallelujah.ogg", "/data/music/hallelujah.ogg", WGetSucceeded, WGetFailed);
+    emscripten_async_wget("music/minute.ogg", "/data/music/minute.ogg", WGetSucceeded, WGetFailed);
+
+    emscripten_fetch(&attr, "music/adieu.ogg");
+    emscripten_fetch(&attr, "music/gymnopedie1.ogg");
+    emscripten_fetch(&attr, "music/hallelujah.ogg");
+    emscripten_fetch(&attr, "music/minute.ogg");
+
     std::random_device randomDevice;
         std::mt19937 generator(randomDevice());
         std::function<int(int, int)> Rnd = [&](int lo, int hi) {
             std::uniform_int_distribution<int> distribution(lo, hi);
             return distribution(generator);
         };
+
     Game game(Rnd);
     theGame = &game;
     emscripten_set_main_loop(main_loop, -1, true);
