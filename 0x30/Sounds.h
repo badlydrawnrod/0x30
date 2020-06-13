@@ -24,12 +24,15 @@ private:
     void OnFileDownloaded(const char* filename);
     void Download(const char* url, const char* filename);
 
-    static void WGet2Succeeded(unsigned handle, void* userData, const char* filename);
-    static void WGet2Failed(unsigned handle, void*, int status);
-    static void WGet2Progress(unsigned handle, void*, int percent);
+    static void OnSuccess(unsigned handle, void* userData, const char* filename);
+    static void OnFailed(unsigned handle, void*, int status);
+    static void OnProgress(unsigned handle, void*, int percent);
 
 #if !defined(__EMSCRIPTEN__)
     void LoaderTask();
     std::future<void> loader_;
+#else
+    int downloaded_{ 0 };
+    bool isLoaded_{ false };
 #endif
 };

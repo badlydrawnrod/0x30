@@ -32,33 +32,46 @@ void Sounds::LoaderTask()
 #else
 
 #include "emscripten.h"
-//#include "emscripten/fetch.h"
 
 void Sounds::OnFileDownloaded(const char* filename)
 {
     LOG("OnFileDownloaded " << filename);
+    ++downloaded_;
+    if (downloaded_ == 8)   // TODO: obviously do better than this!
+    {
+        LOG("All sounds downloaded");
+        blocksSwapping.TakeOwnership(je::LoadSound("assets/sounds/swap.wav"));
+        blocksLanding.TakeOwnership(je::LoadSound("assets/sounds/marble_click.wav"));
+        blocksPopping.TakeOwnership(je::LoadSound("assets/sounds/pop.wav"));
+        menuSelect.TakeOwnership(je::LoadSound("assets/sounds/swap.wav"));
+        musicMinuteWaltz.TakeOwnership(je::LoadSound("assets/music/minute.ogg"));
+        musicLAdieu.TakeOwnership(je::LoadSound("assets/music/adieu.ogg"));
+        musicHallelujah.TakeOwnership(je::LoadSound("assets/music/hallelujah.ogg"));
+        musicGymnopedie.TakeOwnership(je::LoadSound("assets/music/gymnopedie1.ogg"));
+        isLoaded_ = true;
+    }
 }
 
-void Sounds::WGet2Succeeded(unsigned handle, void* userData, const char* filename)
+void Sounds::OnSuccess(unsigned handle, void* userData, const char* filename)
 {
     LOG("WGet2 downloaded: " << filename << " with handle = " << handle);
     Sounds* sounds = reinterpret_cast<Sounds*>(userData);
     sounds->OnFileDownloaded(filename);
 }
 
-void Sounds::WGet2Failed(unsigned handle, void*, int status)
+void Sounds::OnFailed(unsigned handle, void*, int status)
 {
     LOG("WGet2 failed for handle " << handle << " with status code " << status);
 }
 
-void Sounds::WGet2Progress(unsigned handle, void*, int percent)
+void Sounds::OnProgress(unsigned handle, void*, int percent)
 {
     LOG("WGet2 progress for handle " << handle << " = " << percent);
 }
 
 void Sounds::Download(const char* url, const char* filename)
 {
-    emscripten_async_wget2(url, filename, "GET", nullptr, this, WGet2Succeeded, WGet2Failed, WGet2Progress);
+    emscripten_async_wget2(url, filename, "GET", nullptr, this, OnSuccess, OnFailed, OnProgress);
 }
 
 void Sounds::Load()
@@ -75,7 +88,7 @@ void Sounds::Load()
 
 bool Sounds::IsLoaded()
 {
-    return false;
+    return isLoaded_;
 }
 
 #endif
