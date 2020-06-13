@@ -15,15 +15,21 @@ struct Sounds
     je::SoundBuffer blocksPopping;
     je::SoundBuffer menuSelect;
 
-#if !defined(__EMSCRIPTEN__)
     je::SoundBuffer musicMinuteWaltz;
     je::SoundBuffer musicLAdieu;
     je::SoundBuffer musicHallelujah;
     je::SoundBuffer musicGymnopedie;
-#endif
 
 private:
-    void LoaderTask();
+    void OnFileDownloaded(const char* filename);
+    void Download(const char* url, const char* filename);
 
+    static void WGet2Succeeded(unsigned handle, void* userData, const char* filename);
+    static void WGet2Failed(unsigned handle, void*, int status);
+    static void WGet2Progress(unsigned handle, void*, int percent);
+
+#if !defined(__EMSCRIPTEN__)
+    void LoaderTask();
     std::future<void> loader_;
+#endif
 };
