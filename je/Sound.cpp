@@ -550,8 +550,9 @@ namespace je
 
         if (rc == 0)
         {
-            // Having opened the stream, we know its reported size.
-            void* data = malloc(stream.data_size);
+            // Having opened the stream, we know its reported size (in bytes?).
+            // TODO: check that this is its size in bytes, not frames.
+            std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(stream.data_size);
             if (!data)
             {
                 rc = 1;
@@ -561,7 +562,7 @@ namespace je
             size_t items_read = 0;
             if (rc==0)
             {
-                rc = read_wav_stream(&stream, data, sizeof(uint8_t), stream.data_size, &items_read);
+                rc = read_wav_stream(&stream, data.get(), sizeof(uint8_t), stream.data_size, &items_read);
                 if (rc!=0)
                 {
                     fprintf(stderr, "Failed to read %s\n", filename.c_str());
@@ -612,7 +613,7 @@ namespace je
             if (rc==0)
             {
                 ALsizei numBytes = static_cast<ALsizei>(stream.data_size);
-                alBufferData(buffer, format, data, numBytes, stream.sample_rate);
+                alBufferData(buffer, format, data.get(), numBytes, stream.sample_rate);
             }
 
             if (rc==0)
@@ -654,7 +655,10 @@ namespace je
             LOG("alBufferData failed with OpenAL Error " << alGetString(error));
         }
 
-        // TODO: can I free `decoded`?
+        if (decoded)
+        {
+            free(decoded);
+        }
 
         return buffer;
     }
