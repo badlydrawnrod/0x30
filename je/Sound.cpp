@@ -511,103 +511,75 @@ namespace je
         TearDownOpenAl();
     }
 
-    ALuint LoadSound(const std::string& filename)
+    ALuint LoadWav(const std::string& filename)
     {
-        LOG("Loading " << filename);
+        ALuint buffer = 0;
 
+        // Attempt to open the file as a .wav.
         wav_stream stream{};
         int rc = open_wav_stream(filename.c_str(), &stream);
-
-        if (rc == 0)
+        if (rc != 0)
         {
-            // Having opened the stream, we know its reported size (in bytes?).
-            // TODO: check that this is its size in bytes, not frames.
-            std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(stream.data_size);
-            if (!data)
-            {
-                rc = 1;
-            }
-
-            // Read the stream data.
-            size_t items_read = 0;
-            if (rc == 0)
-            {
-                rc = read_wav_stream(&stream, data.get(), sizeof(uint8_t), stream.data_size, &items_read);
-                if (rc != 0)
-                {
-                    fprintf(stderr, "Failed to read %s\n", filename.c_str());
-                }
-            }
-
-            // Determine the OpenAL buffer format from the stream data.
-            ALenum format = AL_FORMAT_MONO8;
-            if (rc == 0)
-            {
-                LOG("  Start of data: " << stream.start_of_data);
-                LOG("      File size: " << stream.file_size);
-                LOG("      Data size: " << stream.data_size);
-                LOG("       Channels: " << stream.channels);
-                LOG("    Sample rate: " << stream.sample_rate);
-                LOG("     Block size: " << stream.block_size);
-                LOG("Bits per sample: " << stream.bits_per_sample);
-                if (stream.bits_per_sample == 8)
-                {
-                    if (stream.channels == 1)
-                    {
-                        format = AL_FORMAT_MONO8;
-                    }
-                    else if (stream.channels == 2)
-                    {
-                        format = AL_FORMAT_STEREO8;
-                    }
-                }
-                else if (stream.bits_per_sample == 16)
-                {
-                    if (stream.channels == 1)
-                    {
-                        format = AL_FORMAT_MONO16;
-                    }
-                    else if (stream.channels == 2)
-                    {
-                        format = AL_FORMAT_STEREO16;
-                    }
-                }
-            }
-
-            ALuint buffer = 0;
-            if (rc == 0)
-            {
-                alGenBuffers(1, &buffer);
-            }
-
-            if (rc == 0)
-            {
-                ALsizei numBytes = static_cast<ALsizei>(stream.data_size);
-                alBufferData(buffer, format, data.get(), numBytes, stream.sample_rate);
-            }
-
-            if (rc == 0)
-            {
-                close_wav_stream(&stream);
-            }
-
-            LOG("Finished loading " << filename << ", buffer handle = " << buffer);
             return buffer;
         }
 
-        // It isn't a .wav file, but maybe it's a .ogg file.
+        // TODO: check that this is its size in bytes, not frames.
+        std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(stream.data_size);
+
+        // Read the stream data.
+        size_t items_read = 0;
+        rc = read_wav_stream(&stream, data.get(), sizeof(uint8_t), stream.data_size, &items_read);
+        close_wav_stream(&stream);
+
+        if (rc != 0)
+        {
+            LOG("Failed to read .wav from " << filename);
+            return buffer;
+        }
+
+        // Determine the OpenAL buffer format from the stream data.
+        ALenum format = AL_FORMAT_MONO8;
+        LOG("  Start of data: " << stream.start_of_data);
+        LOG("      File size: " << stream.file_size);
+        LOG("      Data size: " << stream.data_size);
+        LOG("       Channels: " << stream.channels);
+        LOG("    Sample rate: " << stream.sample_rate);
+        LOG("     Block size: " << stream.block_size);
+        LOG("Bits per sample: " << stream.bits_per_sample);
+        if (stream.bits_per_sample == 8)
+        {
+            format = stream.channels == 1 ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
+        }
+        else if (stream.bits_per_sample == 16)
+        {
+            format = stream.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+        }
+
+        alGenBuffers(1, &buffer);
+
+        ALsizei numBytes = static_cast<ALsizei>(stream.data_size);
+        alBufferData(buffer, format, data.get(), numBytes, stream.sample_rate);
+
+        return buffer;
+    }
+
+    ALubyte LoadVorbis(const std::string& filename)
+    {
+        ALuint buffer = 0;
+
         short* decoded;
         int channels;
         int sampleRate;
         int len = stb_vorbis_decode_filename(filename.c_str(), &channels, &sampleRate, &decoded);
-        if (len == 0)
+        if (len <= 0)
         {
             LOG("vorbis decode failed on " << filename);
+            return buffer;
         }
+
         LOG("vorbis decoded " << len << " bytes for " << filename);
         LOG("   channels: " << channels);
         LOG("sample rate: " << sampleRate);
-        ALuint buffer = 0;
         alGenBuffers(1, &buffer);
         ALenum format = AL_FORMAT_MONO16;
         if (channels == 1)
@@ -631,6 +603,23 @@ namespace je
         }
 
         return buffer;
+    }
+
+    ALuint LoadSound(const std::string& filename)
+    {
+        LOG("Loading " << filename);
+
+        if (auto buffer = LoadWav(filename); buffer != 0)
+        {
+            return buffer;
+        }
+
+        if (auto buffer = LoadVorbis(filename); buffer != 0)
+        {
+            return buffer;
+        }
+
+        return 0;
     }
 
     SoundSource::SoundSource()
