@@ -10,6 +10,8 @@
 
 #if defined(__EMSCRIPTEN__)
 
+#include "stb_vorbis.c"
+
 // My .wav loader from je_poc_invaders and hacked into place here.
 
 typedef struct {
@@ -184,7 +186,7 @@ static int read_fmt_chunk(wav_stream *stream) {
     // Look for the 'fmt ' chunk.
     int rc = 0;
 
-    rc = find_chunk(stream->fp, "fmt ");
+    rc = find_chunk(stream->fp, "fmt ");    // TODO: not legal C++.
 
     // Read the size.
     uint32_t fmt_size = 0;
@@ -262,7 +264,7 @@ static int read_data_header(wav_stream *stream) {
     int rc = 0;
 
     // Look for the 'data' chunk.
-    rc = find_chunk(stream->fp, "data");
+    rc = find_chunk(stream->fp, "data");    // TODO: not legal C++.
 
     // Read the data size.
     if (rc == 0 && !uint32_from_le_fp(stream->fp, &stream->data_size)) {
@@ -542,79 +544,118 @@ namespace je
     ALuint LoadSound(const std::string& filename)
     {
         LOG("Loading " << filename);
+
         wav_stream stream{};
         int rc = open_wav_stream(filename.c_str(), &stream);
 
-        // Having opened the stream, we know its reported size.
-        void *data = malloc(stream.data_size);
-        if (!data) {
-            rc = 1;
-        }
-
-        // Read the stream data.
-        size_t items_read = 0;
         if (rc == 0)
         {
-            rc = read_wav_stream(&stream, data, sizeof(uint8_t), stream.data_size, &items_read);
-            if (rc!=0)
+            // Having opened the stream, we know its reported size.
+            void* data = malloc(stream.data_size);
+            if (!data)
             {
-                fprintf(stderr, "Failed to read %s\n", filename.c_str());
+                rc = 1;
             }
+
+            // Read the stream data.
+            size_t items_read = 0;
+            if (rc==0)
+            {
+                rc = read_wav_stream(&stream, data, sizeof(uint8_t), stream.data_size, &items_read);
+                if (rc!=0)
+                {
+                    fprintf(stderr, "Failed to read %s\n", filename.c_str());
+                }
+            }
+
+            // Determine the OpenAL buffer format from the stream data.
+            ALenum format = AL_FORMAT_MONO8;
+            if (rc==0)
+            {
+                LOG("  Start of data: " << stream.start_of_data);
+                LOG("      File size: " << stream.file_size);
+                LOG("      Data size: " << stream.data_size);
+                LOG("       Channels: " << stream.channels);
+                LOG("    Sample rate: " << stream.sample_rate);
+                LOG("     Block size: " << stream.block_size);
+                LOG("Bits per sample: " << stream.bits_per_sample);
+                if (stream.bits_per_sample==8)
+                {
+                    if (stream.channels==1)
+                    {
+                        format = AL_FORMAT_MONO8;
+                    }
+                    else if (stream.channels==2)
+                    {
+                        format = AL_FORMAT_STEREO8;
+                    }
+                }
+                else if (stream.bits_per_sample==16)
+                {
+                    if (stream.channels==1)
+                    {
+                        format = AL_FORMAT_MONO16;
+                    }
+                    else if (stream.channels==2)
+                    {
+                        format = AL_FORMAT_STEREO16;
+                    }
+                }
+            }
+
+            ALuint buffer = 0;
+            if (rc==0)
+            {
+                alGenBuffers(1, &buffer);
+            }
+
+            if (rc==0)
+            {
+                ALsizei numBytes = static_cast<ALsizei>(stream.data_size);
+                alBufferData(buffer, format, data, numBytes, stream.sample_rate);
+            }
+
+            if (rc==0)
+            {
+                close_wav_stream(&stream);
+            }
+
+            LOG("Finished loading " << filename << ", buffer handle = " << buffer);
+            return buffer;
         }
 
-        // Determine the OpenAL buffer format from the stream data.
-        ALenum format = AL_FORMAT_MONO8;
-        if (rc == 0)
+        // It isn't a .wav file, but maybe it's a .ogg file.
+        short *decoded;
+        int channels;
+        int sampleRate;
+        int len = stb_vorbis_decode_filename(filename.c_str(), &channels, &sampleRate, &decoded);
+        if (len == 0)
         {
-            LOG("  Start of data: " << stream.start_of_data);
-            LOG("      File size: " << stream.file_size);
-            LOG("      Data size: " << stream.data_size);
-            LOG("       Channels: " << stream.channels);
-            LOG("    Sample rate: " << stream.sample_rate);
-            LOG("     Block size: " << stream.block_size);
-            LOG("Bits per sample: " << stream.bits_per_sample);
-            if (stream.bits_per_sample==8)
-            {
-                if (stream.channels==1)
-                {
-                    format = AL_FORMAT_MONO8;
-                }
-                else if (stream.channels==2)
-                {
-                    format = AL_FORMAT_STEREO8;
-                }
-            }
-            else if (stream.bits_per_sample==16)
-            {
-                if (stream.channels==1)
-                {
-                    format = AL_FORMAT_MONO16;
-                }
-                else if (stream.channels==2)
-                {
-                    format = AL_FORMAT_STEREO16;
-                }
-            }
+            LOG("vorbis decode failed on " << filename);
         }
-
+        LOG("vorbis decoded " << len << " bytes for " << filename);
+        LOG("   channels: " << channels);
+        LOG("sample rate: " << sampleRate);
         ALuint buffer = 0;
-        if (rc == 0)
+        alGenBuffers(1, &buffer);
+        ALenum format = AL_FORMAT_MONO16;
+        if (channels == 1)
         {
-            alGenBuffers(1, &buffer);
+            format = AL_FORMAT_MONO16;
+        }
+        else if (channels == 2)
+        {
+            format = AL_FORMAT_STEREO16;
+        }
+        ALsizei numBytes = len;
+        alBufferData(buffer, format, decoded, numBytes, sampleRate);
+        if (auto error = alGetError(); error != AL_NO_ERROR)
+        {
+            LOG("alBufferData failed with OpenAL Error " << alGetString(error));
         }
 
-        if (rc == 0)
-        {
-            ALsizei numBytes = static_cast<ALsizei>(stream.data_size);
-            alBufferData(buffer, format, data, numBytes, stream.sample_rate);
-        }
+        // TODO: can I free `decoded`?
 
-        if (rc == 0)
-        {
-            close_wav_stream(&stream);
-        }
-
-        LOG("Finished loading " << filename << ", buffer handle = " << buffer);
         return buffer;
     }
 #endif

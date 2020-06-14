@@ -108,6 +108,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
     # download them on demand.
     set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "\
             -O2 \
+            -s ALLOW_MEMORY_GROWTH=1 \
             -s EXPORTED_FUNCTIONS=\"['_main']\" \
             -s ASSERTIONS=1 \
             -s USE_FREETYPE=1 \
