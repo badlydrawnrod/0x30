@@ -2,9 +2,13 @@
 
 #include "Logger.h"
 
-#include <string>
-
 #include "stb_vorbis.c"
+
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
 
 // My .wav loader from je_poc_invaders and hacked into place here.
 
@@ -20,12 +24,6 @@ typedef struct
     uint16_t bits_per_sample;   // Bits per sample (eg, 8, 16).
 } wav_stream;
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 // Description of .wav format comes from: http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
 
 #define WAVE_FORMAT_PCM 1
@@ -34,19 +32,19 @@ typedef char fourcc[4];
 
 static int32_t int32_from_le_buf(const uint8_t* buf)
 {
-    int32_t i = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
+    int32_t i = (int32_t) (buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
     return i;
 }
 
 static uint32_t uint32_from_le_buf(const uint8_t* buf)
 {
-    uint32_t i = (uint32_t) (buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
+    uint32_t i = (uint32_t) (buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
     return i;
 }
 
 static uint16_t uint16_from_le_buf(const uint8_t* buf)
 {
-    uint16_t i = (uint16_t) (buf[0] | (buf[1] << 8));
+    uint16_t i = (uint16_t) (buf[0] | (buf[1] << 8u));
     return i;
 }
 
@@ -189,10 +187,12 @@ static int read_riff_header(wav_stream* stream)
 
 static int read_fmt_chunk(wav_stream* stream)
 {
+    static char fmtChunkId[] = "fmt ";
+
     // Look for the 'fmt ' chunk.
     int rc = 0;
 
-    rc = find_chunk(stream->fp, "fmt ");    // TODO: not legal C++.
+    rc = find_chunk(stream->fp, fmtChunkId);
 
     // Read the size.
     uint32_t fmt_size = 0;
@@ -278,10 +278,11 @@ static int read_fmt_chunk(wav_stream* stream)
 
 static int read_data_header(wav_stream* stream)
 {
+    static char dataChunkId[] = "data";
     int rc = 0;
 
     // Look for the 'data' chunk.
-    rc = find_chunk(stream->fp, "data");    // TODO: not legal C++.
+    rc = find_chunk(stream->fp, dataChunkId);
 
     // Read the data size.
     if (rc == 0 && !uint32_from_le_fp(stream->fp, &stream->data_size))
@@ -297,7 +298,7 @@ int open_wav_stream(const char* filename, wav_stream* stream)
 {
     int rc = 0;
 
-    if (stream == NULL)
+    if (stream == nullptr)
     {
         rc = 1;
     }
@@ -305,7 +306,7 @@ int open_wav_stream(const char* filename, wav_stream* stream)
     if (rc == 0)
     {
         stream->fp = fopen(filename, "rb");
-        if (stream->fp == NULL)
+        if (stream->fp == nullptr)
         {
             fprintf(stderr, "Couldn't open %s.\n", filename);
             rc = 1;
@@ -347,7 +348,7 @@ int close_wav_stream(wav_stream* stream)
 {
     int rc = 0;
 
-    if (stream == NULL || stream->fp == NULL)
+    if (stream == nullptr || stream->fp == nullptr)
     {
         rc = 1;
     }
@@ -362,7 +363,7 @@ int close_wav_stream(wav_stream* stream)
 
 int read_wav_stream(wav_stream* stream, void* buf, size_t size, size_t count, size_t* items_read)
 {
-    if (stream == NULL || buf == NULL || items_read == NULL)
+    if (stream == nullptr || buf == nullptr || items_read == nullptr)
     {
         return 1;
     }
@@ -557,7 +558,7 @@ namespace je
 
         alGenBuffers(1, &buffer);
 
-        ALsizei numBytes = static_cast<ALsizei>(stream.data_size);
+        auto numBytes = static_cast<ALsizei>(stream.data_size);
         alBufferData(buffer, format, data.get(), numBytes, stream.sample_rate);
 
         return buffer;
