@@ -12,17 +12,17 @@
 
 // My .wav loader from je_poc_invaders and hacked into place here.
 
-typedef struct
+struct WaveStream
 {
-    FILE* fp;                   // The underlying file pointer.
-    long start_of_data;         // The start of the data in the underlying file.
-    uint32_t file_size;         // The size of the underlying file according to the RIFF header.
-    uint32_t data_size;         // Length of data, in bytes.
-    uint16_t channels;          // Number of channels.
-    uint32_t sample_rate;       // Samples per second.
-    uint16_t block_size;        // Block (frame) size (bytes).
-    uint16_t bits_per_sample;   // Bits per sample (eg, 8, 16).
-} wav_stream;
+    FILE* fp;               // The underlying file pointer.
+    long startOfData;       // The start of the data in the underlying file.
+    uint32_t fileSize;      // The size of the underlying file according to the RIFF header.
+    uint32_t dataSize;      // Length of data, in bytes.
+    uint16_t channels;      // Number of channels.
+    uint32_t sampleRate;    // Samples per second.
+    uint16_t blockSize;     // Block (frame) size (bytes).
+    uint16_t bitsPerSample; // Bits per sample (eg, 8, 16).
+};
 
 // Description of .wav format comes from: http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
 
@@ -30,25 +30,25 @@ typedef struct
 
 typedef char fourcc[4];
 
-static int32_t int32_from_le_buf(const uint8_t* buf)
+static int32_t Int32FromLE(const uint8_t* buf)
 {
     int32_t i = (int32_t) (buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
     return i;
 }
 
-static uint32_t uint32_from_le_buf(const uint8_t* buf)
+static uint32_t Uint32FromLE(const uint8_t* buf)
 {
     uint32_t i = (uint32_t) (buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
     return i;
 }
 
-static uint16_t uint16_from_le_buf(const uint8_t* buf)
+static uint16_t Uint16FromLE(const uint8_t* buf)
 {
     uint16_t i = (uint16_t) (buf[0] | (buf[1] << 8u));
     return i;
 }
 
-static bool uint16_from_le_fp(FILE* fp, uint16_t* out)
+static bool Uint16FromLE(FILE* fp, uint16_t* out)
 {
     uint8_t buf2[2];
     size_t items_read = fread(buf2, sizeof(buf2), 1, fp);
@@ -57,13 +57,13 @@ static bool uint16_from_le_fp(FILE* fp, uint16_t* out)
     {
         return false;
     }
-    uint16_t i = uint16_from_le_buf(buf2);
+    uint16_t i = Uint16FromLE(buf2);
     *out = i;
 
     return true;
 }
 
-static bool int32_from_le_fp(FILE* fp, int32_t* out)
+static bool Int32FromLE(FILE* fp, int32_t* out)
 {
     uint8_t buf4[4];
     size_t items_read = fread(buf4, sizeof(buf4), 1, fp);
@@ -72,13 +72,13 @@ static bool int32_from_le_fp(FILE* fp, int32_t* out)
     {
         return false;
     }
-    int32_t i = int32_from_le_buf(buf4);
+    int32_t i = Int32FromLE(buf4);
     *out = i;
 
     return true;
 }
 
-static bool uint32_from_le_fp(FILE* fp, uint32_t* out)
+static bool Uint32FromLE(FILE* fp, uint32_t* out)
 {
     uint8_t buf4[4];
     size_t items_read = fread(buf4, sizeof(buf4), 1, fp);
@@ -87,13 +87,13 @@ static bool uint32_from_le_fp(FILE* fp, uint32_t* out)
     {
         return false;
     }
-    uint32_t i = uint32_from_le_buf(buf4);
+    uint32_t i = Uint32FromLE(buf4);
     *out = i;
 
     return true;
 }
 
-static int find_chunk(FILE* fp, fourcc id)
+static int FindChunk(FILE* fp, fourcc id)
 {
     int rc = 0;
     fourcc buf;
@@ -118,7 +118,7 @@ static int find_chunk(FILE* fp, fourcc id)
 
         // Find out how far we need to skip.
         int32_t skip;
-        if (!int32_from_le_fp(fp, &skip))
+        if (!Int32FromLE(fp, &skip))
         {
             fprintf(stderr, "Failed to read skip from stream.\n");
             rc = 1;
@@ -139,7 +139,7 @@ static int find_chunk(FILE* fp, fourcc id)
     return rc;
 }
 
-static int read_riff_header(wav_stream* stream)
+static int ReadRiffHeader(WaveStream* stream)
 {
     int rc = 0;
 
@@ -158,7 +158,7 @@ static int read_riff_header(wav_stream* stream)
     uint32_t chunk_size = 0;
     if (rc == 0)
     {
-        if (!uint32_from_le_fp(stream->fp, &chunk_size))
+        if (!Uint32FromLE(stream->fp, &chunk_size))
         {
             fprintf(stderr, "Failed to read size from stream.\n");
             rc = 1;
@@ -179,24 +179,24 @@ static int read_riff_header(wav_stream* stream)
 
     if (rc == 0)
     {
-        stream->file_size = sizeof(riff_id) + sizeof(stream->file_size) + chunk_size;
+        stream->fileSize = sizeof(riff_id) + sizeof(stream->fileSize) + chunk_size;
     }
 
     return rc;
 }
 
-static int read_fmt_chunk(wav_stream* stream)
+static int ReadFmtChunk(WaveStream* stream)
 {
     static char fmtChunkId[] = "fmt ";
 
     // Look for the 'fmt ' chunk.
     int rc = 0;
 
-    rc = find_chunk(stream->fp, fmtChunkId);
+    rc = FindChunk(stream->fp, fmtChunkId);
 
     // Read the size.
     uint32_t fmt_size = 0;
-    if (rc == 0 && !uint32_from_le_fp(stream->fp, &fmt_size))
+    if (rc == 0 && !Uint32FromLE(stream->fp, &fmt_size))
     {
         fprintf(stderr, "Failed to read fmt size from stream.\n");
         rc = 1;
@@ -207,7 +207,7 @@ static int read_fmt_chunk(wav_stream* stream)
 
     // Read the format code.
     uint16_t format_code;
-    if (rc == 0 && !uint16_from_le_fp(stream->fp, &format_code))
+    if (rc == 0 && !Uint16FromLE(stream->fp, &format_code))
     {
         fprintf(stderr, "Failed to read format code.\n");
         rc = 1;
@@ -219,14 +219,14 @@ static int read_fmt_chunk(wav_stream* stream)
     }
 
     // Read the number of channels.
-    if (rc == 0 && !uint16_from_le_fp(stream->fp, &stream->channels))
+    if (rc == 0 && !Uint16FromLE(stream->fp, &stream->channels))
     {
         fprintf(stderr, "Failed to read channels.\n");
         rc = 1;
     }
 
     // Read the sample rate (samples per second).
-    if (rc == 0 && !uint32_from_le_fp(stream->fp, &stream->sample_rate))
+    if (rc == 0 && !Uint32FromLE(stream->fp, &stream->sampleRate))
     {
         fprintf(stderr, "Failed to read sample rate.\n");
         rc = 1;
@@ -234,21 +234,21 @@ static int read_fmt_chunk(wav_stream* stream)
 
     // Read the average data rate (bytes per second).
     uint32_t data_rate;
-    if (rc == 0 && !uint32_from_le_fp(stream->fp, &data_rate))
+    if (rc == 0 && !Uint32FromLE(stream->fp, &data_rate))
     {
         fprintf(stderr, "Failed to read data rate (average bytes per second).\n");
         rc = 1;
     }
 
     // Read the data block size in bytes.
-    if (rc == 0 && !uint16_from_le_fp(stream->fp, &stream->block_size))
+    if (rc == 0 && !Uint16FromLE(stream->fp, &stream->blockSize))
     {
         fprintf(stderr, "Failed to read block size.\n");
         rc = 1;
     }
 
     // Read the bits per sample.
-    if (rc == 0 && !uint16_from_le_fp(stream->fp, &stream->bits_per_sample))
+    if (rc == 0 && !Uint16FromLE(stream->fp, &stream->bitsPerSample))
     {
         fprintf(stderr, "Failed to read bits per sample.\n");
         rc = 1;
@@ -257,7 +257,7 @@ static int read_fmt_chunk(wav_stream* stream)
     // Calculate the sample size.
     if (rc == 0)
     {
-        uint32_t bytes_per_sample = stream->bits_per_sample / 8u;
+        uint32_t bytes_per_sample = stream->bitsPerSample / 8u;
         if (bytes_per_sample != 1 && bytes_per_sample != 2)
         {
             fprintf(stderr, "Unexpected sample size: %u\n", bytes_per_sample);
@@ -276,16 +276,16 @@ static int read_fmt_chunk(wav_stream* stream)
     return rc;
 }
 
-static int read_data_header(wav_stream* stream)
+static int ReadDataHeader(WaveStream* stream)
 {
     static char dataChunkId[] = "data";
     int rc = 0;
 
     // Look for the 'data' chunk.
-    rc = find_chunk(stream->fp, dataChunkId);
+    rc = FindChunk(stream->fp, dataChunkId);
 
     // Read the data size.
-    if (rc == 0 && !uint32_from_le_fp(stream->fp, &stream->data_size))
+    if (rc == 0 && !Uint32FromLE(stream->fp, &stream->dataSize))
     {
         fprintf(stderr, "Failed to read data size from stream.\n");
         rc = 1;
@@ -294,7 +294,7 @@ static int read_data_header(wav_stream* stream)
     return rc;
 }
 
-int open_wav_stream(const char* filename, wav_stream* stream)
+int OpenWaveStream(const char* filename, WaveStream* stream)
 {
     int rc = 0;
 
@@ -315,22 +315,22 @@ int open_wav_stream(const char* filename, wav_stream* stream)
 
     if (rc == 0)
     {
-        rc = read_riff_header(stream);
+        rc = ReadRiffHeader(stream);
     }
 
     if (rc == 0)
     {
-        rc = read_fmt_chunk(stream);
+        rc = ReadFmtChunk(stream);
     }
 
     if (rc == 0)
     {
-        rc = read_data_header(stream);
+        rc = ReadDataHeader(stream);
     }
 
     if (rc == 0)
     {
-        stream->start_of_data = ftell(stream->fp);
+        stream->startOfData = ftell(stream->fp);
     }
 
     if (rc != 0)
@@ -344,7 +344,7 @@ int open_wav_stream(const char* filename, wav_stream* stream)
     return rc;
 }
 
-int close_wav_stream(wav_stream* stream)
+int CloseWaveStream(WaveStream* stream)
 {
     int rc = 0;
 
@@ -361,7 +361,7 @@ int close_wav_stream(wav_stream* stream)
     return rc;
 }
 
-int read_wav_stream(wav_stream* stream, void* buf, size_t size, size_t count, size_t* items_read)
+int ReadWaveStream(WaveStream* stream, void* buf, size_t size, size_t count, size_t* items_read)
 {
     if (stream == nullptr || buf == nullptr || items_read == nullptr)
     {
@@ -517,20 +517,20 @@ namespace je
         ALuint buffer = 0;
 
         // Attempt to open the file as a .wav.
-        wav_stream stream{};
-        int rc = open_wav_stream(filename.c_str(), &stream);
+        WaveStream stream{};
+        int rc = OpenWaveStream(filename.c_str(), &stream);
         if (rc != 0)
         {
             return buffer;
         }
 
         // TODO: check that this is its size in bytes, not frames.
-        std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(stream.data_size);
+        std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(stream.dataSize);
 
         // Read the stream data.
         size_t items_read = 0;
-        rc = read_wav_stream(&stream, data.get(), sizeof(uint8_t), stream.data_size, &items_read);
-        close_wav_stream(&stream);
+        rc = ReadWaveStream(&stream, data.get(), sizeof(uint8_t), stream.dataSize, &items_read);
+        CloseWaveStream(&stream);
 
         if (rc != 0)
         {
@@ -540,26 +540,26 @@ namespace je
 
         // Determine the OpenAL buffer format from the stream data.
         ALenum format = AL_FORMAT_MONO8;
-        LOG("  Start of data: " << stream.start_of_data);
-        LOG("      File size: " << stream.file_size);
-        LOG("      Data size: " << stream.data_size);
+        LOG("  Start of data: " << stream.startOfData);
+        LOG("      File size: " << stream.fileSize);
+        LOG("      Data size: " << stream.dataSize);
         LOG("       Channels: " << stream.channels);
-        LOG("    Sample rate: " << stream.sample_rate);
-        LOG("     Block size: " << stream.block_size);
-        LOG("Bits per sample: " << stream.bits_per_sample);
-        if (stream.bits_per_sample == 8)
+        LOG("    Sample rate: " << stream.sampleRate);
+        LOG("     Block size: " << stream.blockSize);
+        LOG("Bits per sample: " << stream.bitsPerSample);
+        if (stream.bitsPerSample == 8)
         {
             format = stream.channels == 1 ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
         }
-        else if (stream.bits_per_sample == 16)
+        else if (stream.bitsPerSample == 16)
         {
             format = stream.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
         }
 
         alGenBuffers(1, &buffer);
 
-        auto numBytes = static_cast<ALsizei>(stream.data_size);
-        alBufferData(buffer, format, data.get(), numBytes, stream.sample_rate);
+        auto numBytes = static_cast<ALsizei>(stream.dataSize);
+        alBufferData(buffer, format, data.get(), numBytes, stream.sampleRate);
 
         return buffer;
     }
@@ -582,15 +582,7 @@ namespace je
         LOG("   channels: " << channels);
         LOG("sample rate: " << sampleRate);
         alGenBuffers(1, &buffer);
-        ALenum format = AL_FORMAT_MONO16;
-        if (channels == 1)
-        {
-            format = AL_FORMAT_MONO16;
-        }
-        else if (channels == 2)
-        {
-            format = AL_FORMAT_STEREO16;
-        }
+        ALenum format = channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
         ALsizei numBytes = len;
         alBufferData(buffer, format, decoded, numBytes, sampleRate);
         if (auto error = alGetError(); error != AL_NO_ERROR)
