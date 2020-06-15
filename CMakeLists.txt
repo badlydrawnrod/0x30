@@ -101,7 +101,13 @@ add_executable(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
-    set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-O2")
+    set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-O2 \
+            -s USE_FREETYPE=1 \
+            -s USE_GLFW=3 \
+            -s USE_WEBGL2=1 \
+            -s USE_SDL_IMAGE=2 \
+            -s SDL2_IMAGE_FORMATS=[\"png\"] \
+    ")
 
     # The @ is used to remap ${CMAKE_SOURCE_DIR}/assets to /assets. Here we're not preloading sounds or music as we'll
     # download them on demand.
