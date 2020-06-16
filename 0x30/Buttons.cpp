@@ -25,25 +25,25 @@ constexpr ButtonBit xBit = 1 << static_cast<uint32_t>(ButtonId::x);
 bool Buttons::IsPressed(ButtonId id) const
 {
     const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
-    return (buttons_ & idBit)==idBit;
+    return (buttons_ & idBit) == idBit;
 }
 
 bool Buttons::IsReleased(ButtonId id) const
 {
     const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
-    return (buttons_ & idBit)==0;
+    return (buttons_ & idBit) == 0;
 }
 
 bool Buttons::JustPressed(ButtonId id) const
 {
     const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
-    return (buttonDowns_ & idBit)==idBit;
+    return (buttonDowns_ & idBit) == idBit;
 }
 
 bool Buttons::JustReleased(ButtonId id) const
 {
     const ButtonBit idBit = 1 << static_cast<uint32_t>(id);
-    return (buttonUps_ & idBit)==idBit;
+    return (buttonUps_ & idBit) == idBit;
 }
 
 double Buttons::LastPressed(ButtonId id) const
@@ -72,7 +72,7 @@ void Buttons::UpdateButton(bool isPressOrRepeat, uint32_t bit)
 
 void Buttons::Update(double t)
 {
-    ButtonBits changes = prevButtons_ ^buttons_;
+    ButtonBits changes = prevButtons_ ^ buttons_;
 
     buttonDowns_ = changes & buttons_;
     buttonUps_ = changes & (~buttons_);
@@ -80,9 +80,9 @@ void Buttons::Update(double t)
     if (buttonDowns_)
     {
         uint32_t mask = 1;
-        for (size_t id = 0; id<numButtons; id++)
+        for (size_t id = 0; id < numButtons; id++)
         {
-            if ((buttonDowns_ & mask)==mask)
+            if ((buttonDowns_ & mask) == mask)
             {
                 buttonDownTimes_[id] = t;
             }
@@ -92,9 +92,9 @@ void Buttons::Update(double t)
     if (buttonUps_)
     {
         uint32_t mask = 1;
-        for (size_t id = 0; id<numButtons; id++)
+        for (size_t id = 0; id < numButtons; id++)
         {
-            if ((buttonUps_ & mask)==mask)
+            if ((buttonUps_ & mask) == mask)
             {
                 buttonUpTimes_[id] = t;
             }
@@ -107,7 +107,7 @@ void Buttons::Update(double t)
 
 void Buttons::OnKeyEvent(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mode*/)
 {
-    const bool isPressOrRepeat = (action==GLFW_PRESS || action==GLFW_REPEAT);
+    const bool isPressOrRepeat = (action == GLFW_PRESS || action == GLFW_REPEAT);
     switch (key)
     {
     case GLFW_KEY_LEFT:
@@ -156,7 +156,7 @@ void Buttons::OnKeyEvent(GLFWwindow* /*window*/, int key, int /*scancode*/, int 
 
 void Buttons::OnGamepadButtonEvent(SDL_JoystickID joystickId, Uint8 button, Uint8 state)
 {
-    const bool isPressOrRepeat = (state==SDL_PRESSED);
+    const bool isPressOrRepeat = (state == SDL_PRESSED);
     switch (button)
     {
     case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
@@ -198,34 +198,34 @@ void Buttons::OnGamepadButtonEvent(SDL_JoystickID joystickId, Uint8 button, Uint
 
 void Buttons::OnGamepadAxisEvent(SDL_JoystickID joystickId, Uint8 axis, Sint16 value)
 {
-    const Sint16 threshold = SDL_MAX_SINT16/2;
-    if (axis==SDL_CONTROLLER_AXIS_LEFTX)
+    const Sint16 threshold = SDL_MAX_SINT16 / 2;
+    if (axis == SDL_CONTROLLER_AXIS_LEFTX)
     {
         const Sint16 joystickX = value;
-        const bool isLeftActivated = joystickX<-threshold;
-        const bool isRightActivated = joystickX>threshold;
-        if (isLeftActivated!=wasLeftActivated_)
+        const bool isLeftActivated = joystickX < -threshold;
+        const bool isRightActivated = joystickX > threshold;
+        if (isLeftActivated != wasLeftActivated_)
         {
             UpdateButton(isLeftActivated, leftBit);
         }
-        if (isRightActivated!=wasRightActivated_)
+        if (isRightActivated != wasRightActivated_)
         {
             UpdateButton(isRightActivated, rightBit);
         }
         wasLeftActivated_ = isLeftActivated;
         wasRightActivated_ = isRightActivated;
     }
-    else if (axis==SDL_CONTROLLER_AXIS_LEFTY)
+    else if (axis == SDL_CONTROLLER_AXIS_LEFTY)
     {
         const Sint16 joystickY = value;
-        const bool isUpActivated = joystickY<-threshold;
-        const bool isDownActivated = joystickY>threshold;
+        const bool isUpActivated = joystickY < -threshold;
+        const bool isDownActivated = joystickY > threshold;
 
-        if (isUpActivated!=wasUpActivated_)
+        if (isUpActivated != wasUpActivated_)
         {
             UpdateButton(isUpActivated, upBit);
         }
-        if (isDownActivated!=wasDownActivated_)
+        if (isDownActivated != wasDownActivated_)
         {
             UpdateButton(isDownActivated, downBit);
         }

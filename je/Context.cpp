@@ -6,7 +6,6 @@
 
 #include <stdexcept>
 
-
 namespace je
 {
     Context::Context(GLuint width, GLuint height, const GLchar* title)
@@ -25,7 +24,7 @@ namespace je
         // Create a GLFWwindow and make its context current.
         window_ = glfwCreateWindow(width, height, title, nullptr, nullptr);
         glfwMakeContextCurrent(window_);
-        if (window_==nullptr)
+        if (window_ == nullptr)
         {
             LOG("Failed to create GLFW window for OpenGL " << minOpenGlMajorVersion << "." << minOpenGlMinorVersion);
             glfwTerminate();
@@ -55,4 +54,4 @@ namespace je
         window_ = 0;
         glfwTerminate();
     }
-}
+}// namespace je

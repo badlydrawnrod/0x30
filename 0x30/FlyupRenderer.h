@@ -8,11 +8,11 @@
 
 #include <vector>
 
-
 class FlyupRenderer
 {
 public:
-    FlyupRenderer(const Textures& textures, je::Batch& batch) : textures_{ textures }, batch_{ batch }
+    FlyupRenderer(const Textures& textures, je::Batch& batch)
+        : textures_{textures}, batch_{batch}
     {
     }
 

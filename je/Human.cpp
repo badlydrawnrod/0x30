@@ -2,12 +2,11 @@
 
 #include <SDL2/SDL.h>
 
-
 namespace je
 {
     Human* Human::Instance()
     {
-        static std::unique_ptr <Human> input = nullptr;
+        static std::unique_ptr<Human> input = nullptr;
         if (!input)
         {
             input.reset(new Human);
@@ -90,4 +89,4 @@ namespace je
             keyboardEventFn_(window, key, scancode, action, mode);
         }
     }
-}
+}// namespace je

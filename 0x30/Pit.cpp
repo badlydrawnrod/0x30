@@ -4,9 +4,7 @@
 
 #include <algorithm>
 
-
 #define TILE_HEIGHT 15
-
 
 int Pit::LowerHeight(size_t x, size_t y)
 {
@@ -14,25 +12,22 @@ int Pit::LowerHeight(size_t x, size_t y)
     return --tile.height;
 }
 
-
 inline void Pit::MoveDown(size_t x, size_t y)
 {
     std::swap(TileAt(x, y), TileAt(x, y - 1));
     TileAt(x, y).height = TILE_HEIGHT;
 }
 
-
-Pit::Pit(std::function<int(int, int)>& rnd) : rnd_{ rnd }, impacted_{ false }, run_{ 0 }
+Pit::Pit(std::function<int(int, int)>& rnd)
+    : rnd_{rnd}, impacted_{false}, run_{0}
 {
     std::fill(tiles_.begin(), tiles_.end(), Tile());
 }
-
 
 void Pit::SetLevel(int level)
 {
     level_ = level;
 }
-
 
 void Pit::Reset(int level)
 {
@@ -45,17 +40,15 @@ void Pit::Reset(int level)
     runInfo_.clear();
 }
 
-
 void Pit::Refill(size_t row)
 {
     const std::array<TileType, 6> pieces = {
-        TileType::Red,
-        TileType::Yellow,
-        TileType::Cyan,
-        TileType::Magenta,
-        TileType::Green,
-        TileType::Blue
-    };
+            TileType::Red,
+            TileType::Yellow,
+            TileType::Cyan,
+            TileType::Magenta,
+            TileType::Green,
+            TileType::Blue};
 
     auto start = PitIndex(0, row);
     auto end = PitIndex(cols - 1, row);
@@ -63,19 +56,19 @@ void Pit::Refill(size_t row)
 
     int lastTile = -1;
     int maxTile = 0;
-    if (level_ <= 3)            // Levels 1-3 have 3 tile types.
+    if (level_ <= 3)// Levels 1-3 have 3 tile types.
     {
         maxTile = 2;
     }
-    else if (level_ <= 8)       // Levels 4-8 have 4 tile types.
+    else if (level_ <= 8)// Levels 4-8 have 4 tile types.
     {
         maxTile = 3;
     }
-    else if (level_ <= 15)      // Levels 9-15 have 5 tile types.
+    else if (level_ <= 15)// Levels 9-15 have 5 tile types.
     {
         maxTile = 4;
     }
-    else                        // Levels 16-20 have 6 tile types.
+    else// Levels 16-20 have 6 tile types.
     {
         maxTile = 5;
     }
@@ -93,7 +86,6 @@ void Pit::Refill(size_t row)
     }
 }
 
-
 void Pit::RefillRows(int numRows)
 {
     for (size_t row = rows - numRows; row != rows; row++)
@@ -102,12 +94,10 @@ void Pit::RefillRows(int numRows)
     }
 }
 
-
 void Pit::RefillBottomRow()
 {
     RefillRows(1);
 }
-
 
 void Pit::ScrollOne()
 {
@@ -127,7 +117,6 @@ void Pit::ScrollOne()
     }
 }
 
-
 void Pit::Swap(size_t x, size_t y)
 {
     auto& tile1 = tiles_[PitIndex(x, y)];
@@ -138,7 +127,6 @@ void Pit::Swap(size_t x, size_t y)
     }
 }
 
-
 void Pit::Update()
 {
     ApplyGravity();
@@ -146,7 +134,6 @@ void Pit::Update()
     RemoveRuns();
     RemoveDeadChains();
 }
-
 
 void Pit::ApplyGravity()
 {
@@ -183,7 +170,6 @@ void Pit::ApplyGravity()
     landed_ = landed;
 }
 
-
 bool Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
 {
     // Not a run if the square underneath the run candidate is empty.
@@ -208,7 +194,6 @@ bool Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
     return foundRun;
 }
 
-
 bool Pit::CheckForAdjacentRunsVertically()
 {
     // Look for tiles vertically adjacent to an existing run.
@@ -225,7 +210,6 @@ bool Pit::CheckForAdjacentRunsVertically()
     }
     return foundRun;
 }
-
 
 bool Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
 {
@@ -254,7 +238,6 @@ bool Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
     return foundRun;
 }
 
-
 bool Pit::CheckForAdjacentRunsHorizontally()
 {
     // Look for tiles horizontally adjacent to an existing run.
@@ -272,7 +255,6 @@ bool Pit::CheckForAdjacentRunsHorizontally()
 
     return foundRun;
 }
-
 
 bool Pit::CheckForVerticalRun(const size_t x, const size_t y)
 {
@@ -310,7 +292,6 @@ bool Pit::CheckForVerticalRun(const size_t x, const size_t y)
     return foundRun;
 }
 
-
 bool Pit::CheckForVerticalRuns()
 {
     bool foundRun = false;
@@ -337,10 +318,9 @@ bool Pit::CheckForVerticalRuns()
             }
         }
     }
-    
+
     return foundRun;
 }
-
 
 bool Pit::CheckForHorizontalRun(const size_t x, const size_t y)
 {
@@ -376,7 +356,6 @@ bool Pit::CheckForHorizontalRun(const size_t x, const size_t y)
     return foundRun;
 }
 
-
 bool Pit::CheckForHorizontalRuns()
 {
     bool foundRun = false;
@@ -407,7 +386,6 @@ bool Pit::CheckForHorizontalRuns()
     return foundRun;
 }
 
-
 void Pit::CheckForRuns()
 {
     // Look for runs of tiles of the same colour that are at least 3 tiles horizontally or vertically.
@@ -434,7 +412,6 @@ void Pit::CheckForRuns()
         }
     } while (foundRun);
 }
-
 
 void Pit::RemoveRuns()
 {
@@ -490,7 +467,7 @@ void Pit::RemoveRuns()
             auto index = PitIndex(x, y);
             if (auto run = RunAt(x, y); run > 0)
             {
-                runInfo_[run - 1].coord.push_back(PitCoord{ x, y });
+                runInfo_[run - 1].coord.push_back(PitCoord{x, y});
                 ++runInfo_[run - 1].runSize;
                 ClearTile(x, y);
 
@@ -509,7 +486,6 @@ void Pit::RemoveRuns()
     }
 }
 
-
 void Pit::RemoveDeadChains()
 {
     for (size_t y = 0; y < rows - 1; y++)
@@ -517,9 +493,9 @@ void Pit::RemoveDeadChains()
         for (size_t x = 0; x < cols; x++)
         {
             // Reset the chain if the tile we're looking at is fully descended and is blocked below.
-            if (ChainAt(x, y) > 0                                   // We have a chain here.
-                && IsMovableType(x, y) && IsDescended(x, y)         // We have a fully descended block.
-                && !IsEmpty(x, y + 1) && IsDescended(x, y + 1))     // We're blocked below by a fully descended block.
+            if (ChainAt(x, y) > 0                              // We have a chain here.
+                && IsMovableType(x, y) && IsDescended(x, y)    // We have a fully descended block.
+                && !IsEmpty(x, y + 1) && IsDescended(x, y + 1))// We're blocked below by a fully descended block.
             {
                 ChainAt(x, y) = 0;
             }

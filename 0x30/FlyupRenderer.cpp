@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <vector>
 
-
 void FlyupRenderer::AddFlyupsForRun(const Pit::RunInfo& run, je::Vec2f topLeft, float tileSize, float internalTileScroll)
 {
     // Add fly-ups for runs of 4-9.
@@ -46,7 +45,6 @@ void FlyupRenderer::AddFlyupsForRun(const Pit::RunInfo& run, je::Vec2f topLeft, 
     }
 }
 
-
 void FlyupRenderer::AddFlyupsForChains(const Pit::RunInfo& run, je::Vec2f topLeft, float tileSize, float internalTileScroll)
 {
     // Add fly-ups for chains of 2-6.
@@ -84,7 +82,6 @@ void FlyupRenderer::AddFlyupsForChains(const Pit::RunInfo& run, je::Vec2f topLef
     }
 }
 
-
 void FlyupRenderer::DrawFlyups()
 {
     // Draw fly-ups.
@@ -97,12 +94,10 @@ void FlyupRenderer::DrawFlyups()
     }
 }
 
-
 void FlyupRenderer::Update()
 {
     flyups_.erase(std::remove_if(flyups_.begin(), flyups_.end(), [](const auto& f) { return !f.IsAlive(); }), flyups_.end());
 }
-
 
 void FlyupRenderer::Reset()
 {

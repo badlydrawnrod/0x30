@@ -8,7 +8,17 @@
 
 enum class ButtonId : uint32_t
 {
-    debug, back, start, left, right, up, down, a, b, x, last = x
+    debug,
+    back,
+    start,
+    left,
+    right,
+    up,
+    down,
+    a,
+    b,
+    x,
+    last = x
 };
 
 class Buttons
@@ -38,7 +48,7 @@ private:
     void UpdateButton(bool isPressOrRepeat, uint32_t bit);
 
     using ButtonBits = uint32_t;
-    static constexpr size_t numButtons = static_cast<size_t>(ButtonId::last)+1;
+    static constexpr size_t numButtons = static_cast<size_t>(ButtonId::last) + 1;
 
     ButtonBits prevButtons_{0};
     ButtonBits buttons_{0};

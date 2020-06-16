@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Buttons.h"
 #include "Constants.h"
 #include "FlyupRenderer.h"
-#include "Buttons.h"
 #include "LevelRenderer.h"
 #include "Pit.h"
 #include "PitRenderer.h"
@@ -23,7 +23,6 @@
 #include <iomanip>
 #include <sstream>
 
-
 class Playing
 {
 public:
@@ -38,7 +37,12 @@ public:
     void Draw(double t);
 
 private:
-    enum class State { PLAYING, PAUSED, GAME_OVER };
+    enum class State
+    {
+        PLAYING,
+        PAUSED,
+        GAME_OVER
+    };
 
     Screens UpdateGameOver(double t);
     Screens UpdatePaused(double t);
@@ -79,30 +83,30 @@ private:
     FlyupRenderer flyupRenderer_;
     Mode mode_;
 
-    double lastTime_{ 0.0 };
-    double elapsedTime_{ 0.0 };
-    double stateStartTime_{ 0.0 };
-    double remainingTime_{ 0.0 };
-    double timeToNextLevelChange_{ 0.0 };
+    double lastTime_{0.0};
+    double elapsedTime_{0.0};
+    double stateStartTime_{0.0};
+    double remainingTime_{0.0};
+    double timeToNextLevelChange_{0.0};
 
     State state_;
-    bool actionsEnabled_{ false };
+    bool actionsEnabled_{false};
 
-    const je::Vec2f topLeft_{ (VIRTUAL_WIDTH - Pit::cols * tileSize_) / 2.0f, VIRTUAL_HEIGHT - Pit::rows * tileSize_ };
-    const float bottomRow_{ topLeft_.y + (Pit::rows - 1) * tileSize_ };
-    const float lastRow_{ bottomRow_ - tileSize_ };
+    const je::Vec2f topLeft_{(VIRTUAL_WIDTH - Pit::cols * tileSize_) / 2.0f, VIRTUAL_HEIGHT - Pit::rows* tileSize_};
+    const float bottomRow_{topLeft_.y + (Pit::rows - 1) * tileSize_};
+    const float lastRow_{bottomRow_ - tileSize_};
 
-    float internalTileScroll_{ 0.0f };
-    float scrollRate_{ 0.025f };
+    float internalTileScroll_{0.0f};
+    float scrollRate_{0.025f};
 
-    int cursorTileX_{ (Pit::cols / 2) - 1 };
-    int cursorTileY_{ Pit::rows / 2 };
+    int cursorTileX_{(Pit::cols / 2) - 1};
+    int cursorTileY_{Pit::rows / 2};
 
-    uint64_t score_{ 0 };
-    uint64_t highScore_{ 0 };
-    double bestTime_{ 0.0 };
-    int level_{ 1 };
-    int lastPlayed_{ 1 };
-    int initialLevel_{ 1 };
+    uint64_t score_{0};
+    uint64_t highScore_{0};
+    double bestTime_{0.0};
+    int level_{1};
+    int lastPlayed_{1};
+    int initialLevel_{1};
     static constexpr size_t numLevels_ = std::tuple_size<Scores>::value;
 };

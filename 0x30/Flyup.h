@@ -3,7 +3,6 @@
 #include "je/Batch.h"
 #include "je/Textures.h"
 
-
 class Flyup
 {
 public:

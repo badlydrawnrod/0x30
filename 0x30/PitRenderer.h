@@ -5,11 +5,11 @@
 
 #include "je/Batch.h"
 
-
 class PitRenderer
 {
 public:
-    PitRenderer(const Pit& apit, const Textures& atextures, je::Batch& batch) : pit_{ apit }, textures_{ atextures }, batch{ batch }
+    PitRenderer(const Pit& apit, const Textures& atextures, je::Batch& batch)
+        : pit_{apit}, textures_{atextures}, batch{batch}
     {
     }
 

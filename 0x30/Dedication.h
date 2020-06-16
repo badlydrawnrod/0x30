@@ -8,7 +8,6 @@
 
 #include "je/Batch.h"
 
-
 class Dedication
 {
 public:

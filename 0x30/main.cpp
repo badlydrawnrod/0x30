@@ -1,6 +1,6 @@
+#include "Buttons.h"
 #include "Constants.h"
 #include "Dedication.h"
-#include "Buttons.h"
 #include "Menu.h"
 #include "Pit.h"
 #include "PitRenderer.h"
@@ -45,11 +45,10 @@
 #include <random>
 #include <sstream>
 
-
 #if defined(_WIN32)
 struct Console
 {
-    static inline bool isConsoleHidden{ false };
+    static inline bool isConsoleHidden{false};
 
     static void Show()
     {
@@ -114,17 +113,16 @@ private:
     Dedication dedication;
     Menu menu;
 
-    Screens currentScreen{ Screens::Dedication };
+    Screens currentScreen{Screens::Dedication};
 };
 
-
-Game::Game(std::function<int(int, int)>& rnd) :
-    context{ je::Context(WIDTH, HEIGHT, TITLE) },
-    shader{ je::Shader() },
-    batch{ shader.Program() },
-    playing{ buttons_, progress_, batch, textures, sounds, rnd },
-    dedication{ buttons_, batch, textures, sounds },
-    menu{ buttons_, progress_, batch, textures }
+Game::Game(std::function<int(int, int)>& rnd)
+    : context{je::Context(WIDTH, HEIGHT, TITLE)},
+      shader{je::Shader()},
+      batch{shader.Program()},
+      playing{buttons_, progress_, batch, textures, sounds, rnd},
+      dedication{buttons_, batch, textures, sounds},
+      menu{buttons_, progress_, batch, textures}
 {
     LOG("Shader program " << shader.Program());
     LOG("Finished initialising input");
@@ -147,12 +145,10 @@ Game::Game(std::function<int(int, int)>& rnd) :
     });
 }
 
-
 bool Game::ShouldQuit()
 {
     return context.ShouldQuit();
 }
-
 
 void Game::Update(double t, double dt)
 {
@@ -198,7 +194,6 @@ void Game::Update(double t, double dt)
     }
 }
 
-
 void Game::Draw(double t)
 {
     context.Clear();
@@ -225,7 +220,6 @@ void Game::Draw(double t)
     context.SwapBuffers();
 }
 
-
 static double t = 0.0;
 static double dt = 1.0 / UPDATE_FPS;
 static double lastTime = je::GetTime();
@@ -234,7 +228,6 @@ static double accumulator = 0.0;
 static double lastDrawTime = je::GetTime();
 static const double minDrawInterval = 1.0 / (2 * RENDER_FPS);
 static Game* theGame;
-
 
 static void MainLoop(void)
 {
@@ -257,7 +250,6 @@ static void MainLoop(void)
     // Draw. Don't cap the frame rate as the browser is probably doing it for us.
     theGame->Draw(t);
 }
-
 
 int main()
 {

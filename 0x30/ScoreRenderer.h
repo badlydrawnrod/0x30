@@ -4,7 +4,6 @@
 
 #include "je/Types.h"
 
-
 class ScoreRenderer
 {
 public:

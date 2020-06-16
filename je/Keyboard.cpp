@@ -7,7 +7,6 @@
 #endif
 #include <GLFW/glfw3.h>
 
-
 namespace je
 {
     static void HandleKeyboardEvents(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -30,4 +29,4 @@ namespace je
     {
         keyboardCallback = handler;
     }
-}
+}// namespace je

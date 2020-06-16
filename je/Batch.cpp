@@ -7,22 +7,22 @@
 #endif
 #include <GLFW/glfw3.h>
 
-
 namespace je
 {
     static constexpr size_t DEFAULT_BATCH_SIZE = 256;
     static constexpr size_t VERTICES_PER_QUAD = 4;
     static constexpr size_t INDICES_PER_QUAD = 6;
 
-    Batch::Batch(GLuint program) : Batch(program, DEFAULT_BATCH_SIZE)
+    Batch::Batch(GLuint program)
+        : Batch(program, DEFAULT_BATCH_SIZE)
     {
     }
 
-    Batch::Batch(GLuint program, size_t size) :
-        program_(program),
-        batchSize_(size),
-        vertices_(size* VERTICES_PER_QUAD),
-        indices_(size* INDICES_PER_QUAD)
+    Batch::Batch(GLuint program, size_t size)
+        : program_(program),
+          batchSize_(size),
+          vertices_(size * VERTICES_PER_QUAD),
+          indices_(size * INDICES_PER_QUAD)
     {
     }
 
@@ -44,7 +44,7 @@ namespace je
 
         // Set the resolution uniform.
         GLint resolutionLocation = glGetUniformLocation(program_, "u_resolution");
-        GLfloat resolution[2] = { static_cast<GLfloat>(width), static_cast<GLfloat>(height) };
+        GLfloat resolution[2] = {static_cast<GLfloat>(width), static_cast<GLfloat>(height)};
         glUniform2fv(resolutionLocation, 1, resolution);
 
         // Set the sampler uniform.
@@ -163,4 +163,4 @@ namespace je
 
         count_++;
     }
-}
+}// namespace je

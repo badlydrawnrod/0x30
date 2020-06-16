@@ -5,11 +5,10 @@
 #include <iomanip>
 #include <sstream>
 
-
-ScoreRenderer::ScoreRenderer(TextRenderer& textRenderer, const std::string& label) : textRenderer_{ textRenderer }, label_{ label }
+ScoreRenderer::ScoreRenderer(TextRenderer& textRenderer, const std::string& label)
+    : textRenderer_{textRenderer}, label_{label}
 {
 }
-
 
 void ScoreRenderer::Draw(je::Vec2f position, uint64_t score)
 {

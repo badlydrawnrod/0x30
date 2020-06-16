@@ -1,7 +1,7 @@
 #include "Playing.h"
 
-#include "Colours.h"
 #include "Buttons.h"
+#include "Colours.h"
 #include "Types.h"
 
 #include "je/Human.h"
@@ -10,38 +10,34 @@
 #include <algorithm>
 #include <cmath>
 
-
 const double TIMED_MODE_TIME = 98.0;
 const double ENDLESS_MODE_TIME = 98.0;
 
-
-Playing::Playing(Buttons& buttons, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd) :
-    buttons_{ buttons },
-    batch_{ batch },
-    textures_{ textures },
-    progress_{ progress },
-    sounds_{ sounds },
-    pit_{ rnd },
-    pitRenderer_{ pit_, textures, batch },
-    textRenderer_{ textures.textTiles, batch },
-    timeRenderer_{ textRenderer_, "TIME" },
-    bestTimeRenderer_{ textRenderer_, "BEST" },
-    scoreRenderer_{ textRenderer_, "SCORE" },
-    highScoreRenderer_{ textRenderer_, " HIGH" },
-    speedRenderer_{ textRenderer_ },
-    flyupRenderer_{ textures, batch_ },
-    state_{ State::PLAYING },
-    mode_{ Mode::TIMED }
+Playing::Playing(Buttons& buttons, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd)
+    : buttons_{buttons},
+      batch_{batch},
+      textures_{textures},
+      progress_{progress},
+      sounds_{sounds},
+      pit_{rnd},
+      pitRenderer_{pit_, textures, batch},
+      textRenderer_{textures.textTiles, batch},
+      timeRenderer_{textRenderer_, "TIME"},
+      bestTimeRenderer_{textRenderer_, "BEST"},
+      scoreRenderer_{textRenderer_, "SCORE"},
+      highScoreRenderer_{textRenderer_, " HIGH"},
+      speedRenderer_{textRenderer_},
+      flyupRenderer_{textures, batch_},
+      state_{State::PLAYING},
+      mode_{Mode::TIMED}
 {
 }
-
 
 void Playing::SetLevel(int level)
 {
     level_ = level;
     progress_.UpdateMaxLevel(level_);
 }
-
 
 void Playing::SetState(State state, double t)
 {
@@ -59,7 +55,6 @@ void Playing::SetState(State state, double t)
     }
     stateStartTime_ = t;
 }
-
 
 void Playing::SetDifficulty(int actualLevel)
 {
@@ -81,7 +76,6 @@ void Playing::SetDifficulty(int actualLevel)
     LOG("Level " << actualLevel << ", speed " << speedMultiplier);
     scrollRate_ = 0.025f + (0.0025f * speedMultiplier);
 }
-
 
 void Playing::Start(const double t, const int level, Mode mode)
 {
@@ -141,7 +135,6 @@ void Playing::Start(const double t, const int level, Mode mode)
     }
 }
 
-
 void Playing::UpdateScore()
 {
     const auto& runs = pit_.Runs();
@@ -190,13 +183,12 @@ void Playing::UpdateScore()
     }
 }
 
-
 void Playing::UpdatePlaying(double t)
 {
     // Scroll the contents of the pit up.
     internalTileScroll_ += (buttons_.IsPressed(ButtonId::x) && buttons_.LastPressed(ButtonId::x) > stateStartTime_)
-        ? 1.0f
-        : scrollRate_;
+            ? 1.0f
+            : scrollRate_;
     if (internalTileScroll_ >= tileSize_)
     {
         pit_.ScrollOne();
@@ -266,9 +258,7 @@ void Playing::UpdatePlaying(double t)
         SetState(State::GAME_OVER, t);
         actionsEnabled_ = false;
     }
-
 }
-
 
 Screens Playing::UpdateGameOver(double t)
 {
@@ -280,13 +270,13 @@ Screens Playing::UpdateGameOver(double t)
         if (buttons_.JustPressed(ButtonId::b))
         {
             musicSource_.Stop();
-            progress_.SaveScores(); // TODO: dedup.
+            progress_.SaveScores();// TODO: dedup.
             return Screens::Menu;
         }
         if (buttons_.JustPressed(ButtonId::x))
         {
             musicSource_.Stop();
-            progress_.SaveScores(); // TODO: dedup.
+            progress_.SaveScores();// TODO: dedup.
             if (mode_ == Mode::TIMED)
             {
                 Start(t, lastPlayed_, mode_);
@@ -300,13 +290,12 @@ Screens Playing::UpdateGameOver(double t)
         {
             // Go on to the next level.
             musicSource_.Stop();
-            progress_.SaveScores(); // TODO: dedup.
+            progress_.SaveScores();// TODO: dedup.
             Start(t, level_, mode_);
         }
     }
     return Screens::Playing;
 }
-
 
 Screens Playing::UpdatePaused(double t)
 {
@@ -322,7 +311,6 @@ Screens Playing::UpdatePaused(double t)
     }
     return Screens::Playing;
 }
-
 
 Screens Playing::Update(double t, double /*dt*/)
 {
@@ -390,7 +378,6 @@ Screens Playing::Update(double t, double /*dt*/)
     return Screens::Playing;
 }
 
-
 void Playing::DrawBackdrop()
 {
     if (!textures_.backdrops.empty())
@@ -407,7 +394,6 @@ void Playing::DrawBackdrop()
         }
     }
 }
-
 
 void Playing::DrawPaused()
 {
@@ -447,7 +433,6 @@ void Playing::DrawPaused()
         textRenderer_.DrawLeft(x, y, "[SPACE] play", Colours::white, Colours::black);
     }
 }
-
 
 void Playing::DrawGameOver(double t)
 {
@@ -514,7 +499,6 @@ void Playing::DrawGameOver(double t)
     }
 }
 
-
 void Playing::DrawTitle()
 {
     const float x = VIRTUAL_WIDTH / 2;
@@ -530,7 +514,6 @@ void Playing::DrawTitle()
     }
 }
 
-
 void Playing::DrawStats()
 {
     // Draw some stats.
@@ -538,24 +521,23 @@ void Playing::DrawStats()
     batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x + tileSize_ * (pit_.cols + 1) - tileSize_ * 0.5f, topLeft_.y + tileSize_ * 2 - tileSize_ * 0.5f, tileSize_ * 5, tileSize_ * 6));
     if (mode_ == Mode::TIMED)
     {
-        timeRenderer_.Draw({ topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2 }, remainingTime_);
+        timeRenderer_.Draw({topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2}, remainingTime_);
     }
     else if (mode_ == Mode::ENDLESS)
     {
-        timeRenderer_.Draw({ topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2 }, elapsedTime_);
+        timeRenderer_.Draw({topLeft_.x - tileSize_ * 3, topLeft_.y + tileSize_ * 2}, elapsedTime_);
     }
     if (mode_ == Mode::TIMED)
     {
-        scoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, score_);
-        highScoreRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 4 }, highScore_);
-        speedRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6 }, lastPlayed_);
+        scoreRenderer_.Draw({topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2}, score_);
+        highScoreRenderer_.Draw({topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 4}, highScore_);
+        speedRenderer_.Draw({topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 6}, lastPlayed_);
     }
     else if (mode_ == Mode::ENDLESS)
     {
-        bestTimeRenderer_.Draw({ topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2 }, bestTime_);
+        bestTimeRenderer_.Draw({topLeft_.x + tileSize_ * (pit_.cols + 2.5f), topLeft_.y + tileSize_ * 2}, bestTime_);
     }
 }
-
 
 void Playing::DrawGui()
 {
@@ -563,14 +545,12 @@ void Playing::DrawGui()
     DrawStats();
 }
 
-
 void Playing::DrawPit()
 {
     // Draw a translucent texture over the pit area, then draw the pit itself.
     batch_.AddVertices(je::quads::Create(textures_.blankSquare, topLeft_.x, topLeft_.y, tileSize_ * pit_.cols, tileSize_ * (pit_.rows - 1)));
     pitRenderer_.Draw(topLeft_, internalTileScroll_, bottomRow_);
 }
-
 
 void Playing::DrawCursor()
 {
@@ -580,7 +560,6 @@ void Playing::DrawCursor()
     batch_.AddVertices(je::quads::Create(textures_.cursorTile, cursorX, cursorY));
     batch_.AddVertices(je::quads::Create(textures_.cursorTile, cursorX + tileSize_, cursorY));
 }
-
 
 void Playing::Draw(double t)
 {

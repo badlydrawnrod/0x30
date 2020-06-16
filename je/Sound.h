@@ -5,7 +5,6 @@
 
 #include <string>
 
-
 namespace je
 {
     ALuint LoadSound(const std::string& filename);
@@ -17,7 +16,6 @@ namespace je
         ~SoundSystem();
     };
 
-
     class SoundBuffer;
 
     class SoundSource
@@ -27,7 +25,10 @@ namespace je
         SoundSource(ALuint source);
         ~SoundSource();
 
-        ALuint Get() const { return source_; }
+        ALuint Get() const
+        {
+            return source_;
+        }
         void Play(SoundBuffer& buffer);
         void Pause();
         void Resume();
@@ -38,7 +39,7 @@ namespace je
         bool IsPlaying() const;
 
     private:
-        ALuint source_{ 0 };
+        ALuint source_{0};
     };
 
     class SoundBuffer
@@ -49,9 +50,12 @@ namespace je
         ~SoundBuffer();
 
         void TakeOwnership(ALuint buffer);
-        ALuint Get() const { return buffer_; }
+        ALuint Get() const
+        {
+            return buffer_;
+        }
 
     private:
-        ALuint buffer_{ 0 };
+        ALuint buffer_{0};
     };
-}
+}// namespace je

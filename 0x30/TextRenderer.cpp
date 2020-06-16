@@ -4,12 +4,10 @@
 #include "je/QuadHelpers.h"
 #include "je/Types.h"
 
-
 TextRenderer::TextRenderer(const je::TextureRegion& tiles, je::Batch& batch, float tileWidth, float tileHeight)
-    : tiles_{ tiles }, batch_{ batch }, tileWidth_{ tileWidth }, tileHeight_{ tileHeight }
+    : tiles_{tiles}, batch_{batch}, tileWidth_{tileWidth}, tileHeight_{tileHeight}
 {
 }
-
 
 void TextRenderer::Draw(float x, float y, const char* text, const je::Rgba4b colour)
 {
@@ -36,12 +34,10 @@ void TextRenderer::Draw(float x, float y, const char* text, const je::Rgba4b col
     }
 }
 
-
 void TextRenderer::DrawLeft(float x, float y, const std::string& text, const je::Rgba4b colour)
 {
     Draw(x, y, text.c_str(), colour);
 }
-
 
 void TextRenderer::DrawLeft(float x, float y, const std::string& text, const je::Rgba4b colour, je::Rgba4b shadowColour)
 {
@@ -49,13 +45,11 @@ void TextRenderer::DrawLeft(float x, float y, const std::string& text, const je:
     Draw(x, y, text.c_str(), colour);
 }
 
-
 void TextRenderer::DrawCentred(float x, float y, const std::string& text, je::Rgba4b colour)
 {
     const float left = x - 0.5f * text.size() * tileWidth_;
     Draw(left, y, text.c_str(), colour);
 }
-
 
 void TextRenderer::DrawCentred(float x, float y, const std::string& text, je::Rgba4b colour, je::Rgba4b shadowColour)
 {

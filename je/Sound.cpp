@@ -14,14 +14,14 @@
 
 struct WaveStream
 {
-    FILE* fp;               // The underlying file pointer.
-    long startOfData;       // The start of the data in the underlying file.
-    uint32_t fileSize;      // The size of the underlying file according to the RIFF header.
-    uint32_t dataSize;      // Length of data, in bytes.
-    uint16_t channels;      // Number of channels.
-    uint32_t sampleRate;    // Samples per second.
-    uint16_t blockSize;     // Block (frame) size (bytes).
-    uint16_t bitsPerSample; // Bits per sample (eg, 8, 16).
+    FILE* fp;              // The underlying file pointer.
+    long startOfData;      // The start of the data in the underlying file.
+    uint32_t fileSize;     // The size of the underlying file according to the RIFF header.
+    uint32_t dataSize;     // Length of data, in bytes.
+    uint16_t channels;     // Number of channels.
+    uint32_t sampleRate;   // Samples per second.
+    uint16_t blockSize;    // Block (frame) size (bytes).
+    uint16_t bitsPerSample;// Bits per sample (eg, 8, 16).
 };
 
 // Description of .wav format comes from: http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
@@ -32,19 +32,19 @@ typedef char fourcc[4];
 
 static int32_t Int32FromLE(const uint8_t* buf)
 {
-    int32_t i = (int32_t) (buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
+    int32_t i = (int32_t)(buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
     return i;
 }
 
 static uint32_t Uint32FromLE(const uint8_t* buf)
 {
-    uint32_t i = (uint32_t) (buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
+    uint32_t i = (uint32_t)(buf[0] | (buf[1] << 8u) | (buf[2] << 16u) | (buf[3] << 24u));
     return i;
 }
 
 static uint16_t Uint16FromLE(const uint8_t* buf)
 {
-    uint16_t i = (uint16_t) (buf[0] | (buf[1] << 8u));
+    uint16_t i = (uint16_t)(buf[0] | (buf[1] << 8u));
     return i;
 }
 
@@ -98,7 +98,7 @@ static int FindChunk(FILE* fp, fourcc id)
     int rc = 0;
     fourcc buf;
 
-    while (rc == 0) // TODO: give this an upper bound.
+    while (rc == 0)// TODO: give this an upper bound.
     {
         size_t items_read = fread(&buf, sizeof(buf), 1, fp);
         if (items_read != 1)
@@ -127,7 +127,7 @@ static int FindChunk(FILE* fp, fourcc id)
 
         // Skip.
         // TODO: what if some miserable toad asks us to skip backwards?
-        int result = fseek(fp, (long) skip, SEEK_CUR);
+        int result = fseek(fp, (long)skip, SEEK_CUR);
         if (result != 0)
         {
             fprintf(stderr, "Failed to seek in stream.\n");
@@ -203,7 +203,7 @@ static int ReadFmtChunk(WaveStream* stream)
     }
 
     // TODO: guard against backwards.
-    long next_chunk = ftell(stream->fp) + (long) fmt_size;
+    long next_chunk = ftell(stream->fp) + (long)fmt_size;
 
     // Read the format code.
     uint16_t format_code;
@@ -458,7 +458,7 @@ namespace je
             }
 
             // Set the global gain (volume).
-            alListenerf(AL_GAIN, 1.0); // reset gain (volume) to default
+            alListenerf(AL_GAIN, 1.0);// reset gain (volume) to default
             if (auto error = alGetError(); error != AL_NO_ERROR)
             {
                 LOG("alListenerf(AL_GAIN) failed with OpenAL Error " << alGetString(error));
@@ -500,7 +500,7 @@ namespace je
             alGenBuffers(1, &buffer);
             return buffer;
         }
-    }
+    }// namespace
 
     SoundSystem::SoundSystem()
     {
@@ -616,12 +616,12 @@ namespace je
     }
 
     SoundSource::SoundSource()
-            :source_{MakeSource()}
+        : source_{MakeSource()}
     {
     }
 
     SoundSource::SoundSource(ALuint source)
-            :source_{source}
+        : source_{source}
     {
     }
 
@@ -634,7 +634,7 @@ namespace je
     void SoundSource::Play(SoundBuffer& buffer)
     {
         Stop();
-        alSourcei(source_, AL_BUFFER, (ALint) buffer.Get());
+        alSourcei(source_, AL_BUFFER, (ALint)buffer.Get());
         alSourcePlay(source_);
     }
 
@@ -675,12 +675,12 @@ namespace je
     }
 
     SoundBuffer::SoundBuffer()
-            :buffer_{MakeBuffer()}
+        : buffer_{MakeBuffer()}
     {
     }
 
     SoundBuffer::SoundBuffer(ALuint buffer)
-            :buffer_{buffer}
+        : buffer_{buffer}
     {
     }
 
@@ -695,4 +695,4 @@ namespace je
         alDeleteBuffers(1, &buffer_);
         buffer_ = buffer;
     }
-}
+}// namespace je

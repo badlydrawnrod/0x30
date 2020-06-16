@@ -5,11 +5,10 @@
 #endif
 #include <GLFW/glfw3.h>
 
-
 namespace je
 {
     inline double GetTime()
     {
         return glfwGetTime();
     }
-}
+}// namespace je

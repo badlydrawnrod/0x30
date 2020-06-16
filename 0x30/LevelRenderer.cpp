@@ -6,8 +6,8 @@
 #include <iomanip>
 #include <sstream>
 
-
-LevelRenderer::LevelRenderer(TextRenderer& textRenderer) : textRenderer_{ textRenderer }
+LevelRenderer::LevelRenderer(TextRenderer& textRenderer)
+    : textRenderer_{textRenderer}
 {
 }
 

@@ -6,11 +6,10 @@
 
 #include <stdio.h>
 
-
-TimeRenderer::TimeRenderer(TextRenderer& textRenderer, const std::string& text) : textRenderer_{ textRenderer }, text_{ text }, minutes_{ -1 }, seconds_{ -1 }, numChars_{ 0 }
+TimeRenderer::TimeRenderer(TextRenderer& textRenderer, const std::string& text)
+    : textRenderer_{textRenderer}, text_{text}, minutes_{-1}, seconds_{-1}, numChars_{0}
 {
 }
-
 
 void TimeRenderer::Draw(je::Vec2f position, double elapsed)
 {

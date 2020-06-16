@@ -11,7 +11,6 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL_image.h>
 
-
 namespace je
 {
     GLuint CreateTextureFromPixels(GLvoid* pixels, GLsizei width, GLsizei height)
@@ -39,7 +38,6 @@ namespace je
         return textureId;
     }
 
-
     SDL_Surface* LoadImage(const char* filename)
     {
         SDL_Surface* image = IMG_Load(filename);
@@ -52,13 +50,11 @@ namespace je
         return image;
     }
 
-
     Texture LoadTextureFromMemory(GLvoid* pixels, GLsizei width, GLsizei height)
     {
         GLuint texture1 = CreateTextureFromPixels(pixels, width, height);
-        return Texture{ texture1, width, height };
+        return Texture{texture1, width, height};
     }
-
 
     Texture LoadTextureFromFile(const char* filename)
     {
@@ -68,4 +64,4 @@ namespace je
         SDL_FreeSurface(image);
         return texture;
     }
-}
+}// namespace je

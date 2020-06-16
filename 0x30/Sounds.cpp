@@ -14,7 +14,7 @@ void Sounds::Load()
 
 bool Sounds::IsLoaded()
 {
-    return loader_.wait_for(std::chrono::microseconds(1))==std::future_status::ready;
+    return loader_.wait_for(std::chrono::microseconds(1)) == std::future_status::ready;
 }
 
 void Sounds::LoaderTask()
@@ -37,7 +37,7 @@ void Sounds::OnFileDownloaded(const char* filename)
 {
     LOG("OnFileDownloaded " << filename);
     ++downloaded_;
-    if (downloaded_ == 8)   // TODO: obviously do better than this!
+    if (downloaded_ == 8)// TODO: obviously do better than this!
     {
         LOG("All sounds downloaded");
         blocksSwapping.TakeOwnership(je::LoadSound("assets/sounds/swap.wav"));

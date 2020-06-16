@@ -6,7 +6,6 @@
 
 #include <functional>
 
-
 namespace je
 {
     class Context
@@ -18,12 +17,24 @@ namespace je
         Context(GLuint width, GLuint height, const GLchar* title);
         ~Context();
 
-        GLFWwindow* Window() const { return window_; }
+        GLFWwindow* Window() const
+        {
+            return window_;
+        }
 
-        bool ShouldQuit() const { return glfwWindowShouldClose(window_); }
-        void SetShouldQuit(bool shouldQuit) { glfwSetWindowShouldClose(window_, shouldQuit ? GLFW_TRUE : GLFW_FALSE); }
+        bool ShouldQuit() const
+        {
+            return glfwWindowShouldClose(window_);
+        }
+        void SetShouldQuit(bool shouldQuit)
+        {
+            glfwSetWindowShouldClose(window_, shouldQuit ? GLFW_TRUE : GLFW_FALSE);
+        }
 
-        void SwapBuffers() { glfwSwapBuffers(window_); }
+        void SwapBuffers()
+        {
+            glfwSwapBuffers(window_);
+        }
 
         void Clear()
         {
@@ -38,4 +49,4 @@ namespace je
             glViewport(x, y, width, height);
         }
     };
-}
+}// namespace je

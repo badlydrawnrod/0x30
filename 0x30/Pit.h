@@ -4,14 +4,23 @@
 #include <functional>
 #include <vector>
 
-
 class Pit
 {
 public:
     static constexpr size_t cols = 6;
-    static constexpr size_t rows = 13;  // Note, one more than is visible because of the wraparound.
+    static constexpr size_t rows = 13;// Note, one more than is visible because of the wraparound.
 
-    enum class TileType { None, Red, Green, Yellow, Cyan, Magenta, Blue, Wall };
+    enum class TileType
+    {
+        None,
+        Red,
+        Green,
+        Yellow,
+        Cyan,
+        Magenta,
+        Blue,
+        Wall
+    };
 
     struct PitCoord
     {
@@ -21,21 +30,25 @@ public:
 
     struct RunInfo
     {
-        size_t runSize{ 0 };
-        size_t chainLength{ 0 };
+        size_t runSize{0};
+        size_t chainLength{0};
         std::vector<PitCoord> coord;
     };
 
     struct Tile
     {
-        TileType tileType{ TileType::None };
-        size_t runId{ 0 };
-        int height{ 0 };
-        size_t chain{ 0 };
+        TileType tileType{TileType::None};
+        size_t runId{0};
+        int height{0};
+        size_t chain{0};
 
-        Tile() : Tile{ TileType::None } {}
+        Tile()
+            : Tile{TileType::None}
+        {
+        }
 
-        Tile(TileType tileType) : tileType{ tileType }
+        Tile(TileType tileType)
+            : tileType{tileType}
         {
         }
 
@@ -84,9 +97,18 @@ public:
         return tiles_[PitIndex(x, y)].tileType;
     }
 
-    bool IsImpacted() const { return impacted_; }
-    bool Landed() const { return landed_; }
-    const std::vector<RunInfo>& Runs() const { return runInfo_; }
+    bool IsImpacted() const
+    {
+        return impacted_;
+    }
+    bool Landed() const
+    {
+        return landed_;
+    }
+    const std::vector<RunInfo>& Runs() const
+    {
+        return runInfo_;
+    }
 
 private:
     size_t PitIndex(size_t x, size_t y) const
@@ -168,11 +190,11 @@ private:
     bool CheckForHorizontalRuns();
 
     std::array<Tile, cols * rows> tiles_;
-    size_t firstRow_{ 0 };
+    size_t firstRow_{0};
     std::function<int(int, int)>& rnd_;
     bool impacted_;
     size_t run_;
     std::vector<RunInfo> runInfo_;
-    bool landed_{ false };
-    int level_{ 1 };
+    bool landed_{false};
+    int level_{1};
 };

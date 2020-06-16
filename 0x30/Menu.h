@@ -8,7 +8,6 @@
 
 #include "je/Batch.h"
 
-
 class Menu
 {
 public:
@@ -27,10 +26,10 @@ private:
     Textures& textures_;
     TextRenderer textRenderer_;
 
-    double screenStartTime_{ 0 };
-    int currentSelection_{ 0 };
-    int firstVisibleLevel_{ 0 };
-    Mode mode_{ Mode::ENDLESS };
+    double screenStartTime_{0};
+    int currentSelection_{0};
+    int firstVisibleLevel_{0};
+    Mode mode_{Mode::ENDLESS};
 
-    static constexpr int visibleLevels_{ 10 };
+    static constexpr int visibleLevels_{10};
 };

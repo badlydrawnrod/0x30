@@ -1,8 +1,8 @@
 #include "Dedication.h"
 
+#include "Buttons.h"
 #include "Colours.h"
 #include "Constants.h"
-#include "Buttons.h"
 #include "Types.h"
 
 #include "je/Human.h"
@@ -11,17 +11,15 @@
 
 #include <cmath>
 
-
-Dedication::Dedication(Buttons& buttons, je::Batch& batch, Textures& textures, Sounds& sounds) :
-    buttons_{ buttons },
-    batch_{ batch },
-    textures_{ textures },
-    sounds_{ sounds },
-    textRenderer_{ textures.textTiles, batch },
-    startTime_{ je::GetTime() }
+Dedication::Dedication(Buttons& buttons, je::Batch& batch, Textures& textures, Sounds& sounds)
+    : buttons_{buttons},
+      batch_{batch},
+      textures_{textures},
+      sounds_{sounds},
+      textRenderer_{textures.textTiles, batch},
+      startTime_{je::GetTime()}
 {
 }
-
 
 Screens Dedication::Update(double t, double /*dt*/)
 {
@@ -37,7 +35,6 @@ Screens Dedication::Update(double t, double /*dt*/)
 
     return Screens::Dedication;
 }
-
 
 void Dedication::Draw(double t)
 {

@@ -6,9 +6,7 @@
 
 #include <filesystem>
 
-
 const int progressFileVersion = 1;
-
 
 #if !defined(__EMSCRIPTEN__)
 namespace
@@ -16,33 +14,31 @@ namespace
     constexpr const char* scoresFile = "data/progress.json";
 
     Scores defaultScores{
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500},
-        ScoreRecord{500}
-    };
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500},
+            ScoreRecord{500}};
 
     Times defaultTimes{
-        TimeRecord{300},
-        TimeRecord{300},
-        TimeRecord{300}
-    };
+            TimeRecord{300},
+            TimeRecord{300},
+            TimeRecord{300}};
 
     void ToJson(Json::Value& jsonProgress, const Scores& scores, int maxLevel, const Times& times, int maxTimedLevel)
     {
@@ -114,14 +110,12 @@ namespace
             maxTimedLevel = static_cast<int>(times.size() + 1);
         }
     }
-}
-
+}// namespace
 
 Progress::Progress()
 {
     LoadScores();
 }
-
 
 void Progress::LoadScores()
 {
@@ -140,7 +134,6 @@ void Progress::LoadScores()
     FromJson(root, scores_, maxLevel_, times_, maxTimedLevel_);
 }
 
-
 void Progress::SaveScores()
 {
     std::filesystem::create_directory("data");
@@ -157,11 +150,9 @@ Progress::Progress()
     LoadScores();
 }
 
-
 void Progress::LoadScores()
 {
 }
-
 
 void Progress::SaveScores()
 {

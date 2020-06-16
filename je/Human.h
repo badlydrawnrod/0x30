@@ -7,7 +7,6 @@
 #include <SDL2/SDL_gamecontroller.h>
 #include <functional>
 
-
 namespace je
 {
     class Human
@@ -20,7 +19,10 @@ namespace je
         static Human* Instance();
         ~Human();
 
-        bool HasGamepad() const { return hasGamepad_; }
+        bool HasGamepad() const
+        {
+            return hasGamepad_;
+        }
 
         void OnKeyboardEvent(KeyboardEventFn keyboardEventFn);
         void OnGamepadButtonEvent(GamepadButtonEventFn gamepadButtonEventFn);
@@ -38,7 +40,7 @@ namespace je
         GamepadButtonEventFn gamepadButtonEventFn_;
         GamepadAxisEventFn gamepadAxisEventFn_;
 
-        SDL_GameController *controller_ { nullptr };
-        bool hasGamepad_{ false };
+        SDL_GameController* controller_{nullptr};
+        bool hasGamepad_{false};
     };
-}
+}// namespace je

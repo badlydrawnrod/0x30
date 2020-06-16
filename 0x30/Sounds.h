@@ -4,7 +4,6 @@
 
 #include <future>
 
-
 struct Sounds
 {
     void Load();
@@ -32,7 +31,7 @@ private:
     void LoaderTask();
     std::future<void> loader_;
 #else
-    int downloaded_{ 0 };
-    bool isLoaded_{ false };
+    int downloaded_{0};
+    bool isLoaded_{false};
 #endif
 };

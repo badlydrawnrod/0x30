@@ -4,13 +4,11 @@
 #include "je/Logger.h"
 #include "je/QuadHelpers.h"
 
-
 void PitRenderer::Draw(je::Vec2f topLeft, float internalTileScroll, const float bottomRow)
 {
     DrawContents(topLeft, internalTileScroll, bottomRow);
     DrawOutline(topLeft);
 }
-
 
 void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, const float bottomRow)
 {
@@ -28,22 +26,20 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                 {
                     // Clip the top row to the top of the pit.
                     batch.AddVertices(je::quads::Create(
-                        *drawTile,
-                        topLeft.x + col * drawTile->w,
-                        topLeft.y,
-                        0.0f,
-                        internalTileScroll,
-                        drawTile->w,
-                        drawTile->h - internalTileScroll - heightAt
-                    ));
+                            *drawTile,
+                            topLeft.x + col * drawTile->w,
+                            topLeft.y,
+                            0.0f,
+                            internalTileScroll,
+                            drawTile->w,
+                            drawTile->h - internalTileScroll - heightAt));
                 }
                 else if (row < Pit::rows - 1)
                 {
                     batch.AddVertices(je::quads::Create(
-                        *drawTile,
-                        topLeft.x + col * drawTile->w,
-                        topLeft.y + row * drawTile->h - internalTileScroll - heightAt
-                    ));
+                            *drawTile,
+                            topLeft.x + col * drawTile->w,
+                            topLeft.y + row * drawTile->h - internalTileScroll - heightAt));
                 }
                 else if (y < bottomRow)
                 {
@@ -53,30 +49,28 @@ void PitRenderer::DrawContents(je::Vec2f topLeft, float internalTileScroll, cons
                     {
                         c = 0x7f;
                     }
-                    je::Rgba4b grey{ c, c, c, 0xff };
+                    je::Rgba4b grey{c, c, c, 0xff};
 
                     // Clip the bottom row to the bottom of the pit.
                     batch.AddVertices(je::quads::Create(
-                        *drawTile,
-                        topLeft.x + col * drawTile->w,
-                        topLeft.y + row * drawTile->h - internalTileScroll - heightAt,
-                        0.0f,
-                        0.0f,
-                        drawTile->w,
-                        internalTileScroll,
-                        grey));
+                            *drawTile,
+                            topLeft.x + col * drawTile->w,
+                            topLeft.y + row * drawTile->h - internalTileScroll - heightAt,
+                            0.0f,
+                            0.0f,
+                            drawTile->w,
+                            internalTileScroll,
+                            grey));
                 }
             }
         }
     }
 }
 
-
 const int PitRenderer::HeightAt(size_t col, size_t row) const
 {
     return pit_.HeightAt(col, row);
 }
-
 
 const je::TextureRegion* PitRenderer::TileAt(size_t col, size_t row) const
 {
@@ -108,7 +102,6 @@ const je::TextureRegion* PitRenderer::TileAt(size_t col, size_t row) const
         return nullptr;
     }
 }
-
 
 void PitRenderer::DrawOutline(je::Vec2f topLeft)
 {
