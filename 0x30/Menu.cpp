@@ -29,7 +29,7 @@ void Menu::Start(double t)
 
     // What are the scores for each level?
     const Scores& scores = progress_.LevelScores();
-    for (auto i = 0; i < scores.size(); i++)
+    for (size_t i = 0; i < scores.size(); i++)
     {
         LOG("Level: " << (i + 1) << " Score: " << scores[i].score);
     }

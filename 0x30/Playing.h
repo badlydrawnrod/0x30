@@ -30,7 +30,7 @@ public:
 
     void SetDifficulty(int actualLevel);
 
-    void Start(double t, int level, Mode mode);
+    void Start(double t, size_t level, Mode mode);
 
     Screens Update(double t, double dt);
     void DrawCursor();
@@ -94,13 +94,12 @@ private:
 
     const je::Vec2f topLeft_{(VIRTUAL_WIDTH - Pit::cols * tileSize_) / 2.0f, VIRTUAL_HEIGHT - Pit::rows* tileSize_};
     const float bottomRow_{topLeft_.y + (Pit::rows - 1) * tileSize_};
-    const float lastRow_{bottomRow_ - tileSize_};
 
     float internalTileScroll_{0.0f};
     float scrollRate_{0.025f};
 
-    int cursorTileX_{(Pit::cols / 2) - 1};
-    int cursorTileY_{Pit::rows / 2};
+    size_t cursorTileX_{(Pit::cols / 2) - 1};
+    size_t cursorTileY_{Pit::rows / 2};
 
     uint64_t score_{0};
     uint64_t highScore_{0};

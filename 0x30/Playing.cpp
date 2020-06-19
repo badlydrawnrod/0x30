@@ -15,9 +15,9 @@ const double ENDLESS_MODE_TIME = 98.0;
 
 Playing::Playing(Buttons& buttons, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd)
     : buttons_{buttons},
+      progress_{progress},
       batch_{batch},
       textures_{textures},
-      progress_{progress},
       sounds_{sounds},
       pit_{rnd},
       pitRenderer_{pit_, textures, batch},
@@ -28,8 +28,8 @@ Playing::Playing(Buttons& buttons, Progress& progress, je::Batch& batch, Texture
       highScoreRenderer_{textRenderer_, " HIGH"},
       speedRenderer_{textRenderer_},
       flyupRenderer_{textures, batch_},
-      state_{State::PLAYING},
-      mode_{Mode::TIMED}
+      mode_{Mode::TIMED},
+      state_{State::PLAYING}
 {
 }
 
@@ -77,10 +77,10 @@ void Playing::SetDifficulty(int actualLevel)
     scrollRate_ = 0.025f + (0.0025f * speedMultiplier);
 }
 
-void Playing::Start(const double t, const int level, Mode mode)
+void Playing::Start(const double t, const size_t level, Mode mode)
 {
     mode_ = mode;
-    int actualLevel = 1;
+    size_t actualLevel = 1;
     if (mode_ == Mode::TIMED)
     {
         actualLevel = level < numLevels_ ? level : numLevels_;

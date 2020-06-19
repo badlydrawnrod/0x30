@@ -13,8 +13,6 @@
 
 Dedication::Dedication(Buttons& buttons, je::Batch& batch, Textures& textures, Sounds& sounds)
     : buttons_{buttons},
-      batch_{batch},
-      textures_{textures},
       sounds_{sounds},
       textRenderer_{textures.textTiles, batch},
       startTime_{je::GetTime()}

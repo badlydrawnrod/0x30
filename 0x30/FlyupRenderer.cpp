@@ -35,7 +35,7 @@ void FlyupRenderer::AddFlyupsForRun(const Pit::RunInfo& run, je::Vec2f topLeft, 
 
         if (run.runSize >= 4 && run.runSize <= 9)
         {
-            for (auto i = 0; i < run.runSize; i++)
+            for (size_t i = 0; i < run.runSize; i++)
             {
                 float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
                 float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll;
@@ -72,7 +72,7 @@ void FlyupRenderer::AddFlyupsForChains(const Pit::RunInfo& run, je::Vec2f topLef
         }
         if (chains >= 2 && chains <= 6)
         {
-            for (auto i = 0; i < run.runSize; i++)
+            for (size_t i = 0; i < run.runSize; i++)
             {
                 float x = run.coord[i].x * tileSize + topLeft.x + tileSize * 0.5f - texture.w * 0.5f;
                 float y = run.coord[i].y * tileSize + topLeft.y + tileSize * 0.5f - texture.h * 0.5f - internalTileScroll - tileSize;

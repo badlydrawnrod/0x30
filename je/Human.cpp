@@ -46,7 +46,7 @@ namespace je
         gamepadAxisEventFn_ = gamepadAxisEventFn;
     }
 
-    void Human::Update(double t)
+    void Human::Update(double /*t*/)
     {
         // ASk SDL to poll for events. We specifically want to know about controllers, i.e., gamepads.
         SDL_Event event;
@@ -89,4 +89,4 @@ namespace je
             keyboardEventFn_(window, key, scancode, action, mode);
         }
     }
-}// namespace je
+} // namespace je

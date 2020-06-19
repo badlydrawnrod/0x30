@@ -2,7 +2,6 @@
 
 #include "Pit.h"
 #include "Textures.h"
-
 #include "je/Batch.h"
 
 class PitRenderer
@@ -16,7 +15,7 @@ public:
     void Draw(je::Vec2f topLeft, float internalTileScroll, const float bottomRow);
     void DrawContents(je::Vec2f topLeft, float internalTileScroll, const float bottomRow);
     void DrawOutline(je::Vec2f topLeft);
-    const int HeightAt(size_t col, size_t row) const;
+    int HeightAt(size_t col, size_t row) const;
     const je::TextureRegion* TileAt(size_t col, size_t row) const;
 
 private:

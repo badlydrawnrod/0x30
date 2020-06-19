@@ -6,9 +6,10 @@
 
 #include <filesystem>
 
-const int progressFileVersion = 1;
 
 #if !defined(__EMSCRIPTEN__)
+const int progressFileVersion = 1;
+
 namespace
 {
     constexpr const char* scoresFile = "data/progress.json";

@@ -14,16 +14,6 @@ else ()
     set(TARGET_NAME game)
 endif ()
 
-message(STATUS "Build type: CMAKE_BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
-message(STATUS "Compiler: CMAKE_CXX_COMPILER=" ${CMAKE_CXX_COMPILER})
-message(STATUS "Compiler id: CMAKE_CXX_COMPILER_ID=" ${CMAKE_CXX_COMPILER_ID})
-message(STATUS "Compiler flags: CMAKE_CXX_COMPILE_FLAGS=" ${CMAKE_CXX_COMPILE_FLAGS})
-message(STATUS "Compiler cxx debug flags: CMAKE_CXX_FLAGS_DEBUG=" ${CMAKE_CXX_FLAGS_DEBUG})
-message(STATUS "Compiler cxx release flags: CMAKE_CXX_FLAGS_RELEASE=" ${CMAKE_CXX_FLAGS_RELEASE})
-message(STATUS "Compiler cxx min size flags: CMAKE_CXX_FLAGS_MINSIZEREL" ${CMAKE_CXX_FLAGS_MINSIZEREL})
-message(STATUS "Compiler cxx flags: CMAKE_CXX_FLAGS" ${CMAKE_CXX_FLAGS})
-message(STATUS "Library Type: LIB_TYPE" ${LIB_TYPE})
-
 if (MSVC)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glad CONFIG REQUIRED)
@@ -37,12 +27,22 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
     add_definitions(-D GLFW_INCLUDE_ES3)
 endif ()
 
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/index)
 else ()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
 endif ()
+
+message(STATUS "Build type: CMAKE_BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
+message(STATUS "Compiler: CMAKE_CXX_COMPILER=" ${CMAKE_CXX_COMPILER})
+message(STATUS "Compiler id: CMAKE_CXX_COMPILER_ID=" ${CMAKE_CXX_COMPILER_ID})
+message(STATUS "Compiler flags: CMAKE_CXX_COMPILE_FLAGS=" ${CMAKE_CXX_COMPILE_FLAGS})
+message(STATUS "Compiler cxx debug flags: CMAKE_CXX_FLAGS_DEBUG=" ${CMAKE_CXX_FLAGS_DEBUG})
+message(STATUS "Compiler cxx release flags: CMAKE_CXX_FLAGS_RELEASE=" ${CMAKE_CXX_FLAGS_RELEASE})
+message(STATUS "Compiler cxx min size flags: CMAKE_CXX_FLAGS_MINSIZEREL" ${CMAKE_CXX_FLAGS_MINSIZEREL})
+message(STATUS "Compiler cxx flags: CMAKE_CXX_FLAGS" ${CMAKE_CXX_FLAGS})
+message(STATUS "Library Type: LIB_TYPE" ${LIB_TYPE})
 
 include_directories(${CMAKE_SOURCE_DIR})
 
@@ -107,7 +107,8 @@ add_executable(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
-    set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-O2 \
+    set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "\
+            -O2 \
             -s USE_FREETYPE=1 \
             -s USE_GLFW=3 \
             -s USE_WEBGL2=1 \

@@ -6,14 +6,13 @@
 
 #include <SDL2/SDL.h>
 
-#include <functional>
 #include <memory>
 
 using ButtonBit = uint32_t;
 
 constexpr ButtonBit debugBit = 1 << static_cast<uint32_t>(ButtonId::debug);
 constexpr ButtonBit backBit = 1 << static_cast<uint32_t>(ButtonId::back);
-constexpr ButtonBit startBit = 1 << static_cast<uint32_t>(ButtonId::start);
+//constexpr ButtonBit startBit = 1 << static_cast<uint32_t>(ButtonId::start);
 constexpr ButtonBit leftBit = 1 << static_cast<uint32_t>(ButtonId::left);
 constexpr ButtonBit rightBit = 1 << static_cast<uint32_t>(ButtonId::right);
 constexpr ButtonBit upBit = 1 << static_cast<uint32_t>(ButtonId::up);
@@ -154,7 +153,7 @@ void Buttons::OnKeyEvent(GLFWwindow* /*window*/, int key, int /*scancode*/, int 
     }
 }
 
-void Buttons::OnGamepadButtonEvent(SDL_JoystickID joystickId, Uint8 button, Uint8 state)
+void Buttons::OnGamepadButtonEvent(SDL_JoystickID /*joystickId*/, Uint8 button, Uint8 state)
 {
     const bool isPressOrRepeat = (state == SDL_PRESSED);
     switch (button)
@@ -196,7 +195,7 @@ void Buttons::OnGamepadButtonEvent(SDL_JoystickID joystickId, Uint8 button, Uint
     }
 }
 
-void Buttons::OnGamepadAxisEvent(SDL_JoystickID joystickId, Uint8 axis, Sint16 value)
+void Buttons::OnGamepadAxisEvent(SDL_JoystickID /*joystickId*/, Uint8 axis, Sint16 value)
 {
     const Sint16 threshold = SDL_MAX_SINT16 / 2;
     if (axis == SDL_CONTROLLER_AXIS_LEFTX)

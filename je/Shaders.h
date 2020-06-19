@@ -15,7 +15,7 @@ namespace je
         Shader();
         ~Shader();
 
-        const GLuint Program() const
+        GLuint Program() const
         {
             return program_;
         }

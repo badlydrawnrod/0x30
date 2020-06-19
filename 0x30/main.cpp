@@ -225,8 +225,11 @@ static double dt = 1.0 / UPDATE_FPS;
 static double lastTime = je::GetTime();
 static double accumulator = 0.0;
 
+#if !defined(__EMSCRIPTEN__)
 static double lastDrawTime = je::GetTime();
 static const double minDrawInterval = 1.0 / (2 * RENDER_FPS);
+#endif
+
 static Game* theGame;
 
 static void MainLoop(void)

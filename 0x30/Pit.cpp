@@ -183,7 +183,7 @@ bool Pit::CheckForAdjacentRunVertically(const size_t x, const size_t y)
     {
         if (TileTypeAt(x, y) == TileTypeAt(x, y + 1) && IsMovableType(x, y) && !IsEmpty(x, y))
         {
-            if (RunAt(x, y) == run_ && RunAt(x, y + 1) == 0 || RunAt(x, y) == 0 && RunAt(x, y + 1) == run_)
+            if (RunAt(x, y) == (run_ && RunAt(x, y + 1) == 0) || (RunAt(x, y) == 0 && RunAt(x, y + 1) == run_))
             {
                 foundRun = true;
                 RunAt(x, y) = run_;
@@ -227,7 +227,7 @@ bool Pit::CheckForAdjacentRunHorizontally(const size_t x, const size_t y)
     {
         if (TileTypeAt(x, y) == TileTypeAt(x + 1, y) && IsMovableType(x, y) && !IsEmpty(x, y))
         {
-            if (RunAt(x, y) == run_ && RunAt(x + 1, y) == 0 || RunAt(x, y) == 0 && RunAt(x + 1, y) == run_)
+            if (RunAt(x, y) == (run_ && RunAt(x + 1, y) == 0) || (RunAt(x, y) == 0 && RunAt(x + 1, y) == run_))
             {
                 foundRun = true;
                 RunAt(x, y) = run_;

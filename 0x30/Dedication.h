@@ -18,8 +18,6 @@ public:
 
 private:
     Buttons& buttons_;
-    je::Batch& batch_;
-    Textures& textures_;
     Sounds& sounds_;
     je::SoundSource source_;
 
