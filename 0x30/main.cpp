@@ -9,7 +9,6 @@
 #include "TextRenderer.h"
 #include "Textures.h"
 #include "Types.h"
-
 #include "je/Batch.h"
 #include "je/Context.h"
 #include "je/Human.h"
@@ -23,10 +22,7 @@
 
 #if defined(__EMSCRIPTEN__)
 #include "emscripten.h"
-#include "emscripten/fetch.h"
-#endif
-
-#if !defined(__EMSCRIPTEN__)
+#else
 #include <glad/glad.h>
 #endif
 #include <GLFW/glfw3.h>
@@ -224,15 +220,11 @@ static double t = 0.0;
 static double dt = 1.0 / UPDATE_FPS;
 static double lastTime = je::GetTime();
 static double accumulator = 0.0;
-
-#if !defined(__EMSCRIPTEN__)
 static double lastDrawTime = je::GetTime();
-static const double minDrawInterval = 1.0 / (2 * RENDER_FPS);
-#endif
 
 static Game* theGame;
 
-static void MainLoop(void)
+static void Update()
 {
     // Update using: https://gafferongames.com/post/fix_your_timestep/
     double now = je::GetTime();
@@ -249,72 +241,79 @@ static void MainLoop(void)
         t += dt;
         accumulator -= dt;
     }
+}
 
+#if defined(__EMSCRIPTEN__)
+
+static void Draw()
+{
     // Draw. Don't cap the frame rate as the browser is probably doing it for us.
     theGame->Draw(t);
 }
 
-int main()
-{
-    // Make a function to create random integers in a closed range.
-    std::random_device randomDevice;
-    std::mt19937 generator(randomDevice());
-    std::function<int(int, int)> Rnd = [&](int lo, int hi) {
-        std::uniform_int_distribution<int> distribution(lo, hi);
-        return distribution(generator);
-    };
-
-#if defined(__EMSCRIPTEN__)
-    Game game(Rnd);
-    theGame = &game;
-    emscripten_set_main_loop(MainLoop, -1, true);
 #else
-    try
+
+static void Draw()
+{
+    const double minDrawInterval = 1.0 / RENDER_FPS;
+
+    // Draw, potentially capping the frame rate.
+    double now = je::GetTime();
+    double drawInterval = now - lastDrawTime;
+    if (drawInterval >= minDrawInterval)
     {
-#if defined(_WIN32)
-        Console::Hide();
+        lastDrawTime = now;
+
+        // Make like a gunslinger.
+        theGame->Draw(t);
+    }
+}
+
 #endif
 
+static void Refresh()
+{
+    Update();
+    Draw();
+}
+
+#if defined(__EMSCRIPTEN__)
+
+void RunMainLoop()
+{
+    emscripten_set_main_loop(Refresh, -1, true);
+}
+
+#else
+
+void RunMainLoop()
+{
+#if defined(_WIN32)
+    Console::Hide();
+#endif
+    while (!theGame->ShouldQuit())
+    {
+        Refresh();
+    }
+}
+
+#endif
+
+int main()
+{
+    try
+    {
+        // Make a function to create random integers in a closed range.
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        std::function<int(int, int)> Rnd = [&](int lo, int hi) {
+            std::uniform_int_distribution<int> distribution(lo, hi);
+            return distribution(generator);
+        };
+
         Game game(Rnd);
-
-        double t = 0.0;
-        double dt = 1.0 / UPDATE_FPS;
-        double lastTime = je::GetTime();
-        double accumulator = 0.0;
-
-        double lastDrawTime = je::GetTime();
-        const double minDrawInterval = 1.0 / RENDER_FPS;
-
-        while (!game.ShouldQuit())
-        {
-            // Update using: https://gafferongames.com/post/fix_your_timestep/
-            double now = je::GetTime();
-            double delta = now - lastTime;
-            if (delta >= 0.1)
-            {
-                delta = 0.1;
-            }
-            lastTime = now;
-            accumulator += delta;
-            while (accumulator >= dt)
-            {
-                game.Update(t, dt);
-                t += dt;
-                accumulator -= dt;
-            }
-
-            // Draw, potentially capping the frame rate.
-            now = je::GetTime();
-            double drawInterval = now - lastDrawTime;
-            if (drawInterval >= minDrawInterval)
-            {
-                lastDrawTime = now;
-
-                // Make like a gunslinger.
-                game.Draw(t);
-            }
-        }
-
+        theGame = &game;
+        RunMainLoop();
         return 0;
     }
     catch (const std::exception& e)
@@ -323,7 +322,6 @@ int main()
 #if defined(_WIN32)
         Console::Oops();
 #endif
-
         return 1;
     }
     catch (...)
@@ -332,8 +330,6 @@ int main()
 #if defined(_WIN32)
         Console::Oops();
 #endif
-
         return 1;
     }
-#endif
 }
