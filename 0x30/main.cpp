@@ -216,6 +216,7 @@ void Game::Draw(double t)
     context.SwapBuffers();
 }
 
+template<typename TGame>
 class Shell
 {
 public:
@@ -239,7 +240,8 @@ private:
     std::unique_ptr<Game> theGame;
 };
 
-void Shell::Update()
+template<typename TGame>
+void Shell<TGame>::Update()
 {
     // Update using: https://gafferongames.com/post/fix_your_timestep/
     double now = je::GetTime();
@@ -260,7 +262,8 @@ void Shell::Update()
 
 #if defined(__EMSCRIPTEN__)
 
-void Shell::Draw()
+template<typename TGame>
+void Shell<TGame>::Draw()
 {
     // Draw. Don't cap the frame rate as the browser is probably doing it for us.
     theGame->Draw(t);
@@ -268,7 +271,8 @@ void Shell::Draw()
 
 #else
 
-void Shell::Draw()
+template<typename TGame>
+void Shell<TGame>::Draw()
 {
     const double minDrawInterval = 1.0 / RENDER_FPS;
 
@@ -286,13 +290,15 @@ void Shell::Draw()
 
 #endif
 
-void Shell::EmRefresh(void* arg)
+template<typename TGame>
+void Shell<TGame>::EmRefresh(void* arg)
 {
     Shell* shell = reinterpret_cast<Shell*>(arg);
     shell->Refresh();
 }
 
-void Shell::Refresh()
+template<typename TGame>
+void Shell<TGame>::Refresh()
 {
     Update();
     Draw();
@@ -300,18 +306,17 @@ void Shell::Refresh()
 
 #if defined(__EMSCRIPTEN__)
 
-void Shell::RunMainLoop()
+template<typename TGame>
+void Shell<TGame>::RunMainLoop()
 {
     emscripten_set_main_loop_arg(EmRefresh, this, -1, true);
 }
 
 #else
 
-void Shell::RunMainLoop()
+template<typename TGame>
+void Shell<TGame>::RunMainLoop()
 {
-#if defined(_WIN32)
-    Console::Hide();
-#endif
     while (!theGame->ShouldQuit())
     {
         Refresh();
@@ -324,6 +329,10 @@ int main()
 {
     try
     {
+#if defined(_WIN32)
+        Console::Hide();
+#endif
+
         // Make a function to create random integers in a closed range.
         std::random_device randomDevice;
         std::mt19937 generator(randomDevice());
@@ -333,7 +342,7 @@ int main()
         };
 
         std::unique_ptr<Game> game = std::make_unique<Game>(Rnd);
-        Shell shell(std::move(game));
+        Shell<Game> shell(std::move(game));
         shell.RunMainLoop();
         return 0;
     }
