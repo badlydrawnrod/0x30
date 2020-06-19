@@ -24,7 +24,7 @@ message(STATUS "Compiler cxx min size flags: CMAKE_CXX_FLAGS_MINSIZEREL" ${CMAKE
 message(STATUS "Compiler cxx flags: CMAKE_CXX_FLAGS" ${CMAKE_CXX_FLAGS})
 message(STATUS "Library Type: LIB_TYPE" ${LIB_TYPE})
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (MSVC)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glad CONFIG REQUIRED)
     find_package(SDL2 CONFIG REQUIRED)
