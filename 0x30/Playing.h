@@ -28,7 +28,7 @@ class Playing
 public:
     Playing(Buttons& buttonState, Progress& progress, je::Batch& batch, Textures& textures, Sounds& sounds, std::function<int(int, int)>& rnd);
 
-    void SetDifficulty(int actualLevel);
+    void SetDifficulty(size_t actualLevel);
 
     void Start(double t, size_t level, Mode mode);
 
@@ -58,7 +58,7 @@ private:
     void UpdateScore();
     void DrawBackdrop();
 
-    void SetLevel(int level);
+    void SetLevel(size_t level);
     void SetState(State state, double t);
 
     const float tileSize_ = 16.0f;
@@ -104,8 +104,8 @@ private:
     uint64_t score_{0};
     uint64_t highScore_{0};
     double bestTime_{0.0};
-    int level_{1};
-    int lastPlayed_{1};
-    int initialLevel_{1};
+    size_t level_{1};
+    size_t lastPlayed_{1};
+    size_t initialLevel_{1};
     static constexpr size_t numLevels_ = std::tuple_size<Scores>::value;
 };

@@ -1,14 +1,24 @@
 #include "VorbisLoader.h"
 
 #include "Logger.h"
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4138 4244 4245 4456 4457 4701)
+#endif
+
 #include "stb_vorbis.c"
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #include <AL/al.h>
 #include <string>
 
 namespace je
 {
-    ALubyte LoadVorbis(const std::string& filename)
+    ALuint LoadVorbis(const std::string& filename)
     {
         ALuint buffer = 0;
 

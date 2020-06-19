@@ -10,7 +10,7 @@ class LevelRenderer
 public:
     LevelRenderer(TextRenderer& textRenderer);
 
-    void Draw(je::Vec2f position, int level);
+    void Draw(je::Vec2f position, size_t level);
 
 private:
     TextRenderer textRenderer_;

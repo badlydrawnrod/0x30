@@ -185,7 +185,7 @@ static int ReadFmtChunk(WaveStream* stream)
     long nextChunk = ftell(stream->fp) + (long)size;
 
     // Read the format code.
-    uint16_t formatCode;
+    uint16_t formatCode = 0;
     if (rc == 0 && !Uint16FromLE(stream->fp, &formatCode))
     {
         fprintf(stderr, "Failed to read format code.\n");

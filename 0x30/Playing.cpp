@@ -33,7 +33,7 @@ Playing::Playing(Buttons& buttons, Progress& progress, je::Batch& batch, Texture
 {
 }
 
-void Playing::SetLevel(int level)
+void Playing::SetLevel(size_t level)
 {
     level_ = level;
     progress_.UpdateMaxLevel(level_);
@@ -56,11 +56,11 @@ void Playing::SetState(State state, double t)
     stateStartTime_ = t;
 }
 
-void Playing::SetDifficulty(int actualLevel)
+void Playing::SetDifficulty(size_t actualLevel)
 {
     // The scroll rate is based on the level number, but doesn't increase when new blocks are introduced.
     pit_.SetLevel(actualLevel);
-    int speedMultiplier = actualLevel - 1;
+    size_t speedMultiplier = actualLevel - 1;
     if (actualLevel >= 16)
     {
         --speedMultiplier;
@@ -345,7 +345,7 @@ Screens Playing::Update(double t, double /*dt*/)
         timeToNextLevelChange_ -= delta;
         if (timeToNextLevelChange_ < 0.0)
         {
-            level_ = std::min(level_ + 1, (int)numLevels_);
+            level_ = std::min(level_ + 1, numLevels_);
             SetDifficulty(level_);
             timeToNextLevelChange_ = ENDLESS_MODE_TIME;
         }
@@ -384,12 +384,12 @@ void Playing::DrawBackdrop()
     {
         if (mode_ == Mode::TIMED)
         {
-            int index = lastPlayed_ - 1;
+            size_t index = lastPlayed_ - 1;
             batch_.AddVertices(je::quads::Create(textures_.backdrops[index % textures_.backdrops.size()], 0.0f, 0.0f));
         }
         else if (mode_ == Mode::ENDLESS)
         {
-            int index = level_ - 1;
+            size_t index = level_ - 1;
             batch_.AddVertices(je::quads::Create(textures_.backdrops[index % textures_.backdrops.size()], 0.0f, 0.0f));
         }
     }

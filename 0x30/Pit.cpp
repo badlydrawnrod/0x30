@@ -24,12 +24,12 @@ Pit::Pit(std::function<int(int, int)>& rnd)
     std::fill(tiles_.begin(), tiles_.end(), Tile());
 }
 
-void Pit::SetLevel(int level)
+void Pit::SetLevel(size_t level)
 {
     level_ = level;
 }
 
-void Pit::Reset(int level)
+void Pit::Reset(size_t level)
 {
     level_ = level;
     std::fill(tiles_.begin(), tiles_.end(), Tile());

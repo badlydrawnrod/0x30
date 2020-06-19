@@ -41,7 +41,7 @@ namespace
             TimeRecord{300},
             TimeRecord{300}};
 
-    void ToJson(Json::Value& jsonProgress, const Scores& scores, int maxLevel, const Times& times, int maxTimedLevel)
+    void ToJson(Json::Value& jsonProgress, const Scores& scores, size_t maxLevel, const Times& times, size_t maxTimedLevel)
     {
         jsonProgress["version"] = progressFileVersion;
 
@@ -70,7 +70,7 @@ namespace
         jsonProgress["endless"] = endless;
     }
 
-    void FromJson(const Json::Value& jsonProgress, Scores& scores, int& maxLevel, Times& times, int& maxTimedLevel)
+    void FromJson(const Json::Value& jsonProgress, Scores& scores, size_t& maxLevel, Times& times, size_t& maxTimedLevel)
     {
         if (jsonProgress.isMember("version") && jsonProgress["version"].asInt() == 1)
         {

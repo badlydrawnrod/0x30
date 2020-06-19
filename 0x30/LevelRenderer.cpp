@@ -11,7 +11,7 @@ LevelRenderer::LevelRenderer(TextRenderer& textRenderer)
 {
 }
 
-void LevelRenderer::Draw(je::Vec2f position, int level)
+void LevelRenderer::Draw(je::Vec2f position, size_t level)
 {
     textRenderer_.DrawLeft(position.x, position.y, "LEVEL", Colours::levelText, Colours::black);
     std::ostringstream levelString;

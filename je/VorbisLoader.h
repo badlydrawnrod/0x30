@@ -5,5 +5,5 @@
 
 namespace je
 {
-    ALubyte LoadVorbis(const std::string& filename);
+    ALuint LoadVorbis(const std::string& filename);
 }

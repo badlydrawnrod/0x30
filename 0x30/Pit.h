@@ -81,8 +81,8 @@ public:
 public:
     Pit(std::function<int(int, int)>& rnd);
 
-    void Reset(int level);
-    void SetLevel(int level);
+    void Reset(size_t level);
+    void SetLevel(size_t level);
     void Update();
     void ScrollOne();
     void Swap(size_t x, size_t y);
@@ -196,5 +196,5 @@ private:
     size_t run_;
     std::vector<RunInfo> runInfo_;
     bool landed_{false};
-    int level_{1};
+    size_t level_{1};
 };

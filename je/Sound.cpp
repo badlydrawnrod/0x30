@@ -1,8 +1,6 @@
 #include "Sound.h"
 
 #include "Logger.h"
-#include "VorbisLoader.h"
-#include "WavLoader.h"
 
 #include <AL/al.h>
 #include <AL/alc.h>

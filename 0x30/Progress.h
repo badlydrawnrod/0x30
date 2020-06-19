@@ -13,15 +13,17 @@ public:
     void LoadScores();
     void SaveScores();
 
-    void UpdateMaxLevel(int level)
+    void UpdateMaxLevel(size_t level)
     {
         maxLevel_ = std::max(level, maxLevel_);
     }
-    int MaxLevel() const
+
+    size_t MaxLevel() const
     {
         return maxLevel_;
     }
-    int MaxTimedLevel() const
+
+    size_t MaxTimedLevel() const
     {
         return maxTimedLevel_;
     }
@@ -30,45 +32,46 @@ public:
     {
         return scores_;
     }
+
     Times LevelTimes() const
     {
         return times_;
     }
 
-    void UpdateHighScore(int level, uint64_t score);
-    uint64_t HighScore(int level) const;
+    void UpdateHighScore(size_t level, uint64_t score);
+    uint64_t HighScore(size_t level) const;
 
-    void UpdateBestTime(int level, double time);
-    double BestTime(int level) const;
+    void UpdateBestTime(size_t level, double time);
+    double BestTime(size_t level) const;
 
 private:
-    int maxLevel_{1};
+    size_t maxLevel_{1};
     Scores scores_;
 
-    int maxTimedLevel_{1};
+    size_t maxTimedLevel_{1};
     Times times_;
 };
 
-inline void Progress::UpdateHighScore(int level, uint64_t score)
+inline void Progress::UpdateHighScore(size_t level, uint64_t score)
 {
-    int index = level - 1;
+    size_t index = level - 1;
     scores_[index].score = std::max(score, scores_[index].score);
 }
 
-inline uint64_t Progress::HighScore(int level) const
+inline uint64_t Progress::HighScore(size_t level) const
 {
-    int index = level - 1;
+    size_t index = level - 1;
     return scores_[index].score;
 }
 
-inline void Progress::UpdateBestTime(int level, double time)
+inline void Progress::UpdateBestTime(size_t level, double time)
 {
-    int index = level - 1;
+    size_t index = level - 1;
     times_[index].time = std::max(time, times_[index].time);
 }
 
-inline double Progress::BestTime(int level) const
+inline double Progress::BestTime(size_t level) const
 {
-    int index = level - 1;
+    size_t index = level - 1;
     return times_[index].time;
 }

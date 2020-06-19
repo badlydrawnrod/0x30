@@ -68,7 +68,7 @@ Screens Menu::Update(double /*t*/, double /*dt*/)
         firstVisibleLevel_ = std::min(currentSelection_, firstVisibleLevel_);
     }
 
-    int maxSelection = 0;
+    size_t maxSelection = 0;
     if (mode_ == Mode::TIMED)
     {
         maxSelection = progress_.MaxLevel();
@@ -149,7 +149,7 @@ void Menu::Draw(double t)
 
     // Draw the level selection cursor.
     y += 16.0f;
-    int cursorRow = currentSelection_ - firstVisibleLevel_;
+    size_t cursorRow = currentSelection_ - firstVisibleLevel_;
     batch_.AddVertices(
             je::quads::Create(textures_.whiteSquare, x - 8.0f, y + 12.0f * cursorRow - 2.0f, 120.0f, 8.0f + 4.0f,
                               Colours::cursorBackground));
@@ -157,8 +157,8 @@ void Menu::Draw(double t)
     {
         // Draw the scores for each level.
         const Scores& scores = progress_.LevelScores();
-        const int maxLevel = progress_.MaxLevel();
-        const int lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, static_cast<int>(scores.size()));
+        const size_t maxLevel = progress_.MaxLevel();
+        const size_t lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, scores.size());
         for (auto i = firstVisibleLevel_; i < lastVisibleLevel; i++)
         {
             std::stringstream text;
@@ -178,8 +178,8 @@ void Menu::Draw(double t)
     {
         // Draw the times for each level.
         const Times& times = progress_.LevelTimes();
-        const int maxLevel = progress_.MaxTimedLevel();
-        const int lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, static_cast<int>(times.size()));
+        const size_t maxLevel = progress_.MaxTimedLevel();
+        const size_t lastVisibleLevel = std::min(firstVisibleLevel_ + visibleLevels_, times.size());
         static const char* levels[] = {
                 "Slow",
                 "Medium",
