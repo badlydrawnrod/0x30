@@ -32,12 +32,12 @@ namespace je
             return buffer;
         }
 
-        LOG("vorbis decoded " << len << " bytes for " << filename);
+        LOG("vorbis decoded " << len << " samples for " << filename);
         LOG("   channels: " << channels);
         LOG("sample rate: " << sampleRate);
         alGenBuffers(1, &buffer);
         ALenum format = channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-        ALsizei numBytes = len;
+        ALsizei numBytes = len * channels * sizeof(*decoded);
         alBufferData(buffer, format, decoded, numBytes, sampleRate);
         if (auto error = alGetError(); error != AL_NO_ERROR)
         {
