@@ -216,15 +216,30 @@ void Game::Draw(double t)
     context.SwapBuffers();
 }
 
-static double t = 0.0;
-static double dt = 1.0 / UPDATE_FPS;
-static double lastTime = je::GetTime();
-static double accumulator = 0.0;
-static double lastDrawTime = je::GetTime();
+class Shell
+{
+public:
+    explicit Shell(Game* game) : theGame{game}
+    {
+    }
 
-static Game* theGame;
+    void Update();
+    void Draw();
+    void Refresh();
+    void RunMainLoop();
+    static void EmRefresh(void* arg);
 
-static void Update()
+private:
+    double t = 0.0;
+    double dt = 1.0 / UPDATE_FPS;
+    double lastTime = je::GetTime();
+    double accumulator = 0.0;
+    double lastDrawTime = je::GetTime();
+
+    Game* theGame;
+};
+
+void Shell::Update()
 {
     // Update using: https://gafferongames.com/post/fix_your_timestep/
     double now = je::GetTime();
@@ -245,7 +260,7 @@ static void Update()
 
 #if defined(__EMSCRIPTEN__)
 
-static void Draw()
+void Shell::Draw()
 {
     // Draw. Don't cap the frame rate as the browser is probably doing it for us.
     theGame->Draw(t);
@@ -253,7 +268,7 @@ static void Draw()
 
 #else
 
-static void Draw()
+void Shell::Draw()
 {
     const double minDrawInterval = 1.0 / RENDER_FPS;
 
@@ -271,7 +286,13 @@ static void Draw()
 
 #endif
 
-static void Refresh()
+void Shell::EmRefresh(void* arg)
+{
+    Shell* shell = reinterpret_cast<Shell*>(arg);
+    shell->Refresh();
+}
+
+void Shell::Refresh()
 {
     Update();
     Draw();
@@ -279,14 +300,14 @@ static void Refresh()
 
 #if defined(__EMSCRIPTEN__)
 
-void RunMainLoop()
+void Shell::RunMainLoop()
 {
-    emscripten_set_main_loop(Refresh, -1, true);
+    emscripten_set_main_loop_arg(EmRefresh, this, -1, true);
 }
 
 #else
 
-void RunMainLoop()
+void Shell::RunMainLoop()
 {
 #if defined(_WIN32)
     Console::Hide();
@@ -312,8 +333,8 @@ int main()
         };
 
         Game game(Rnd);
-        theGame = &game;
-        RunMainLoop();
+        Shell shell(&game);
+        shell.RunMainLoop();
         return 0;
     }
     catch (const std::exception& e)
