@@ -219,7 +219,7 @@ void Game::Draw(double t)
 class Shell
 {
 public:
-    explicit Shell(Game* game) : theGame{game}
+    explicit Shell(std::unique_ptr<Game> game) : theGame{std::move(game)}
     {
     }
 
@@ -236,7 +236,7 @@ private:
     double accumulator = 0.0;
     double lastDrawTime = je::GetTime();
 
-    Game* theGame;
+    std::unique_ptr<Game> theGame;
 };
 
 void Shell::Update()
@@ -332,8 +332,8 @@ int main()
             return distribution(generator);
         };
 
-        Game game(Rnd);
-        Shell shell(&game);
+        std::unique_ptr<Game> game = std::make_unique<Game>(Rnd);
+        Shell shell(std::move(game));
         shell.RunMainLoop();
         return 0;
     }
