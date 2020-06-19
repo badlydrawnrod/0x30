@@ -1,12 +1,8 @@
 #pragma once
 
 #include "Batch.h"
+#include "Platform.h"
 #include "Transforms.h"
-
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
 
 namespace je
 {
@@ -134,5 +130,5 @@ namespace je
             const Rgba4b white = {255, 255, 255, 255};
             return Create(region, x, y, srcX, srcY, srcWidth, srcHeight, white);
         }
-    }// namespace quads
-}// namespace je
+    } // namespace quads
+} // namespace je

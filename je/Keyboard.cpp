@@ -1,11 +1,7 @@
 #include "Keyboard.h"
 
 #include "Human.h"
-
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "Platform.h"
 
 namespace je
 {
@@ -29,4 +25,4 @@ namespace je
     {
         keyboardCallback = handler;
     }
-}// namespace je
+} // namespace je

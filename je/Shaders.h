@@ -1,8 +1,5 @@
 #pragma once
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "Platform.h"
 
 namespace je
 {
@@ -20,4 +17,4 @@ namespace je
             return program_;
         }
     };
-}// namespace je
+} // namespace je

@@ -21,11 +21,6 @@
 #include "je/Time.h"
 #include "je/Types.h"
 
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
-
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #undef APIENTRY

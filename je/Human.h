@@ -1,8 +1,5 @@
 #pragma once
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "Platform.h"
 
 #include <SDL2/SDL_gamecontroller.h>
 #include <functional>
@@ -43,4 +40,4 @@ namespace je
         SDL_GameController* controller_{nullptr};
         bool hasGamepad_{false};
     };
-}// namespace je
+} // namespace je

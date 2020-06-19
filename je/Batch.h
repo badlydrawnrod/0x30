@@ -1,12 +1,8 @@
 #pragma once
 
+#include "Platform.h"
 #include "Transforms.h"
 #include "Types.h"
-
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
 
 #include <array>
 #include <vector>
@@ -17,13 +13,13 @@ namespace je
     class Batch
     {
     private:
-        GLuint program_{0};        // The shader program to apply for this batch.
-        GLuint textureId_{0};      // The texture id.
-        GLuint vao_{0};            // Vertex array object.
-        GLuint vertexPosObject_{0};// Vertex position object.
-        GLuint indexObject_{0};    // Vertex index object.
-        GLushort count_{0};        // How many quads are in the batch.
-        size_t batchSize_;         // The maximum number of quads in the batch.
+        GLuint program_{0};         // The shader program to apply for this batch.
+        GLuint textureId_{0};       // The texture id.
+        GLuint vao_{0};             // Vertex array object.
+        GLuint vertexPosObject_{0}; // Vertex position object.
+        GLuint indexObject_{0};     // Vertex index object.
+        GLushort count_{0};         // How many quads are in the batch.
+        size_t batchSize_;          // The maximum number of quads in the batch.
         std::vector<VertexPosTexColour> vertices_;
         std::vector<GLushort> indices_;
 
@@ -55,4 +51,4 @@ namespace je
     {
         AddVertices(vertices.textureId, vertices.vertices);
     }
-}// namespace je
+} // namespace je

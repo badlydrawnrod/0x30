@@ -1,9 +1,6 @@
 #pragma once
 
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "Platform.h"
 
 namespace je
 {
@@ -11,4 +8,4 @@ namespace je
     {
         return glfwGetTime();
     }
-}// namespace je
+} // namespace je

@@ -1,12 +1,8 @@
 #include "Textures.h"
 
 #include "Logger.h"
+#include "Platform.h"
 #include "Types.h"
-
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
 
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL_image.h>
@@ -64,4 +60,4 @@ namespace je
         SDL_FreeSurface(image);
         return texture;
     }
-}// namespace je
+} // namespace je

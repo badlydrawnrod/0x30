@@ -1,8 +1,5 @@
 #pragma once
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "Platform.h"
 
 #include <functional>
 
@@ -49,4 +46,4 @@ namespace je
             glViewport(x, y, width, height);
         }
     };
-}// namespace je
+} // namespace je

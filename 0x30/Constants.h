@@ -1,9 +1,8 @@
 #pragma once
 
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "je/Platform.h"
+
+// TODO: Should these really be OpenGL types?
 
 // Virtual screen information.
 const GLsizei VIRTUAL_WIDTH = 320;

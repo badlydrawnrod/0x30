@@ -1,11 +1,7 @@
 #include "Shaders.h"
 
 #include "Logger.h"
-
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "Platform.h"
 
 namespace je
 {
@@ -109,4 +105,4 @@ namespace je
             program_ = 0;
         }
     }
-}// namespace je
+} // namespace je

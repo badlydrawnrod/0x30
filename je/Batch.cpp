@@ -1,11 +1,7 @@
 #include "Batch.h"
 
+#include "Platform.h"
 #include "Types.h"
-
-#if !defined(__EMSCRIPTEN__)
-#include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
 
 namespace je
 {
@@ -163,4 +159,4 @@ namespace je
 
         count_++;
     }
-}// namespace je
+} // namespace je
