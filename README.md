@@ -5,7 +5,7 @@ Well, if it isn't the mysterious 0x30.
 
 
 ## Pre-requisites
-Install `glfw3`, `glad`, `sdl2_image`, `openal-soft`, `libsndfile`, and `jsoncpp`.
+For Windows builds, install `glfw3`, `glad`, `sdl2_image`, `openal-soft`, `jsoncpp`.
 
 	C:> vcpkg install glfw3:x64-windows
 	C:> vcpkg install glad:x64-windows
@@ -13,3 +13,5 @@ Install `glfw3`, `glad`, `sdl2_image`, `openal-soft`, `libsndfile`, and `jsoncpp
 	C:> vcpkg install openal-soft:x64-windows
 	C:> vcpkg install libsndfile:x64-windows
 	C:> vcpkg install jsoncpp:x64-windows
+
+Otherwise, use Emscripten.
