@@ -86,6 +86,10 @@ add_executable(${TARGET_NAME}
         je/Batch.h
         je/Context.cpp
         je/Context.h
+        je/Human.h
+        je/Human.cpp
+        je/Keyboard.cpp
+        je/Keyboard.h
         je/Logger.h
         je/QuadHelpers.h
         je/Shaders.cpp
@@ -96,7 +100,9 @@ add_executable(${TARGET_NAME}
         je/Textures.h
         je/Time.h
         je/Transforms.h
-        je/Types.h je/Keyboard.cpp je/Keyboard.h je/Human.h je/Human.cpp)
+        je/Types.h
+        je/WavDecoder.h
+        je/WavDecoder.cpp)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
 
@@ -122,6 +128,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
             -s USE_SDL_IMAGE=2 \
             -s SDL2_IMAGE_FORMATS=[\"png\"] \
             -l openal \
+            --no-heap-copy \
             --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html \
             --preload-file ${CMAKE_SOURCE_DIR}/assets@/assets/ \
             --exclude-file ${CMAKE_SOURCE_DIR}/assets/music \
