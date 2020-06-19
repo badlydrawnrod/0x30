@@ -146,23 +146,6 @@ namespace je
         TearDownOpenAl();
     }
 
-    ALuint LoadSound(const std::string& filename)
-    {
-        LOG("Loading " << filename);
-
-        if (auto buffer = LoadWav(filename); buffer != 0)
-        {
-            return buffer;
-        }
-
-        if (auto buffer = LoadVorbis(filename); buffer != 0)
-        {
-            return buffer;
-        }
-
-        return 0;
-    }
-
     SoundSource::SoundSource()
         : source_{MakeSource()}
     {

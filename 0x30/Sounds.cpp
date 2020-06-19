@@ -1,6 +1,7 @@
 #include "Sounds.h"
 
 #include "je/Logger.h"
+#include "je/SoundLoader.h"
 
 #if !defined(__EMSCRIPTEN__)
 

@@ -2,12 +2,9 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <string>
 
 namespace je
 {
-    ALuint LoadSound(const std::string& filename);
-
     class SoundSystem
     {
     public:
