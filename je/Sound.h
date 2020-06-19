@@ -2,7 +2,6 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-
 #include <string>
 
 namespace je
@@ -58,4 +57,4 @@ namespace je
     private:
         ALuint buffer_{0};
     };
-}// namespace je
+} // namespace je

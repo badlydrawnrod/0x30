@@ -81,7 +81,7 @@ static int FindChunk(FILE* fp, FourCC id)
     int rc = 0;
     FourCC buf;
 
-    while (rc == 0)// TODO: give this an upper bound.
+    while (rc == 0) // TODO: give this an upper bound.
     {
         size_t itemsRead = fread(&buf, sizeof(buf), 1, fp);
         if (itemsRead != 1)

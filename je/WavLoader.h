@@ -3,4 +3,7 @@
 #include <AL/al.h>
 #include <string>
 
-ALuint LoadWav(const std::string& filename);
+namespace je
+{
+    ALuint LoadWav(const std::string& filename);
+}

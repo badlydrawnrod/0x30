@@ -92,7 +92,7 @@ namespace je
             }
 
             // Set the global gain (volume).
-            alListenerf(AL_GAIN, 1.0);// reset gain (volume) to default
+            alListenerf(AL_GAIN, 1.0); // reset gain (volume) to default
             if (auto error = alGetError(); error != AL_NO_ERROR)
             {
                 LOG("alListenerf(AL_GAIN) failed with OpenAL Error " << alGetString(error));
@@ -134,7 +134,7 @@ namespace je
             alGenBuffers(1, &buffer);
             return buffer;
         }
-    }// namespace
+    } // namespace
 
     SoundSystem::SoundSystem()
     {
@@ -243,4 +243,4 @@ namespace je
         alDeleteBuffers(1, &buffer_);
         buffer_ = buffer;
     }
-}// namespace je
+} // namespace je
