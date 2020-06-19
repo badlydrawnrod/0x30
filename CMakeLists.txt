@@ -102,7 +102,7 @@ add_executable(${TARGET_NAME}
         je/Transforms.h
         je/Types.h
         je/WavDecoder.h
-        je/WavDecoder.cpp)
+        je/WavDecoder.cpp je/WavLoader.cpp je/WavLoader.h)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
 
