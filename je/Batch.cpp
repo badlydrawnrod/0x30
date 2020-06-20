@@ -145,7 +145,7 @@ namespace je
         *vertex++ = vertices[0];
         *vertex++ = vertices[1];
         *vertex++ = vertices[2];
-        *vertex++ = vertices[3];
+        *vertex = vertices[3];
 
         // Add the indices to the batch.
         const GLushort ofs = count_ * VERTICES_PER_QUAD;
