@@ -29,6 +29,20 @@ endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
+
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O2")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s EXPORTED_FUNCTIONS=\"['_main']\"")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -l openal --no-heap-copy")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/assets@/assets/")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --exclude-file ${CMAKE_SOURCE_DIR}/assets/music")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --exclude-file ${CMAKE_SOURCE_DIR}/assets/sounds")
+
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/index)
 else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
@@ -106,34 +120,3 @@ add_executable(${TARGET_NAME}
         je/WavDecoder.cpp je/WavLoader.cpp je/WavLoader.h je/VorbisLoader.cpp je/VorbisLoader.h je/SoundLoader.cpp je/SoundLoader.h je/Shell.h je/Platform.h je/AsyncLoader.h)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
-    set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "\
-            -O2 \
-            -s USE_FREETYPE=1 \
-            -s USE_GLFW=3 \
-            -s USE_WEBGL2=1 \
-            -s USE_SDL_IMAGE=2 \
-            -s SDL2_IMAGE_FORMATS=[\"png\"] \
-    ")
-
-    # The @ is used to remap ${CMAKE_SOURCE_DIR}/assets to /assets. Here we're not preloading sounds or music as we'll
-    # download them on demand.
-    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "\
-            -O2 \
-            -s ALLOW_MEMORY_GROWTH=1 \
-            -s EXPORTED_FUNCTIONS=\"['_main']\" \
-            -s ASSERTIONS=1 \
-            -s USE_FREETYPE=1 \
-            -s USE_GLFW=3 \
-            -s USE_WEBGL2=1 \
-            -s USE_SDL_IMAGE=2 \
-            -s SDL2_IMAGE_FORMATS=[\"png\"] \
-            -l openal \
-            --no-heap-copy \
-            --shell-file ${CMAKE_SOURCE_DIR}/html/minimal.html \
-            --preload-file ${CMAKE_SOURCE_DIR}/assets@/assets/ \
-            --exclude-file ${CMAKE_SOURCE_DIR}/assets/music \
-            --exclude-file ${CMAKE_SOURCE_DIR}/assets/sounds \
-            ")
-endif ()
