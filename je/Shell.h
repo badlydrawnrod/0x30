@@ -16,7 +16,7 @@ namespace je
     class Shell
     {
     public:
-        explicit Shell(std::unique_ptr<TGame> game) : theGame{std::move(game)}
+        explicit Shell(TGame&& game) : theGame{std::move(game)}
         {
         }
 
@@ -33,7 +33,7 @@ namespace je
         double accumulator = 0.0;
         double lastDrawTime = je::GetTime();
 
-        std::unique_ptr<TGame> theGame;
+        TGame theGame;
     };
 
     template<typename TGame>

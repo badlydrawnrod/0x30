@@ -227,7 +227,7 @@ int main()
         };
 
         std::unique_ptr<Game> game = std::make_unique<Game>(Rnd);
-        je::Shell<Game> shell(std::move(game));
+        je::Shell<std::unique_ptr<Game>> shell(std::move(game));
         shell.RunMainLoop();
         return 0;
     }
