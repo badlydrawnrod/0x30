@@ -16,6 +16,6 @@ private:
     std::string text_;
     int minutes_;
     int seconds_;
-    char timeBuf_[128] = {0};
-    int numChars_;
+    std::string timeBuf_;
+    float numChars_;
 };

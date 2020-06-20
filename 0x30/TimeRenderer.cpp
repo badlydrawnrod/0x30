@@ -1,10 +1,10 @@
 #include "TimeRenderer.h"
 
 #include "Colours.h"
-
 #include "je/Types.h"
 
-#include <stdio.h>
+#include <iomanip>
+#include <sstream>
 
 TimeRenderer::TimeRenderer(TextRenderer& textRenderer, const std::string& text)
     : textRenderer_{textRenderer}, text_{text}, minutes_{-1}, seconds_{-1}, numChars_{0}
@@ -19,13 +19,12 @@ void TimeRenderer::Draw(je::Vec2f position, double elapsed)
     // Only re-create the string if it has changed.
     if (minutes != minutes_ || seconds != seconds_)
     {
-#if !defined(__EMSCRIPTEN__)
-        numChars_ = sprintf_s(timeBuf_, sizeof(timeBuf_), "%d'%02d", minutes, seconds);
-#else
-        numChars_ = sprintf(timeBuf_, "%d'%02d", minutes, seconds);
-#endif
         minutes_ = minutes;
         seconds_ = seconds;
+        std::stringstream ss;
+        ss << minutes << "'" << std::setfill('0') << std::setw(2) << seconds;
+        timeBuf_ = ss.str();
+        numChars_ = static_cast<float>(timeBuf_.size());
     }
 
     // TODO: juice it up.
