@@ -2,7 +2,7 @@
 
 #include "je/SoundLoader.h"
 
-void Sounds::BeginLoad()
+void Sounds::OnLoaderStarted()
 {
     Download("sounds/swap.wav", "assets/sounds/swap.wav");
     Download("sounds/marble_click.wav", "assets/sounds/marble_click.wav");
@@ -14,7 +14,7 @@ void Sounds::BeginLoad()
     Download("music/gymnopedie1.ogg", "assets/music/gymnopedie1.ogg");
 }
 
-void Sounds::OnLoaded()
+void Sounds::OnLoaderFinished()
 {
     blocksSwapping.TakeOwnership(je::LoadSound("assets/sounds/swap.wav"));
     blocksLanding.TakeOwnership(je::LoadSound("assets/sounds/marble_click.wav"));

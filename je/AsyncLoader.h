@@ -1,6 +1,6 @@
 #pragma once
 
-#include "je/Logger.h"
+#include "Logger.h"
 
 #include <string>
 
@@ -11,23 +11,17 @@
 
 namespace je
 {
-
     template<typename T>
     class AsyncLoader
     {
     public:
-        void Download(const std::string& url, const std::string& filename);
         bool IsLoaded();
         void Load();
+        void Download(const std::string& url, const std::string& filename);
 
     private:
         std::future<void> loader_;
     };
-
-    template<typename T>
-    void AsyncLoader<T>::Download(const std::string& /*url*/, const std::string& /*filename*/)
-    {
-    }
 
     template<typename T>
     bool AsyncLoader<T>::IsLoaded()
@@ -38,10 +32,14 @@ namespace je
     template<typename T>
     void AsyncLoader<T>::Load()
     {
-        static_cast<T*>(this)->BeginLoad();
-        loader_ = std::async(&T::OnLoaded, static_cast<T*>(this));
+        static_cast<T*>(this)->OnLoaderStarted();
+        loader_ = std::async(&T::OnLoaderFinished, static_cast<T*>(this));
     }
 
+    template<typename T>
+    void AsyncLoader<T>::Download(const std::string& /*url*/, const std::string& /*filename*/)
+    {
+    }
 } // namespace je
 
 #else
@@ -54,10 +52,12 @@ namespace je
     class AsyncLoader
     {
     public:
-        void OnFileDownloaded(const char* filename);
-        void Download(const std::string& url, const std::string& filename);
         bool IsLoaded();
         void Load();
+        void Download(const std::string& url, const std::string& filename);
+
+    private:
+        void OnFileDownloaded(const char* filename);
 
         static void OnSuccess(unsigned handle, void* userData, const char* filename);
         static void OnFailed(unsigned handle, void*, int status);
@@ -75,12 +75,25 @@ namespace je
     }
 
     template<typename T>
+    void AsyncLoader<T>::Load()
+    {
+        static_cast<T*>(this)->OnLoaderStarted();
+    }
+
+    template<typename T>
+    void AsyncLoader<T>::Download(const std::string& url, const std::string& filename)
+    {
+        ++needed_;
+        emscripten_async_wget2(url.c_str(), filename.c_str(), "GET", nullptr, this, OnSuccess, OnFailed, OnProgress);
+    }
+
+    template<typename T>
     void AsyncLoader<T>::OnFileDownloaded(const char* /*filename*/)
     {
         ++downloads_;
         if (downloads_ == needed_)
         {
-            static_cast<T*>(this)->OnLoaded();
+            static_cast<T*>(this)->OnLoaderFinished();
         }
     }
 
@@ -102,19 +115,6 @@ namespace je
     void AsyncLoader<T>::OnProgress(unsigned handle, void*, int percent)
     {
         LOG("Download progress for handle " << handle << " = " << percent);
-    }
-
-    template<typename T>
-    void AsyncLoader<T>::Download(const std::string& url, const std::string& filename)
-    {
-        ++needed_;
-        emscripten_async_wget2(url.c_str(), filename.c_str(), "GET", nullptr, this, OnSuccess, OnFailed, OnProgress);
-    }
-
-    template<typename T>
-    void AsyncLoader<T>::Load()
-    {
-        static_cast<T*>(this)->BeginLoad();
     }
 } // namespace je
 

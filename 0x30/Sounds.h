@@ -1,14 +1,14 @@
 #pragma once
 
-#include "AsyncLoader.h"
+#include "je/AsyncLoader.h"
 #include "je/Logger.h"
 #include "je/Sound.h"
 
 class Sounds : public je::AsyncLoader<Sounds>
 {
 public:
-    void BeginLoad();
-    void OnLoaded();
+    void OnLoaderStarted();
+    void OnLoaderFinished();
 
     je::SoundBuffer blocksSwapping;
     je::SoundBuffer blocksLanding;
