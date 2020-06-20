@@ -8,8 +8,58 @@
 #include <chrono>
 #include <future>
 
+template<typename T>
+class CrtpLoader
+{
+public:
+    bool IsLoaded();
+    void Load();
+
+private:
+    std::future<void> loader_;
+};
+
+template<typename T>
+bool CrtpLoader<T>::IsLoaded()
+{
+    return loader_.wait_for(std::chrono::microseconds(1)) == std::future_status::ready;
+}
+
+template<typename T>
+void CrtpLoader<T>::Load()
+{
+    loader_ = std::async(&T::LoadFile, static_cast<T*>(this));
+}
+
+class SingleFileLoader : public CrtpLoader<SingleFileLoader>
+{
+public:
+    explicit SingleFileLoader(const std::string& filename) : filename_{filename}
+    {
+    }
+
+    void LoadFile();
+
+private:
+    std::string filename_;
+    je::SoundBuffer sound_;
+};
+
+void SingleFileLoader::LoadFile()
+{
+    sound_.TakeOwnership(je::LoadSound(filename_));
+}
+
 void Sounds::Load()
 {
+    LOG("Loading file");
+    SingleFileLoader sfl("assets/sounds/swap.wav");
+    sfl.Load();
+    while (!sfl.IsLoaded())
+    {
+    }
+    LOG("File loaded");
+
     loader_ = std::async(&Sounds::LoaderTask, this);
 }
 
@@ -38,7 +88,7 @@ void Sounds::OnFileDownloaded(const char* filename)
 {
     LOG("OnFileDownloaded " << filename);
     ++downloaded_;
-    if (downloaded_ == 8)// TODO: obviously do better than this!
+    if (downloaded_ == 8) // TODO: obviously do better than this!
     {
         LOG("All sounds downloaded");
         blocksSwapping.TakeOwnership(je::LoadSound("assets/sounds/swap.wav"));
