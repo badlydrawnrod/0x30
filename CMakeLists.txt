@@ -117,6 +117,6 @@ add_executable(${TARGET_NAME}
         je/Transforms.h
         je/Types.h
         je/WavDecoder.h
-        je/WavDecoder.cpp je/WavLoader.cpp je/WavLoader.h je/VorbisLoader.cpp je/VorbisLoader.h je/SoundLoader.cpp je/SoundLoader.h je/Shell.h je/Platform.h je/AsyncLoader.h)
+        je/WavDecoder.cpp je/WavLoader.cpp je/WavLoader.h je/VorbisLoader.cpp je/VorbisLoader.h je/SoundLoader.cpp je/SoundLoader.h je/Shell.h je/Platform.h je/AsyncLoader.h je/AsyncPersistence.cpp je/AsyncPersistence.h)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
