@@ -1,14 +1,11 @@
 #include "Progress.h"
 
-#if !defined(__EMSCRIPTEN__)
-#include <json/json.h>
-#endif
+#include "je/AsyncPersistence.h"
+#include "je/Logger.h"
 
-#include <filesystem>
+#include <sstream>
 
-
-#if !defined(__EMSCRIPTEN__)
-const int progressFileVersion = 1;
+const int progressFileVersion = 2;
 
 namespace
 {
@@ -40,78 +37,7 @@ namespace
             TimeRecord{300},
             TimeRecord{300},
             TimeRecord{300}};
-
-    void ToJson(Json::Value& jsonProgress, const Scores& scores, size_t maxLevel, const Times& times, size_t maxTimedLevel)
-    {
-        jsonProgress["version"] = progressFileVersion;
-
-        Json::Value jsonScores;
-        for (auto [score] : scores)
-        {
-            Json::Value jsonScore;
-            jsonScore["score"] = score;
-            jsonScores.append(jsonScore);
-        }
-        Json::Value timed;
-        timed["scores"] = jsonScores;
-        timed["maxLevel"] = maxLevel;
-        jsonProgress["timed"] = timed;
-
-        Json::Value jsonTimes;
-        for (auto [time] : times)
-        {
-            Json::Value jsonTime;
-            jsonTime["time"] = time;
-            jsonTimes.append(jsonTime);
-        }
-        Json::Value endless;
-        endless["times"] = jsonTimes;
-        endless["maxLevel"] = maxTimedLevel;
-        jsonProgress["endless"] = endless;
-    }
-
-    void FromJson(const Json::Value& jsonProgress, Scores& scores, size_t& maxLevel, Times& times, size_t& maxTimedLevel)
-    {
-        if (jsonProgress.isMember("version") && jsonProgress["version"].asInt() == 1)
-        {
-            // Load version 1 of the save file.
-            const Json::Value& timed = jsonProgress["timed"];
-            const Json::Value& jsonScores = timed["scores"];
-            size_t level = 0;
-            for (const Json::Value& jsonScore : jsonScores)
-            {
-                scores[level].score = jsonScore["score"].asUInt64();
-                ++level;
-            }
-            maxLevel = timed["maxLevel"].asInt();
-
-            const Json::Value& endless = jsonProgress["endless"];
-            const Json::Value& jsonTimes = endless["times"];
-            level = 0;
-            for (const Json::Value& jsonTime : jsonTimes)
-            {
-                times[level].time = jsonTime["time"].asDouble();
-                ++level;
-            }
-            maxTimedLevel = endless["maxLevel"].asInt();
-        }
-        else
-        {
-            // Load the original (unversioned) save file.
-            const Json::Value& jsonScores = jsonProgress["scores"];
-            size_t level = 0;
-            for (const Json::Value& jsonScore : jsonScores)
-            {
-                scores[level].score = jsonScore["score"].asUInt64();
-                ++level;
-            }
-            maxLevel = jsonProgress["maxLevel"].asInt();
-
-            times = defaultTimes;
-            maxTimedLevel = static_cast<int>(times.size() + 1);
-        }
-    }
-}// namespace
+} // namespace
 
 Progress::Progress()
 {
@@ -120,43 +46,55 @@ Progress::Progress()
 
 void Progress::LoadScores()
 {
-    if (!std::filesystem::exists(scoresFile))
+    je::AsyncPersistenceLoader::Load(
+            "scores", [this](auto filename, void* data, int length) {
+                std::stringstream ss{reinterpret_cast<char*>(data)};
+                ss >> maxLevel_;
+                for (int i = 0; i < scores_.size(); i++)
+                {
+                    ss >> scores_[i].score;
+                    LOG("Loaded score " << i << " = " << scores_[i].score);
+                }
+                ss >> maxTimedLevel_;
+                for (int i = 0; i < times_.size(); i++)
+                {
+                    ss >> times_[i].time;
+                }
+                LOG("Loaded scores from " << filename);
+            },
+            [this](auto filename) {
+                LOG("Failed to load scores from " << filename);
+                maxLevel_ = 1;
+                scores_ = defaultScores;
+                times_ = defaultTimes;
+                maxTimedLevel_ = 1;
+                SaveScores();
+            });
+}
+
+void Progress::SaveScores()
+{
+    std::stringstream ss;
+    ss << maxLevel_ << '\n';
+    for (auto score : scores_)
     {
-        scores_ = defaultScores;
-        maxLevel_ = 1;
-        times_ = defaultTimes;
-        maxTimedLevel_ = 1;
-        return;
+        ss << score.score << '\n';
     }
+    ss << maxTimedLevel_ << '\n';
+    for (auto time : times_)
+    {
+        ss << time.time << '\n';
+    }
+    placeholderScores_ = ss.str();
 
-    std::ifstream infile(scoresFile);
-    Json::Value root;
-    infile >> root;
-    FromJson(root, scores_, maxLevel_, times_, maxTimedLevel_);
+    je::AsyncPersistenceSaver::Save(
+            "scores",
+            placeholderScores_.data(),
+            placeholderScores_.size(),
+            [](auto filename) {
+                LOG("Saved scores to " << filename);
+            },
+            [](auto filename) {
+                LOG("Failed to save scores to " << filename);
+            });
 }
-
-void Progress::SaveScores()
-{
-    std::filesystem::create_directory("data");
-    std::ofstream outfile(scoresFile);
-    Json::Value root;
-    ToJson(root, scores_, maxLevel_, times_, maxTimedLevel_);
-    outfile << root << std::endl;
-}
-
-#else
-
-Progress::Progress()
-{
-    LoadScores();
-}
-
-void Progress::LoadScores()
-{
-}
-
-void Progress::SaveScores()
-{
-}
-
-#endif

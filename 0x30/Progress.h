@@ -50,6 +50,8 @@ private:
 
     size_t maxTimedLevel_{1};
     Times times_;
+
+    std::string placeholderScores_;
 };
 
 inline void Progress::UpdateHighScore(size_t level, uint64_t score)
