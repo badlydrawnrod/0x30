@@ -227,7 +227,7 @@ int main()
             return distribution(generator);
         };
 
-        char buffer[] = "5678";
+        char buffer[] = "0x7c00";
 
         je::AsyncPersistenceSaver::Save(
                 "asyncTest", buffer, sizeof(buffer),
