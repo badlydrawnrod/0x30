@@ -9,7 +9,7 @@ namespace je
 {
     static void DoLoad(const std::string& filename, const AsyncPersistenceLoader::OnLoaded& onLoaded, const AsyncPersistenceLoader::OnError& onError)
     {
-        std::ifstream infile(filename);
+        std::ifstream infile(filename, std::ios::binary);
         if (infile)
         {
             infile.seekg(0, std::ifstream::end);
@@ -33,7 +33,7 @@ namespace je
 
     static void DoSave(const std::string& filename, void* buffer, int length, const AsyncPersistenceSaver::OnSaved& onSaved, const AsyncPersistenceSaver::OnError& onError)
     {
-        std::ofstream outfile(filename);
+        std::ofstream outfile(filename, std::ios::binary);
         if (outfile)
         {
             outfile.write(static_cast<char*>(buffer), length);
