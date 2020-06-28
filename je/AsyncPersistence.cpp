@@ -6,53 +6,78 @@
 
 #include "emscripten.h"
 
+#include <memory>
+#include <utility>
+
 namespace je
 {
+    struct InflightLoad
+    {
+        InflightLoad(std::string filename, AsyncPersistenceLoader::OnLoaded onLoaded, AsyncPersistenceLoader::OnError onError) : filename(std::move(filename)), onLoaded(std::move(onLoaded)), onError(std::move(onError)) {}
+
+        std::string filename;
+        AsyncPersistenceLoader::OnLoaded onLoaded;
+        AsyncPersistenceLoader::OnError onError;
+    };
+
     constexpr char dbName[] = "JePersistence"; // TODO: parameterise this?
 
-    void AsyncPersistenceLoader::Load(const std::string& filename)
+    void AsyncPersistenceLoader::Load(const std::string& filename, const OnLoaded& onLoaded, const OnError& onError)
     {
-        emscripten_idb_async_load(dbName, filename.c_str(), this, OnLoadedShim, OnErrorShim);
+        // This will leak if neither of the callbacks are invoked.
+        auto inflight = std::make_unique<InflightLoad>(filename, onLoaded, onError);
+        emscripten_idb_async_load(dbName, filename.c_str(), inflight.release(), OnLoadedShim, OnErrorShim);
     }
 
     void AsyncPersistenceLoader::OnLoadedShim(void* arg, void* buffer, int length)
     {
-        auto handler = reinterpret_cast<AsyncPersistenceLoader*>(arg);
-        if (handler->onLoaded_)
+        auto handler = std::unique_ptr<InflightLoad>(reinterpret_cast<InflightLoad*>(arg));
+        if (handler->onLoaded)
         {
-            handler->onLoaded_(buffer, length);
+            handler->onLoaded(handler->filename, buffer, length);
         }
     }
 
     void AsyncPersistenceLoader::OnErrorShim(void* arg)
     {
-        auto handler = reinterpret_cast<AsyncPersistenceLoader*>(arg);
-        if (handler->onError_)
+        auto handler = std::unique_ptr<InflightLoad>(reinterpret_cast<InflightLoad*>(arg));
+        if (handler->onError)
         {
-            handler->onError_();
+            handler->onError(handler->filename);
         }
     }
 
-    void AsyncPersistenceSaver::Save(const std::string& filename, void* buffer, int length)
+    struct InflightSave
     {
-        emscripten_idb_async_store(dbName, filename.c_str(), buffer, length, this, OnSavedShim, OnErrorShim);
+        InflightSave(std::string filename, AsyncPersistenceSaver::OnSaved onSaved, AsyncPersistenceSaver::OnError onError) : filename(std::move(filename)), onSaved(std::move(onSaved)), onError(std::move(onError)) {}
+
+        std::string filename;
+        AsyncPersistenceSaver::OnSaved onSaved;
+        AsyncPersistenceSaver::OnError onError;
+    };
+
+    void AsyncPersistenceSaver::Save(const std::string& filename, void* buffer, int length, const OnSaved& onSaved, const OnError& onError)
+    {
+        // This will leak if neither of the callbacks are invoked.
+        auto inflight = std::make_unique<InflightSave>(filename, onSaved, onError);
+        emscripten_idb_async_store(dbName, filename.c_str(), buffer, length, inflight.release(), OnSavedShim, OnErrorShim);
     }
 
     void AsyncPersistenceSaver::OnSavedShim(void* arg)
     {
-        auto handler = reinterpret_cast<AsyncPersistenceSaver*>(arg);
-        if (handler->onSaved_)
+        auto handler = std::unique_ptr<InflightSave>(reinterpret_cast<InflightSave*>(arg));
+        if (handler->onSaved)
         {
-            handler->onSaved_();
+            handler->onSaved(handler->filename);
         }
     }
 
     void AsyncPersistenceSaver::OnErrorShim(void* arg)
     {
-        auto handler = reinterpret_cast<AsyncPersistenceSaver*>(arg);
-        if (handler->onError_)
+        auto handler = std::unique_ptr<InflightSave>(reinterpret_cast<InflightSave*>(arg));
+        if (handler->onError)
         {
-            handler->onError_();
+            handler->onError(handler->filename);
         }
     }
 } // namespace je

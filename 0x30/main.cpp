@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <functional>
 #include <iomanip>
+#include <je/AsyncPersistence.h>
 #include <random>
 #include <sstream>
 
@@ -225,6 +226,27 @@ int main()
             std::uniform_int_distribution<int> distribution(lo, hi);
             return distribution(generator);
         };
+
+        char buffer[] = "5678";
+
+        je::AsyncPersistenceSaver::Save(
+                "asyncTest", buffer, sizeof(buffer),
+                [](auto filename) {
+                    LOG("********************************** Successfully saved " << filename);
+                    je::AsyncPersistenceLoader::Load(
+                            "asyncTest",
+                            [](auto filename, const void* data, int length) {
+                              std::string result((char*) data, length);
+                              LOG("********************************** Successfully loaded " << filename);
+                              LOG("************************************************* Data " << result);
+                            },
+                            [](auto filename) {
+                                LOG("********************************** Failed to load " << filename);
+                            });
+                },
+                [](auto filename) {
+                    LOG("********************************** Failed to save " << filename);
+                });
 
         std::unique_ptr<Game> game = std::make_unique<Game>(Rnd);
         je::Shell<std::unique_ptr<Game>> shell(std::move(game));
