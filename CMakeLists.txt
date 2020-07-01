@@ -61,6 +61,41 @@ message(STATUS "Library Type: LIB_TYPE" ${LIB_TYPE})
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+add_library(je STATIC
+        je/Batch.cpp
+        je/Batch.h
+        je/Context.cpp
+        je/Context.h
+        je/Human.h
+        je/Human.cpp
+        je/Keyboard.cpp
+        je/Keyboard.h
+        je/Logger.h
+        je/QuadHelpers.h
+        je/Shaders.cpp
+        je/Shaders.h
+        je/Sound.cpp
+        je/Sound.h
+        je/Textures.cpp
+        je/Textures.h
+        je/Time.h
+        je/Transforms.h
+        je/Types.h
+        je/WavDecoder.h
+        je/WavDecoder.cpp
+        je/WavLoader.cpp
+        je/WavLoader.h
+        je/VorbisLoader.cpp
+        je/VorbisLoader.h
+        je/SoundLoader.cpp
+        je/SoundLoader.h
+        je/Shell.h
+        je/Platform.h
+        je/AsyncLoader.h
+        je/AsyncPersistence.cpp
+        je/AsyncPersistence.h
+        )
+
 add_executable(${TARGET_NAME}
         0x30/Colours.cpp
         0x30/Colours.h
@@ -97,26 +132,6 @@ add_executable(${TARGET_NAME}
         0x30/TimeRenderer.cpp
         0x30/TimeRenderer.h
         0x30/Types.h
-        je/Batch.cpp
-        je/Batch.h
-        je/Context.cpp
-        je/Context.h
-        je/Human.h
-        je/Human.cpp
-        je/Keyboard.cpp
-        je/Keyboard.h
-        je/Logger.h
-        je/QuadHelpers.h
-        je/Shaders.cpp
-        je/Shaders.h
-        je/Sound.cpp
-        je/Sound.h
-        je/Textures.cpp
-        je/Textures.h
-        je/Time.h
-        je/Transforms.h
-        je/Types.h
-        je/WavDecoder.h
-        je/WavDecoder.cpp je/WavLoader.cpp je/WavLoader.h je/VorbisLoader.cpp je/VorbisLoader.h je/SoundLoader.cpp je/SoundLoader.h je/Shell.h je/Platform.h je/AsyncLoader.h je/AsyncPersistence.cpp je/AsyncPersistence.h)
+        )
 
-target_link_libraries(${TARGET_NAME} PRIVATE ${LIBS})
+target_link_libraries(${TARGET_NAME} PRIVATE je ${LIBS})
