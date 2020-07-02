@@ -5,24 +5,26 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
-# Is this Emscripten?
+# Detect Emscripten.
 if (CMAKE_CXX_COMPILER MATCHES "/emsdk.*em\\+\\+")
     message(STATUS "Emscripten detected")
     set(CMAKE_CXX_COMPILER_ID "Emscripten")
-    set(TARGET_NAME index)
-else ()
-    set(TARGET_NAME game)
 endif ()
 
 if (MSVC)
+    set(TARGET_NAME game)
+
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glad CONFIG REQUIRED)
     find_package(SDL2 CONFIG REQUIRED)
     find_package(sdl2-image CONFIG REQUIRED)
     find_package(OpenAL CONFIG REQUIRED)
     find_package(jsoncpp CONFIG REQUIRED)
+
     set(LIBS glfw glad::glad SDL2::SDL2 SDL2::SDL2_image OpenAL::OpenAL jsoncpp_lib)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
+    set(TARGET_NAME index)
+
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     add_definitions(-D GLFW_INCLUDE_ES3)
 endif ()
@@ -43,10 +45,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --exclude-file ${CMAKE_SOURCE_DIR}/assets/music")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --exclude-file ${CMAKE_SOURCE_DIR}/assets/sounds")
 
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/index)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/index_${CMAKE_BUILD_TYPE})
 else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output_${CMAKE_BUILD_TYPE})
 endif ()
 
 message(STATUS "Build type: CMAKE_BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
@@ -58,6 +60,7 @@ message(STATUS "Compiler cxx release flags: CMAKE_CXX_FLAGS_RELEASE=" ${CMAKE_CX
 message(STATUS "Compiler cxx min size flags: CMAKE_CXX_FLAGS_MINSIZEREL" ${CMAKE_CXX_FLAGS_MINSIZEREL})
 message(STATUS "Compiler cxx flags: CMAKE_CXX_FLAGS" ${CMAKE_CXX_FLAGS})
 message(STATUS "Library Type: LIB_TYPE" ${LIB_TYPE})
+
 
 include_directories(${CMAKE_SOURCE_DIR})
 
@@ -95,6 +98,10 @@ add_library(je STATIC
         je/AsyncPersistence.cpp
         je/AsyncPersistence.h
         )
+
+if (MSVC)
+    target_link_libraries(je PRIVATE glad::glad)
+endif ()
 
 add_executable(${TARGET_NAME}
         0x30/Colours.cpp
