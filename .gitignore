@@ -343,9 +343,7 @@ healthchecksdb
 /assets/backdrops
 /assets/music
 /assets/sounds
-/output/
-/index/
-
 
 # CMake output
 /cmake-*/
+/output/
