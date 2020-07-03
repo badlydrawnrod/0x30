@@ -47,7 +47,7 @@ Progress::Progress()
 void Progress::LoadScores()
 {
     je::AsyncPersistenceLoader::Load(
-            "scores", [this](auto filename, void* data, int length) {
+            "scores", [this](auto filename, void* data, int /*length*/) {
                 std::stringstream ss{reinterpret_cast<char*>(data)};
                 ss >> maxLevel_;
                 for (int i = 0; i < scores_.size(); i++)
@@ -60,8 +60,7 @@ void Progress::LoadScores()
                 {
                     ss >> times_[i].time;
                 }
-                LOG("Loaded scores from " << filename);
-            },
+                LOG("Loaded scores from " << filename); },
             [this](auto filename) {
                 LOG("Failed to load scores from " << filename);
                 maxLevel_ = 1;
@@ -90,7 +89,7 @@ void Progress::SaveScores()
     je::AsyncPersistenceSaver::Save(
             "scores",
             placeholderScores_.data(),
-            placeholderScores_.size(),
+            static_cast<int>(placeholderScores_.size()),
             [](auto filename) {
                 LOG("Saved scores to " << filename);
             },

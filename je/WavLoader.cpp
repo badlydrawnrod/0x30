@@ -22,7 +22,6 @@ namespace je
             return buffer;
         }
 
-        // TODO: check that this is its size in bytes, not frames.
         std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(stream.dataSize);
 
         // Read the stream data.
