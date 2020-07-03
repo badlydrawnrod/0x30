@@ -142,3 +142,23 @@ add_executable(${TARGET_NAME}
         )
 
 target_link_libraries(${TARGET_NAME} PRIVATE je ${LIBS})
+
+if (${TARGET_NAME} STREQUAL "index")
+    # Currently I have a slightly different directory structure for the Emscripten build.
+    add_custom_command(
+            TARGET ${TARGET_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/music
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/music
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/sounds
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/sounds
+    )
+else ()
+    add_custom_command(
+            TARGET ${TARGET_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets
+    )
+endif ()
