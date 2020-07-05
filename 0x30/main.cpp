@@ -13,12 +13,12 @@
 #include "je/Context.h"
 #include "je/Human.h"
 #include "je/Logger.h"
+#include "je/MyTime.h"
 #include "je/QuadHelpers.h"
 #include "je/Shaders.h"
 #include "je/Shell.h"
 #include "je/Sound.h"
 #include "je/Textures.h"
-#include "je/Time.h"
 #include "je/Types.h"
 
 #if defined(_WIN32)

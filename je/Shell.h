@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Time.h"
+#include "MyTime.h"
 
 #if defined(__EMSCRIPTEN__)
 #include "emscripten.h"

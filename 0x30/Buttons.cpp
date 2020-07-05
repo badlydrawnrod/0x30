@@ -2,10 +2,9 @@
 
 #include "je/Human.h"
 #include "je/Logger.h"
-#include "je/Time.h"
+#include "je/MyTime.h"
 
 #include <SDL2/SDL.h>
-
 #include <memory>
 
 using ButtonBit = uint32_t;

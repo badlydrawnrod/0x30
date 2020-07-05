@@ -4,11 +4,10 @@
 #include "Colours.h"
 #include "Constants.h"
 #include "Types.h"
-
 #include "je/Human.h"
 #include "je/Logger.h"
+#include "je/MyTime.h"
 #include "je/QuadHelpers.h"
-#include "je/Time.h"
 
 #include <cmath>
 #include <iomanip>

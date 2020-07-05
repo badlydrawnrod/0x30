@@ -1,8 +1,8 @@
 #include "Flyup.h"
 
+#include "je/MyTime.h"
 #include "je/QuadHelpers.h"
 #include "je/Textures.h"
-#include "je/Time.h"
 
 Flyup::Flyup(je::TextureRegion& texture, float x, float y, float duration)
     : texture_{texture}, x_{x}, y_{y}, endTime_{je::GetTime() + duration}

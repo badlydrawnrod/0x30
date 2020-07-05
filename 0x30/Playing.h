@@ -13,10 +13,9 @@
 #include "Textures.h"
 #include "TimeRenderer.h"
 #include "Types.h"
-
 #include "je/Batch.h"
+#include "je/MyTime.h"
 #include "je/QuadHelpers.h"
-#include "je/Time.h"
 
 #include <array>
 #include <functional>

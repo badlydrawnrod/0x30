@@ -4,25 +4,6 @@ project(game)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-
-if (MSVC)
-    set(TARGET_NAME game)
-
-    find_package(glfw3 CONFIG REQUIRED)
-    find_package(glad CONFIG REQUIRED)
-    find_package(SDL2 CONFIG REQUIRED)
-    find_package(sdl2-image CONFIG REQUIRED)
-    find_package(OpenAL CONFIG REQUIRED)
-    find_package(jsoncpp CONFIG REQUIRED)
-
-    set(LIBS glfw glad::glad SDL2::SDL2 SDL2::SDL2_image OpenAL::OpenAL jsoncpp_lib)
-elseif (EMSCRIPTEN)
-    set(TARGET_NAME index)
-
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
-    add_definitions(-D GLFW_INCLUDE_ES3)
-endif ()
-
 if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1")
@@ -58,74 +39,4 @@ message(STATUS "Library Type: LIB_TYPE" ${LIB_TYPE})
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(je)
-
-if (MSVC)
-    target_link_libraries(je PRIVATE glad::glad)
-endif ()
-
-add_executable(${TARGET_NAME}
-        0x30/Colours.cpp
-        0x30/Colours.h
-        0x30/Constants.h
-        0x30/Dedication.cpp
-        0x30/Dedication.h
-        0x30/Flyup.cpp
-        0x30/Flyup.h
-        0x30/FlyupRenderer.cpp
-        0x30/FlyupRenderer.h
-        0x30/Buttons.cpp
-        0x30/Buttons.h
-        0x30/LevelRenderer.cpp
-        0x30/LevelRenderer.h
-        0x30/main.cpp
-        0x30/Menu.cpp
-        0x30/Menu.h
-        0x30/Pit.cpp
-        0x30/Pit.h
-        0x30/PitRenderer.cpp
-        0x30/PitRenderer.h
-        0x30/Playing.cpp
-        0x30/Playing.h
-        0x30/Progress.cpp
-        0x30/Progress.h
-        0x30/ScoreRenderer.cpp
-        0x30/ScoreRenderer.h
-        0x30/Sounds.cpp
-        0x30/Sounds.h
-        0x30/TextRenderer.cpp
-        0x30/TextRenderer.h
-        0x30/Textures.cpp
-        0x30/Textures.h
-        0x30/TimeRenderer.cpp
-        0x30/TimeRenderer.h
-        0x30/Types.h
-        )
-
-target_link_libraries(${TARGET_NAME} PRIVATE je ${LIBS})
-
-if (${TARGET_NAME} STREQUAL "index")
-    # Currently I have a slightly different directory structure for the Emscripten build.
-    add_custom_command(
-            TARGET ${TARGET_NAME} POST_BUILD
-
-            COMMAND ${CMAKE_COMMAND} -E echo Copying assets...
-
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets/music
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/music
-
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets/sounds
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/sounds
-    )
-else ()
-    add_custom_command(
-            TARGET ${TARGET_NAME} POST_BUILD
-
-            COMMAND ${CMAKE_COMMAND} -E echo Copying assets...
-
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets
-    )
-endif ()
+add_subdirectory(0x30)
