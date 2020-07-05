@@ -5,12 +5,12 @@ project(0x30 VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-if (MSVC)
-    set(TARGET_NAME game)
-elseif (EMSCRIPTEN)
+if (EMSCRIPTEN)
     set(TARGET_NAME index)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     add_definitions(-D GLFW_INCLUDE_ES3)
+else ()
+    set(TARGET_NAME game)
 endif ()
 
 if (EMSCRIPTEN)
@@ -18,7 +18,6 @@ if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
 
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O2")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s EXPORTED_FUNCTIONS=\"['_main']\"")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1")
@@ -29,11 +28,10 @@ if (EMSCRIPTEN)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --exclude-file ${CMAKE_SOURCE_DIR}/assets/music")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --exclude-file ${CMAKE_SOURCE_DIR}/assets/sounds")
 
-#    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/web-${CMAKE_BUILD_TYPE})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/output/web-${CMAKE_BUILD_TYPE})
 else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-#    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/desktop-${CMAKE_BUILD_TYPE})
+
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/output/desktop-${CMAKE_BUILD_TYPE})
 endif ()
 
@@ -79,7 +77,7 @@ target_sources(${TARGET_NAME} PRIVATE
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(${TARGET_NAME} PUBLIC je)
 
-if (${TARGET_NAME} STREQUAL "index")
+if (EMSCRIPTEN)
     # Currently I have a slightly different directory structure for the Emscripten build.
     add_custom_command(
             TARGET ${TARGET_NAME} POST_BUILD
