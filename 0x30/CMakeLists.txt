@@ -7,22 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 if (MSVC)
     set(TARGET_NAME game)
-
-    find_package(glfw3 CONFIG REQUIRED)
-    find_package(glad CONFIG REQUIRED)
-    find_package(SDL2 CONFIG REQUIRED)
-    find_package(sdl2-image CONFIG REQUIRED)
-    find_package(OpenAL CONFIG REQUIRED)
-
-    set(LIBS glfw glad::glad SDL2::SDL2 SDL2::SDL2_image OpenAL::OpenAL)
 elseif (EMSCRIPTEN)
     set(TARGET_NAME index)
-
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     add_definitions(-D GLFW_INCLUDE_ES3)
 endif ()
 
-add_executable(${TARGET_NAME}
+add_executable(${TARGET_NAME})
+target_sources(${TARGET_NAME} PRIVATE
         Colours.cpp
         Colours.h
         Constants.h

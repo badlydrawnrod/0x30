@@ -18,7 +18,8 @@ elseif (EMSCRIPTEN)
     add_definitions(-D GLFW_INCLUDE_ES3)
 endif ()
 
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} STATIC)
+target_sources(${PROJECT_NAME} PRIVATE
         Batch.cpp
         Batch.h
         Context.cpp

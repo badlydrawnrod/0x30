@@ -36,7 +36,7 @@ message(STATUS "Compiler cxx min size flags: CMAKE_CXX_FLAGS_MINSIZEREL" ${CMAKE
 message(STATUS "Compiler cxx flags: CMAKE_CXX_FLAGS" ${CMAKE_CXX_FLAGS})
 message(STATUS "Library Type: LIB_TYPE" ${LIB_TYPE})
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(je)
 add_subdirectory(0x30)
