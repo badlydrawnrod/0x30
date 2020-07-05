@@ -5,12 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
-# Detect Emscripten.
-if (CMAKE_CXX_COMPILER MATCHES "/emsdk.*em\\+\\+")
-    message(STATUS "Emscripten detected")
-    set(CMAKE_CXX_COMPILER_ID "Emscripten")
-endif ()
-
 if (MSVC)
     set(TARGET_NAME game)
 
@@ -22,14 +16,14 @@ if (MSVC)
     find_package(jsoncpp CONFIG REQUIRED)
 
     set(LIBS glfw glad::glad SDL2::SDL2 SDL2::SDL2_image OpenAL::OpenAL jsoncpp_lib)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
+elseif (EMSCRIPTEN)
     set(TARGET_NAME index)
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     add_definitions(-D GLFW_INCLUDE_ES3)
 endif ()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
+if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_FREETYPE=1 -s USE_GLFW=3 -s USE_WEBGL2=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[\"png\"]")
