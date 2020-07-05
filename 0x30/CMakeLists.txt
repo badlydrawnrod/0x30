@@ -52,7 +52,8 @@ target_sources(${TARGET_NAME} PRIVATE
         Types.h
         )
 
-target_link_libraries(${TARGET_NAME} PRIVATE je)
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
+target_link_libraries(${TARGET_NAME} PUBLIC je)
 
 if (${TARGET_NAME} STREQUAL "index")
     # Currently I have a slightly different directory structure for the Emscripten build.
